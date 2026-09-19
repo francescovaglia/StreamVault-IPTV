@@ -70,8 +70,8 @@ class CombinedM3uRepositoryImpl @Inject constructor(
         val providers = distinctProviderIds.mapNotNull { providerId ->
             providerRepository.getProvider(providerId)
         }
-        if (providers.size != distinctProviderIds.size || providers.any { it.type != ProviderType.M3U }) {
-            return Result.error("Combined profiles support M3U providers only.")
+        if (providers.size != distinctProviderIds.size || providers.any { it.type !in COMBINABLE_PROVIDER_TYPES }) {
+            return Result.error("Combined profiles support M3U and Xtream providers only.")
         }
         val now = System.currentTimeMillis()
         val profileId = profileDao.insert(
@@ -130,8 +130,8 @@ class CombinedM3uRepositoryImpl @Inject constructor(
         val profile = profileDao.getById(profileId) ?: return Result.error("Combined profile not found.")
         val provider = providerRepository.getProvider(providerId)
             ?: return Result.error("Provider not found.")
-        if (provider.type != ProviderType.M3U) {
-            return Result.error("Only M3U providers can be added to a combined profile.")
+        if (provider.type !in COMBINABLE_PROVIDER_TYPES) {
+            return Result.error("Only M3U and Xtream providers can be added to a combined profile.")
         }
         if (memberDao.getMember(profileId, providerId) != null) {
             return Result.success(Unit)
@@ -202,7 +202,7 @@ class CombinedM3uRepositoryImpl @Inject constructor(
 
     override fun getAvailableM3uProviders(): Flow<List<Provider>> =
         providerRepository.getProviders().map { providers ->
-            providers.filter { it.type == ProviderType.M3U }
+            providers.filter { it.type in COMBINABLE_PROVIDER_TYPES }
         }
 
     override fun getActiveLiveSource(): Flow<ActiveLiveSource?> =
@@ -362,3 +362,8 @@ class CombinedM3uRepositoryImpl @Inject constructor(
         -2_000_000_000L - key.hashCode().toLong().let { kotlin.math.abs(it) }
 
 }
+
+// Xtream joins M3U here: members are read through the generic channel and category tables and
+// every channel resolves its stream against its own providerId, so the merge is type-agnostic.
+// Stalker stays out because its portal tokens are resolved per session.
+internal val COMBINABLE_PROVIDER_TYPES = setOf(ProviderType.M3U, ProviderType.XTREAM_CODES)

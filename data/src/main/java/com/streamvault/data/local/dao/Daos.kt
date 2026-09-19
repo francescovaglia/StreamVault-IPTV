@@ -549,6 +549,29 @@ abstract class ChannelDao {
     )
     abstract fun getByLogicalGroupIds(logicalGroupIds: List<String>): Flow<List<ChannelBrowseEntity>>
 
+    // logical_group_id is "<providerId>_<key>", so building the id per provider keeps the lookup
+    // on the logical_group_id index instead of a LIKE '%_key' full scan.
+    @Query(
+        """
+        SELECT c.id, c.stream_id, c.name, c.logo_url, c.group_title, c.category_id, c.category_name, c.stream_url,
+               c.epg_channel_id, c.number, c.catch_up_supported, c.catch_up_days, c.catchUpSource,
+               c.provider_id,
+               (SELECT guide_source_policy FROM provider_configs WHERE provider_id = c.provider_id) AS guide_source_policy,
+               (SELECT channel_logo_source_policy FROM provider_configs WHERE provider_id = c.provider_id) AS channel_logo_source_policy,
+               NULL AS epg_icon_url,
+               c.is_adult, c.is_user_protected, c.logical_group_id, c.error_count
+        FROM channels c
+        JOIN providers p ON p.id = c.provider_id
+        WHERE c.logical_group_id IN (SELECT p2.id || '_' || :logicalKey FROM providers p2)
+        ORDER BY c.provider_id ASC, c.number ASC, c.name ASC
+        LIMIT 50
+        """
+    )
+    abstract suspend fun getByLogicalKeyAcrossProviders(logicalKey: String): List<ChannelBrowseEntity>
+
+    @Query("SELECT name FROM providers WHERE id = :providerId")
+    abstract suspend fun getProviderName(providerId: Long): String?
+
     @Query(
         """
         SELECT c.id, c.stream_id, c.name, c.logo_url, c.group_title, c.category_id, c.category_name, c.stream_url,

@@ -111,6 +111,18 @@ internal fun PlayerViewModel.scheduleZapBufferWatchdog(targetIndex: Int) {
             markStreamFailure(currentStreamUrl)
             setLastFailureReason("Channel timed out in buffering state")
             appendRecoveryAction("Buffer watchdog triggered")
+            // Same channel from another quality or playlist beats bouncing back to the last one.
+            // Each candidate is tried once per session, so this ends in the fallback below.
+            val stalledChannel = currentChannelFlow.value?.sanitizedForPlayer()
+            if (stalledChannel != null && tryAlternateStreamInternal(stalledChannel)) {
+                appendRecoveryAction("Buffer watchdog switched to an alternative source")
+                showPlayerNotice(
+                    message = "That source stalled. Trying the same channel from another source.",
+                    recoveryType = PlayerRecoveryType.BUFFER_TIMEOUT
+                )
+                scheduleZapBufferWatchdog(targetIndex)
+                return@launch
+            }
             val recovered = fallbackToPreviousChannel("Channel timed out in buffering state")
             showPlayerNotice(
                 message = if (recovered) {

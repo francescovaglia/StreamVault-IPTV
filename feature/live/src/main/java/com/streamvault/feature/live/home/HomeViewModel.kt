@@ -278,13 +278,14 @@ class HomeViewModel @Inject constructor(
                 Triple(channels, favorites, epgProgramMap)
             }.collectLatest { (channels, favorites, epgProgramMap) ->
                 val favoriteIds = favorites.map { it.contentId }.toSet()
+                // Reuse the previous instance when nothing changed: rows compare Channel by
+                // identity (strong skipping), so fresh copies redrew every visible row on each
+                // guide fetch even when only one row's programme had changed.
+                val previousById = _uiState.value.filteredChannels.associateBy(Channel::id)
                 val markedChannels = channels.map { channel ->
                     val program = channel.guideLookupKey()?.let { lookupKey -> epgProgramMap[lookupKey] }
-                    if (favoriteIds.contains(channel.id)) {
-                        channel.copy(isFavorite = true, currentProgram = program)
-                    } else {
-                        channel.copy(isFavorite = false, currentProgram = program)
-                    }
+                    val marked = channel.copy(isFavorite = favoriteIds.contains(channel.id), currentProgram = program)
+                    previousById[channel.id]?.takeIf { it == marked } ?: marked
                 }
 
                 _uiState.update { state ->

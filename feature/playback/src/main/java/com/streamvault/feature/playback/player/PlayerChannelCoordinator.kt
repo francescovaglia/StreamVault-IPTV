@@ -2,6 +2,7 @@ package com.streamvault.feature.playback.player
 
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
+import com.streamvault.domain.model.LiveChannelVariant
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.repository.ChannelRepository
@@ -23,6 +24,9 @@ class PlayerChannelCoordinator @Inject constructor(
 
     internal suspend fun getChannel(channelId: Long): Channel? =
         repository.getChannel(channelId)
+
+    internal suspend fun getEquivalentVariants(channel: Channel): List<LiveChannelVariant> =
+        repository.getEquivalentVariants(channel)
 
     internal suspend fun getStreamInfo(
         channel: Channel,

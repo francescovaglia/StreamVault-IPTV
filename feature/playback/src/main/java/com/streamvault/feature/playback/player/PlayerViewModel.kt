@@ -502,6 +502,7 @@ class PlayerViewModel @Inject constructor(
 
     init {
         observeCastPlaybackEvents()
+        observeEquivalentVariants()
         viewModelScope.launch {
             activePlayerEngineFlow.flatMapLatest { it.error }.collect { error ->
                 if (error != null) {

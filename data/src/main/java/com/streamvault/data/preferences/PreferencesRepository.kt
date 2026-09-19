@@ -64,6 +64,7 @@ import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -179,6 +180,11 @@ class PreferencesRepository @Inject constructor(
 
     private val Context.dataStore: DataStore<Preferences>
         get() = preferencesDataStore
+
+    // DataStore re-emits every key on any write. Without distinctUntilChanged each unrelated
+    // write (guide fetch, watch position) pushed identical values downstream and rebuilt lists.
+    private fun <T> preferenceFlow(transform: suspend (Preferences) -> T): Flow<T> =
+        context.dataStore.data.map(transform).distinctUntilChanged()
     companion object {
         private const val AUDIO_VIDEO_OFFSET_MIN_MS = -2_000
         private const val AUDIO_VIDEO_OFFSET_MAX_MS = 2_000
@@ -383,12 +389,12 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val lastActiveProviderId: Flow<Long?> = context.dataStore.data.map { preferences ->
+    override val lastActiveProviderId: Flow<Long?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.LAST_ACTIVE_PROVIDER_ID]
     }
 
-    val activeLiveSource: Flow<ActiveLiveSource?> = context.dataStore.data.map { preferences ->
-        val sourceId = preferences[PreferencesKeys.ACTIVE_LIVE_SOURCE_ID] ?: return@map null
+    val activeLiveSource: Flow<ActiveLiveSource?> = preferenceFlow { preferences ->
+        val sourceId = preferences[PreferencesKeys.ACTIVE_LIVE_SOURCE_ID] ?: return@preferenceFlow null
         when (preferences[PreferencesKeys.ACTIVE_LIVE_SOURCE_TYPE]) {
             "provider" -> ActiveLiveSource.ProviderSource(sourceId)
             "combined_m3u" -> ActiveLiveSource.CombinedM3uSource(sourceId)
@@ -425,7 +431,9 @@ class PreferencesRepository @Inject constructor(
             lookupKeys
                 .map(String::trim)
                 .filter(String::isNotBlank)
-                .forEach { lookupKey -> merged[lookupKey] = now }
+                // Keep the first-seen stamp: restamping known keys rewrote DataStore on every
+                // guide fetch, and every preference flow re-emitted, rebuilding the channel list.
+                .forEach { lookupKey -> merged.putIfAbsent(lookupKey, now) }
             val encoded = encodeEmptyGuideKeys(merged)
             if (encoded.isBlank()) {
                 preferences.remove(key)
@@ -451,73 +459,73 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val defaultViewMode: Flow<String?> = context.dataStore.data.map { preferences ->
+    val defaultViewMode: Flow<String?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.DEFAULT_VIEW_MODE]
     }
 
-    override val isIncognitoMode: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val isIncognitoMode: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.IS_INCOGNITO_MODE] ?: false
     }
 
-    override val useXtreamTextClassification: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val useXtreamTextClassification: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.XTREAM_TEXT_CLASSIFICATION] ?: true // default ON
     }
 
-    override val xtreamBase64TextCompatibility: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val xtreamBase64TextCompatibility: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.XTREAM_BASE64_TEXT_COMPATIBILITY] ?: false
     }
 
-    val xtreamTextImportGeneration: Flow<Long> = context.dataStore.data.map { preferences ->
+    val xtreamTextImportGeneration: Flow<Long> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.XTREAM_TEXT_IMPORT_GENERATION] ?: 0L
     }
 
-    override val playerMuted: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val playerMuted: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PLAYER_MUTED] ?: false
     }
 
-    override val playerMediaSessionEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val playerMediaSessionEnabled: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PLAYER_MEDIA_SESSION_ENABLED] ?: true
     }
 
-    override val playerBackButtonVisibility: Flow<PlayerBackButtonVisibility> = context.dataStore.data.map { preferences ->
+    override val playerBackButtonVisibility: Flow<PlayerBackButtonVisibility> = preferenceFlow { preferences ->
         PlayerBackButtonVisibility.fromStorage(preferences[PreferencesKeys.PLAYER_BACK_BUTTON_VISIBILITY])
     }
 
-    override val playerFastRetryOnTransientFailures: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val playerFastRetryOnTransientFailures: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PLAYER_FAST_RETRY_ON_TRANSIENT_FAILURES] ?: false
     }
 
-    override val playerAudioDecoderMode: Flow<DecoderMode> = context.dataStore.data.map { preferences ->
+    override val playerAudioDecoderMode: Flow<DecoderMode> = preferenceFlow { preferences ->
         parseDecoderModePreference(
             saved = preferences[PreferencesKeys.PLAYER_AUDIO_DECODER_MODE],
             legacySaved = preferences[PreferencesKeys.PLAYER_DECODER_MODE]
         )
     }
 
-    override val playerVideoDecoderMode: Flow<DecoderMode> = context.dataStore.data.map { preferences ->
+    override val playerVideoDecoderMode: Flow<DecoderMode> = preferenceFlow { preferences ->
         parseDecoderModePreference(
             saved = preferences[PreferencesKeys.PLAYER_VIDEO_DECODER_MODE],
             legacySaved = preferences[PreferencesKeys.PLAYER_DECODER_MODE]
         )
     }
 
-    override val playerPlaybackBufferMode: Flow<PlaybackBufferMode> = context.dataStore.data.map { preferences ->
+    override val playerPlaybackBufferMode: Flow<PlaybackBufferMode> = preferenceFlow { preferences ->
         parsePlaybackBufferModePreference(preferences[PreferencesKeys.PLAYER_PLAYBACK_BUFFER_MODE])
     }
 
-    override val playerSurfaceMode: Flow<PlayerSurfaceMode> = context.dataStore.data.map { preferences ->
+    override val playerSurfaceMode: Flow<PlayerSurfaceMode> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PLAYER_SURFACE_MODE]
             ?.let { saved -> PlayerSurfaceMode.entries.firstOrNull { it.name == saved } }
             ?: PlayerSurfaceMode.AUTO
     }
 
-    override val playerLiveStreamFormatMode: Flow<LiveStreamFormatMode> = context.dataStore.data.map { preferences ->
+    override val playerLiveStreamFormatMode: Flow<LiveStreamFormatMode> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PLAYER_LIVE_STREAM_FORMAT_MODE]
             ?.let { saved -> LiveStreamFormatMode.entries.firstOrNull { it.name == saved } }
             ?: LiveStreamFormatMode.AUTO
     }
 
-    override val playerVodHttpProtocolMode: Flow<VodHttpProtocolMode> = context.dataStore.data.map { preferences ->
+    override val playerVodHttpProtocolMode: Flow<VodHttpProtocolMode> = preferenceFlow { preferences ->
         (
             preferences[PreferencesKeys.PLAYER_VOD_HTTP_PROTOCOL_MODE]
                 ?: preferences[PreferencesKeys.LEGACY_PLAYER_MOVIE_HTTP_PROTOCOL_MODE]
@@ -526,127 +534,127 @@ class PreferencesRepository @Inject constructor(
             ?: VodHttpProtocolMode.COMPATIBILITY_HTTP1
     }
 
-    override val playerAudioOutputPreference: Flow<AudioOutputPreference> = context.dataStore.data.map { preferences ->
+    override val playerAudioOutputPreference: Flow<AudioOutputPreference> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PLAYER_AUDIO_OUTPUT_PREFERENCE]
             ?.let { saved -> AudioOutputPreference.entries.firstOrNull { it.name == saved } }
             ?: AudioOutputPreference.AUTO
     }
 
-    override val playerCompatibilityMemoryEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val playerCompatibilityMemoryEnabled: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PLAYER_COMPATIBILITY_MEMORY_ENABLED] ?: true
     }
 
-    override val playerPlaybackSpeed: Flow<Float> = context.dataStore.data.map { preferences ->
+    override val playerPlaybackSpeed: Flow<Float> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PLAYER_PLAYBACK_SPEED]
             ?.toFloatOrNull()
             ?.coerceIn(0.5f, 2f)
             ?: 1f
     }
 
-    override val playerExternalPlaybackMode: Flow<com.streamvault.domain.model.ExternalPlaybackMode> = context.dataStore.data.map { preferences ->
+    override val playerExternalPlaybackMode: Flow<com.streamvault.domain.model.ExternalPlaybackMode> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PLAYER_EXTERNAL_PLAYBACK_MODE]
             ?.let { saved -> com.streamvault.domain.model.ExternalPlaybackMode.fromStorageValue(saved) }
             ?: com.streamvault.domain.model.ExternalPlaybackMode.INTERNAL_PLAYER
     }
 
-    override val playerAudioVideoOffsetMs: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val playerAudioVideoOffsetMs: Flow<Int> = preferenceFlow { preferences ->
         (preferences[PreferencesKeys.PLAYER_AUDIO_VIDEO_OFFSET_MS] ?: 0)
             .coerceIn(AUDIO_VIDEO_OFFSET_MIN_MS, AUDIO_VIDEO_OFFSET_MAX_MS)
     }
 
-    override val playerAudioVideoSyncEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val playerAudioVideoSyncEnabled: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PLAYER_AUDIO_VIDEO_SYNC_ENABLED] ?: false
     }
 
-    override val preferredAudioLanguage: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val preferredAudioLanguage: Flow<String?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PREFERRED_AUDIO_LANGUAGE]
             ?.trim()
             ?.takeIf { it.isNotBlank() }
             ?: "auto"
     }
 
-    override val globalVodTrackPreferences: Flow<VodTrackPreferences?> = context.dataStore.data.map { preferences ->
+    override val globalVodTrackPreferences: Flow<VodTrackPreferences?> = preferenceFlow { preferences ->
         decodeVodTrackPreferences(preferences[PreferencesKeys.PLAYER_VOD_TRACK_GLOBAL_PREFERENCES])
     }
 
     override fun getVodTrackPreferences(scope: VodTrackPreferenceScope): Flow<VodTrackPreferences?> =
-        context.dataStore.data.map { preferences ->
+        preferenceFlow { preferences ->
             decodeVodTrackPreferenceEntries(preferences[PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES])[
                 scope.storageKey()
             ]
         }
 
-    override val playerSubtitleTextScale: Flow<Float> = context.dataStore.data.map { preferences ->
+    override val playerSubtitleTextScale: Flow<Float> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PLAYER_SUBTITLE_TEXT_SCALE]
             ?.toFloatOrNull()
             ?.coerceIn(0.75f, 1.75f)
             ?: 1f
     }
 
-    override val playerSubtitleTextColor: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val playerSubtitleTextColor: Flow<Int> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PLAYER_SUBTITLE_TEXT_COLOR] ?: 0xFFFFFFFF.toInt()
     }
 
-    override val playerSubtitleBackgroundColor: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val playerSubtitleBackgroundColor: Flow<Int> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PLAYER_SUBTITLE_BACKGROUND_COLOR] ?: 0x80000000.toInt()
     }
 
-    override val playerLiveTranslationEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val playerLiveTranslationEnabled: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PLAYER_LIVE_TRANSLATION_ENABLED] ?: false
     }
 
-    override val playerLiveTranslationEndpoint: Flow<String> = context.dataStore.data.map { preferences ->
+    override val playerLiveTranslationEndpoint: Flow<String> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PLAYER_LIVE_TRANSLATION_ENDPOINT]
             ?.trim()
             ?.takeIf { it.isNotBlank() }
             ?: "http://10.0.2.2:8765"
     }
 
-    override val playerControlsTimeoutSeconds: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val playerControlsTimeoutSeconds: Flow<Int> = preferenceFlow { preferences ->
         (preferences[PreferencesKeys.PLAYER_CONTROLS_TIMEOUT_SECONDS] ?: 5).coerceIn(2, 60)
     }
 
-    override val playerLiveOverlayTimeoutSeconds: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val playerLiveOverlayTimeoutSeconds: Flow<Int> = preferenceFlow { preferences ->
         (preferences[PreferencesKeys.PLAYER_LIVE_OVERLAY_TIMEOUT_SECONDS] ?: 4).coerceIn(2, 60)
     }
 
-    override val playerLiveClockEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val playerLiveClockEnabled: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PLAYER_LIVE_CLOCK_ENABLED] ?: false
     }
 
-    override val playerLiveClockPosition: Flow<LiveClockPosition> = context.dataStore.data.map { preferences ->
+    override val playerLiveClockPosition: Flow<LiveClockPosition> = preferenceFlow { preferences ->
         LiveClockPosition.fromStorage(preferences[PreferencesKeys.PLAYER_LIVE_CLOCK_POSITION])
     }
 
-    override val playerLiveClockSize: Flow<LiveClockSize> = context.dataStore.data.map { preferences ->
+    override val playerLiveClockSize: Flow<LiveClockSize> = preferenceFlow { preferences ->
         LiveClockSize.fromStorage(preferences[PreferencesKeys.PLAYER_LIVE_CLOCK_SIZE])
     }
 
-    override val playerLiveClockFont: Flow<LiveClockFont> = context.dataStore.data.map { preferences ->
+    override val playerLiveClockFont: Flow<LiveClockFont> = preferenceFlow { preferences ->
         LiveClockFont.fromStorage(preferences[PreferencesKeys.PLAYER_LIVE_CLOCK_FONT])
     }
 
-    override val playerNoticeTimeoutSeconds: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val playerNoticeTimeoutSeconds: Flow<Int> = preferenceFlow { preferences ->
         (preferences[PreferencesKeys.PLAYER_NOTICE_TIMEOUT_SECONDS] ?: 6).coerceIn(2, 60)
     }
 
-    override val playerDiagnosticsTimeoutSeconds: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val playerDiagnosticsTimeoutSeconds: Flow<Int> = preferenceFlow { preferences ->
         (preferences[PreferencesKeys.PLAYER_DIAGNOSTICS_TIMEOUT_SECONDS] ?: 15).coerceIn(2, 60)
     }
 
-    override val playerWifiMaxVideoHeight: Flow<Int?> = context.dataStore.data.map { preferences ->
+    override val playerWifiMaxVideoHeight: Flow<Int?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PLAYER_WIFI_MAX_VIDEO_HEIGHT]?.takeIf { it > 0 }
     }
 
-    override val playerEthernetMaxVideoHeight: Flow<Int?> = context.dataStore.data.map { preferences ->
+    override val playerEthernetMaxVideoHeight: Flow<Int?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PLAYER_ETHERNET_MAX_VIDEO_HEIGHT]?.takeIf { it > 0 }
     }
 
-    override val playerTimeshiftEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val playerTimeshiftEnabled: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PLAYER_TIMESHIFT_ENABLED] ?: false
     }
 
-    override val playerTimeshiftDepthMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val playerTimeshiftDepthMinutes: Flow<Int> = preferenceFlow { preferences ->
         when (preferences[PreferencesKeys.PLAYER_TIMESHIFT_DEPTH_MINUTES] ?: 30) {
             15, 30, 60 -> preferences[PreferencesKeys.PLAYER_TIMESHIFT_DEPTH_MINUTES] ?: 30
             in Int.MIN_VALUE..22 -> 15
@@ -655,35 +663,35 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val playerTimeshiftBackend: Flow<TimeshiftBackendPreference> = context.dataStore.data.map { preferences ->
+    override val playerTimeshiftBackend: Flow<TimeshiftBackendPreference> = preferenceFlow { preferences ->
         parseTimeshiftBackendPreference(preferences[PreferencesKeys.PLAYER_TIMESHIFT_BACKEND])
     }
 
-    override val defaultStopPlaybackTimerMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val defaultStopPlaybackTimerMinutes: Flow<Int> = preferenceFlow { preferences ->
         sanitizePlaybackTimerMinutes(preferences[PreferencesKeys.DEFAULT_STOP_PLAYBACK_TIMER_MINUTES] ?: 0)
     }
 
-    override val defaultIdleStandbyTimerMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val defaultIdleStandbyTimerMinutes: Flow<Int> = preferenceFlow { preferences ->
         sanitizePlaybackTimerMinutes(preferences[PreferencesKeys.DEFAULT_IDLE_STANDBY_TIMER_MINUTES] ?: 0)
     }
 
-    override val lastSpeedTestMegabits: Flow<Double?> = context.dataStore.data.map { preferences ->
+    override val lastSpeedTestMegabits: Flow<Double?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.LAST_SPEED_TEST_MEGABITS]?.toDoubleOrNull()
     }
 
-    override val lastSpeedTestTimestamp: Flow<Long?> = context.dataStore.data.map { preferences ->
+    override val lastSpeedTestTimestamp: Flow<Long?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.LAST_SPEED_TEST_TIMESTAMP]?.takeIf { it > 0L }
     }
 
-    override val lastSpeedTestTransport: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val lastSpeedTestTransport: Flow<String?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.LAST_SPEED_TEST_TRANSPORT]?.takeIf { it.isNotBlank() }
     }
 
-    override val lastSpeedTestRecommendedHeight: Flow<Int?> = context.dataStore.data.map { preferences ->
+    override val lastSpeedTestRecommendedHeight: Flow<Int?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.LAST_SPEED_TEST_RECOMMENDED_HEIGHT]?.takeIf { it > 0 }
     }
 
-    override val lastSpeedTestEstimated: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val lastSpeedTestEstimated: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.LAST_SPEED_TEST_ESTIMATED] ?: false
     }
 
@@ -699,7 +707,7 @@ class PreferencesRepository @Inject constructor(
             if (!migrated && stored == 2) 3 else stored
         }
 
-    override val hasParentalPin: Flow<Boolean> = context.dataStore.data.map(::hasStoredParentalPin)
+    override val hasParentalPin: Flow<Boolean> = preferenceFlow(::hasStoredParentalPin)
 
     override suspend fun setLastActiveProviderId(id: Long) {
         context.dataStore.edit { preferences ->
@@ -787,80 +795,80 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val preventStandbyDuringPlayback: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val preventStandbyDuringPlayback: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PREVENT_STANDBY_DURING_PLAYBACK] ?: true
     }
 
-    override val autoPlayNextEpisode: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val autoPlayNextEpisode: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.AUTO_PLAY_NEXT_EPISODE] ?: true
     }
 
-    override val autoCheckAppUpdates: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val autoCheckAppUpdates: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.AUTO_CHECK_APP_UPDATES] ?: true
     }
 
-    override val autoDownloadAppUpdates: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val autoDownloadAppUpdates: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.AUTO_DOWNLOAD_APP_UPDATES] ?: false
     }
 
-    override val lastAppUpdateCheckTimestamp: Flow<Long?> = context.dataStore.data.map { preferences ->
+    override val lastAppUpdateCheckTimestamp: Flow<Long?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.LAST_APP_UPDATE_CHECK_TIMESTAMP]?.takeIf { it > 0L }
     }
 
-    val lastAppUpdateAttemptTimestamp: Flow<Long?> = context.dataStore.data.map { preferences ->
+    val lastAppUpdateAttemptTimestamp: Flow<Long?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.LAST_APP_UPDATE_ATTEMPT_TIMESTAMP]?.takeIf { it > 0L }
     }
 
-    override val lastAppUpdateFailureTimestamp: Flow<Long?> = context.dataStore.data.map { preferences ->
+    override val lastAppUpdateFailureTimestamp: Flow<Long?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.LAST_APP_UPDATE_FAILURE_TIMESTAMP]?.takeIf { it > 0L }
     }
 
-    val lastAppUpdateOutcome: Flow<String?> = context.dataStore.data.map { preferences ->
+    val lastAppUpdateOutcome: Flow<String?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.LAST_APP_UPDATE_OUTCOME]?.takeIf { it.isNotBlank() }
     }
 
-    val appUpdateDownloadId: Flow<Long?> = context.dataStore.data.map { preferences ->
+    val appUpdateDownloadId: Flow<Long?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.APP_UPDATE_DOWNLOAD_ID]?.takeIf { it > 0L }
     }
 
-    val appUpdateDownloadVersionName: Flow<String?> = context.dataStore.data.map { preferences ->
+    val appUpdateDownloadVersionName: Flow<String?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.APP_UPDATE_DOWNLOAD_VERSION_NAME]?.takeIf { it.isNotBlank() }
     }
 
-    val downloadedAppUpdateVersionName: Flow<String?> = context.dataStore.data.map { preferences ->
+    val downloadedAppUpdateVersionName: Flow<String?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.APP_UPDATE_DOWNLOADED_VERSION_NAME]?.takeIf { it.isNotBlank() }
     }
 
-    override val cachedAppUpdateVersionName: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val cachedAppUpdateVersionName: Flow<String?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.APP_UPDATE_LATEST_VERSION_NAME]?.takeIf { it.isNotBlank() }
     }
 
-    override val cachedAppUpdateVersionCode: Flow<Int?> = context.dataStore.data.map { preferences ->
+    override val cachedAppUpdateVersionCode: Flow<Int?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.APP_UPDATE_LATEST_VERSION_CODE]
     }
 
-    override val cachedAppUpdateReleaseUrl: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val cachedAppUpdateReleaseUrl: Flow<String?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.APP_UPDATE_RELEASE_URL]?.takeIf { it.isNotBlank() }
     }
 
-    override val cachedAppUpdateDownloadUrl: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val cachedAppUpdateDownloadUrl: Flow<String?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.APP_UPDATE_DOWNLOAD_URL]?.takeIf { it.isNotBlank() }
     }
 
-    override val cachedAppUpdateDownloadSha256: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val cachedAppUpdateDownloadSha256: Flow<String?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.APP_UPDATE_DOWNLOAD_SHA256]?.takeIf { it.isNotBlank() }
     }
 
-    override val cachedAppUpdateReleaseNotes: Flow<String> = context.dataStore.data.map { preferences ->
+    override val cachedAppUpdateReleaseNotes: Flow<String> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.APP_UPDATE_RELEASE_NOTES].orEmpty()
     }
 
-    override val cachedAppUpdatePublishedAt: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val cachedAppUpdatePublishedAt: Flow<String?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.APP_UPDATE_PUBLISHED_AT]?.takeIf { it.isNotBlank() }
     }
 
-    override val lastMaintenanceSnapshot: Flow<DatabaseMaintenanceSnapshot?> = context.dataStore.data.map { preferences ->
-        val ranAt = preferences[PreferencesKeys.LAST_MAINTENANCE_AT] ?: return@map null
+    override val lastMaintenanceSnapshot: Flow<DatabaseMaintenanceSnapshot?> = preferenceFlow { preferences ->
+        val ranAt = preferences[PreferencesKeys.LAST_MAINTENANCE_AT] ?: return@preferenceFlow null
         DatabaseMaintenanceSnapshot(
             ranAt = ranAt,
             deletedPrograms = preferences[PreferencesKeys.LAST_MAINTENANCE_DELETED_PROGRAMS] ?: 0,
@@ -882,29 +890,29 @@ class PreferencesRepository @Inject constructor(
         )
     }
 
-    override val zapAutoRevert: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val zapAutoRevert: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.ZAP_AUTO_REVERT] ?: true
     }
 
-    override val recordingWifiOnly: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val recordingWifiOnly: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.RECORDING_WIFI_ONLY] ?: false
     }
 
-    override val recordingPaddingBeforeMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val recordingPaddingBeforeMinutes: Flow<Int> = preferenceFlow { preferences ->
         (preferences[PreferencesKeys.RECORDING_PADDING_BEFORE_MINUTES] ?: 0).coerceIn(0, 30)
     }
 
-    override val recordingPaddingAfterMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
+    override val recordingPaddingAfterMinutes: Flow<Int> = preferenceFlow { preferences ->
         (preferences[PreferencesKeys.RECORDING_PADDING_AFTER_MINUTES] ?: 0).coerceIn(0, 30)
     }
 
-    val downloadTreeUri: Flow<String?> = context.dataStore.data.map { preferences ->
+    val downloadTreeUri: Flow<String?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.DOWNLOAD_TREE_URI]
             ?.trim()
             ?.takeIf { it.isNotBlank() }
     }
 
-    val maxConcurrentStreams: Flow<Int> = context.dataStore.data.map { preferences ->
+    val maxConcurrentStreams: Flow<Int> = preferenceFlow { preferences ->
         (preferences[PreferencesKeys.MAX_CONCURRENT_STREAMS] ?: 2).coerceIn(1, 4)
     }
 
@@ -1583,7 +1591,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val defaultCategoryId: Flow<Long?> = context.dataStore.data.map { preferences ->
+    val defaultCategoryId: Flow<Long?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.DEFAULT_CATEGORY_ID]
     }
 
@@ -1595,7 +1603,7 @@ class PreferencesRepository @Inject constructor(
 
     override fun getLastLiveCategoryId(providerId: Long): Flow<Long?> {
         val key = longPreferencesKey("last_live_category_id_$providerId")
-        return context.dataStore.data.map { preferences ->
+        return preferenceFlow { preferences ->
             preferences[key]
         }
     }
@@ -1609,7 +1617,7 @@ class PreferencesRepository @Inject constructor(
 
     fun getLastSplitCatalogType(providerId: Long): Flow<ContentType> {
         val key = stringPreferencesKey("last_split_catalog_type_$providerId")
-        return context.dataStore.data.map { preferences ->
+        return preferenceFlow { preferences ->
             when (preferences[key]) {
                 ContentType.SERIES.name -> ContentType.SERIES
                 else -> ContentType.MOVIE
@@ -1625,11 +1633,11 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val appLanguage: Flow<String> = context.dataStore.data.map { preferences ->
+    override val appLanguage: Flow<String> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.APP_LANGUAGE] ?: "system"
     }
 
-    override val remoteShortcutPreferences: Flow<RemoteShortcutPreferences> = context.dataStore.data.map { preferences ->
+    override val remoteShortcutPreferences: Flow<RemoteShortcutPreferences> = preferenceFlow { preferences ->
         decodeRemoteShortcutPreferences { profile, button ->
             preferences[stringPreferencesKey(remoteShortcutKey(profile, button))]
         }
@@ -1657,15 +1665,15 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val appLandingDestination: Flow<AppLandingDestination> = context.dataStore.data.map { preferences ->
+    override val appLandingDestination: Flow<AppLandingDestination> = preferenceFlow { preferences ->
         AppLandingDestination.fromStorage(preferences[PreferencesKeys.APP_LANDING_DESTINATION])
     }
 
-    override val appTopLevelDestinations: Flow<List<AppTopLevelDestination>> = context.dataStore.data.map { preferences ->
+    override val appTopLevelDestinations: Flow<List<AppTopLevelDestination>> = preferenceFlow { preferences ->
         decodeAppTopLevelDestinations(preferences[PreferencesKeys.APP_TOP_LEVEL_DESTINATIONS])
     }
 
-    override val appHomeDashboardShelves: Flow<List<AppHomeDashboardShelf>> = context.dataStore.data.map { preferences ->
+    override val appHomeDashboardShelves: Flow<List<AppHomeDashboardShelf>> = preferenceFlow { preferences ->
         decodeAppHomeDashboardShelves(preferences[PreferencesKeys.APP_HOME_DASHBOARD_SHELVES])
     }
 
@@ -1689,7 +1697,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val appTimeFormat: Flow<AppTimeFormat> = context.dataStore.data.map { preferences ->
+    override val appTimeFormat: Flow<AppTimeFormat> = preferenceFlow { preferences ->
         AppTimeFormat.fromStorage(preferences[PreferencesKeys.APP_TIME_FORMAT])
     }
 
@@ -1699,7 +1707,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val appTheme: Flow<AppTheme> = context.dataStore.data.map { preferences ->
+    override val appTheme: Flow<AppTheme> = preferenceFlow { preferences ->
         parseAppThemePreference(preferences[PreferencesKeys.APP_THEME]?.trim())
     }
 
@@ -1709,7 +1717,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val liveTvChannelMode: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val liveTvChannelMode: Flow<String?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.LIVE_TV_CHANNEL_MODE]
     }
 
@@ -1719,7 +1727,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val liveTvAutoHideCategories: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val liveTvAutoHideCategories: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.LIVE_TV_AUTO_HIDE_CATEGORIES] ?: false
     }
 
@@ -1729,7 +1737,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val showLiveSourceSwitcher: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val showLiveSourceSwitcher: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.SHOW_LIVE_SOURCE_SWITCHER] ?: false
     }
 
@@ -1739,7 +1747,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val showFavoritesCategory: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val showFavoritesCategory: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.SHOW_FAVORITES_CATEGORY] ?: true
     }
 
@@ -1749,7 +1757,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val showAllChannelsCategory: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val showAllChannelsCategory: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.SHOW_ALL_CHANNELS_CATEGORY] ?: true
     }
 
@@ -1759,7 +1767,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val showRecentChannelsCategory: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val showRecentChannelsCategory: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.SHOW_RECENT_CHANNELS_CATEGORY] ?: true
     }
 
@@ -1769,7 +1777,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val liveTvQuickFilterVisibility: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val liveTvQuickFilterVisibility: Flow<String?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.LIVE_TV_QUICK_FILTER_VISIBILITY]
     }
 
@@ -1779,7 +1787,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val liveTvCategoryFilters: Flow<List<String>> = context.dataStore.data.map { preferences ->
+    override val liveTvCategoryFilters: Flow<List<String>> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.LIVE_TV_CATEGORY_FILTERS]
             ?.split('\n')
             .orEmpty()
@@ -1818,7 +1826,7 @@ class PreferencesRepository @Inject constructor(
         return true
     }
 
-    override val hideDecorativeLiveRows: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val hideDecorativeLiveRows: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.HIDE_DECORATIVE_LIVE_ROWS] ?: true
     }
 
@@ -1828,7 +1836,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val liveChannelNumberingMode: Flow<ChannelNumberingMode> = context.dataStore.data.map { preferences ->
+    override val liveChannelNumberingMode: Flow<ChannelNumberingMode> = preferenceFlow { preferences ->
         ChannelNumberingMode.fromStorage(preferences[PreferencesKeys.LIVE_CHANNEL_NUMBERING_MODE])
     }
 
@@ -1838,7 +1846,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val liveChannelGroupingMode: Flow<LiveChannelGroupingMode> = context.dataStore.data.map { preferences ->
+    override val liveChannelGroupingMode: Flow<LiveChannelGroupingMode> = preferenceFlow { preferences ->
         LiveChannelGroupingMode.fromStorage(preferences[PreferencesKeys.LIVE_CHANNEL_GROUPING_MODE])
     }
 
@@ -1848,7 +1856,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val groupedChannelLabelMode: Flow<GroupedChannelLabelMode> = context.dataStore.data.map { preferences ->
+    override val groupedChannelLabelMode: Flow<GroupedChannelLabelMode> = preferenceFlow { preferences ->
         GroupedChannelLabelMode.fromStorage(preferences[PreferencesKeys.GROUPED_CHANNEL_LABEL_MODE])
     }
 
@@ -1858,7 +1866,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val liveVariantPreferenceMode: Flow<LiveVariantPreferenceMode> = context.dataStore.data.map { preferences ->
+    override val liveVariantPreferenceMode: Flow<LiveVariantPreferenceMode> = preferenceFlow { preferences ->
         LiveVariantPreferenceMode.fromStorage(preferences[PreferencesKeys.LIVE_VARIANT_PREFERENCE_MODE])
     }
 
@@ -1868,7 +1876,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val liveVariantSelections: Flow<Map<String, Long>> = context.dataStore.data.map { preferences ->
+    val liveVariantSelections: Flow<Map<String, Long>> = preferenceFlow { preferences ->
         decodeLiveVariantSelections(preferences[PreferencesKeys.LIVE_VARIANT_SELECTIONS])
     }
 
@@ -1904,7 +1912,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val liveVariantObservations: Flow<Map<Long, LiveChannelObservedQuality>> = context.dataStore.data.map { preferences ->
+    override val liveVariantObservations: Flow<Map<Long, LiveChannelObservedQuality>> = preferenceFlow { preferences ->
         decodeLiveVariantObservations(preferences[PreferencesKeys.LIVE_VARIANT_OBSERVATIONS])
     }
 
@@ -1917,7 +1925,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val vodDuplicateHandlingMode: Flow<VodDuplicateHandlingMode> = context.dataStore.data.map { preferences ->
+    override val vodDuplicateHandlingMode: Flow<VodDuplicateHandlingMode> = preferenceFlow { preferences ->
         VodDuplicateHandlingMode.fromStorage(preferences[PreferencesKeys.VOD_DUPLICATE_HANDLING_MODE])
     }
 
@@ -1927,7 +1935,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val vodVariantPreferenceMode: Flow<VodVariantPreferenceMode> = context.dataStore.data.map { preferences ->
+    override val vodVariantPreferenceMode: Flow<VodVariantPreferenceMode> = preferenceFlow { preferences ->
         VodVariantPreferenceMode.fromStorage(preferences[PreferencesKeys.VOD_VARIANT_PREFERENCE_MODE])
     }
 
@@ -1937,7 +1945,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val vodVariantSelections: Flow<Map<String, Long>> = context.dataStore.data.map { preferences ->
+    val vodVariantSelections: Flow<Map<String, Long>> = preferenceFlow { preferences ->
         decodeVodVariantSelections(preferences[PreferencesKeys.VOD_VARIANT_SELECTIONS])
     }
 
@@ -1973,7 +1981,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val vodVariantObservations: Flow<Map<Long, VodVariantObservation>> = context.dataStore.data.map { preferences ->
+    override val vodVariantObservations: Flow<Map<Long, VodVariantObservation>> = preferenceFlow { preferences ->
         decodeVodVariantObservations(preferences[PreferencesKeys.VOD_VARIANT_OBSERVATIONS])
     }
 
@@ -1986,7 +1994,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val vodViewMode: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val vodViewMode: Flow<String?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.VOD_VIEW_MODE]
     }
 
@@ -1996,7 +2004,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val vodTypeBadgeAsIcon: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val vodTypeBadgeAsIcon: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.VOD_TYPE_BADGE_AS_ICON] ?: false
     }
 
@@ -2006,7 +2014,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val vodInfiniteScroll: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val vodInfiniteScroll: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.VOD_INFINITE_SCROLL] ?: true
     }
 
@@ -2016,7 +2024,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val vodPortalSearch: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val vodPortalSearch: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.VOD_PORTAL_SEARCH] ?: true
     }
 
@@ -2027,7 +2035,7 @@ class PreferencesRepository @Inject constructor(
     }
 
     override val vodCategoryLoadMode: Flow<com.streamvault.domain.model.VodCategoryLoadMode> =
-        context.dataStore.data.map { preferences ->
+        preferenceFlow { preferences ->
             com.streamvault.domain.model.VodCategoryLoadMode.fromStorage(
                 preferences[PreferencesKeys.VOD_CATEGORY_LOAD_MODE]
             )
@@ -2039,7 +2047,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val guideDensity: Flow<String?> = context.dataStore.data.map { preferences ->
+    val guideDensity: Flow<String?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.GUIDE_DENSITY]
     }
 
@@ -2049,7 +2057,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val guideChannelMode: Flow<String?> = context.dataStore.data.map { preferences ->
+    val guideChannelMode: Flow<String?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.GUIDE_CHANNEL_MODE]
     }
 
@@ -2059,7 +2067,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val guideDefaultCategoryId: Flow<Long?> = context.dataStore.data.map { preferences ->
+    override val guideDefaultCategoryId: Flow<Long?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.GUIDE_DEFAULT_CATEGORY_ID]
     }
 
@@ -2075,11 +2083,11 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val guideFavoritesOnly: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    val guideFavoritesOnly: Flow<Boolean> = preferenceFlow { preferences ->
         (preferences[PreferencesKeys.GUIDE_FAVORITES_ONLY] ?: 0) == 1
     }
 
-    val guideScheduledOnly: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    val guideScheduledOnly: Flow<Boolean> = preferenceFlow { preferences ->
         (preferences[PreferencesKeys.GUIDE_SCHEDULED_ONLY] ?: 0) == 1
     }
 
@@ -2095,7 +2103,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val guideAnchorTime: Flow<Long?> = context.dataStore.data.map { preferences ->
+    val guideAnchorTime: Flow<Long?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.GUIDE_ANCHOR_TIME]
     }
 
@@ -2127,7 +2135,7 @@ class PreferencesRepository @Inject constructor(
             .filter { it.value != 0 }
             .joinToString(",") { "${it.key}:${it.value}" }
 
-    override val epgTimeShiftsByProvider: Flow<Map<Long, Int>> = context.dataStore.data.map { prefs ->
+    override val epgTimeShiftsByProvider: Flow<Map<Long, Int>> = preferenceFlow { prefs ->
         decodeEpgTimeShifts(prefs[PreferencesKeys.EPG_TIME_SHIFT_BY_PROVIDER])
     }
 
@@ -2150,7 +2158,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val promotedLiveGroupIds: Flow<Set<Long>> = context.dataStore.data.map { preferences ->
+    val promotedLiveGroupIds: Flow<Set<Long>> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.PROMOTED_LIVE_GROUP_IDS]
             ?.split(",")
             ?.mapNotNull { token -> token.toLongOrNull() }
@@ -2170,7 +2178,7 @@ class PreferencesRepository @Inject constructor(
 
     override fun getHiddenCategoryIds(providerId: Long, type: ContentType): Flow<Set<Long>> {
         val key = stringPreferencesKey(hiddenCategoriesKey(providerId, type))
-        return context.dataStore.data.map { preferences ->
+        return preferenceFlow { preferences ->
             preferences[key]
                 ?.split(',')
                 ?.mapNotNull { token -> token.toLongOrNull() }
@@ -2222,7 +2230,7 @@ class PreferencesRepository @Inject constructor(
 
     fun getHiddenChannelIds(providerId: Long): Flow<Set<Long>> {
         val key = stringPreferencesKey(hiddenChannelsKey(providerId))
-        return context.dataStore.data.map { preferences ->
+        return preferenceFlow { preferences ->
             preferences[key]
                 ?.split(',')
                 ?.mapNotNull { token -> token.toLongOrNull() }
@@ -2272,7 +2280,7 @@ class PreferencesRepository @Inject constructor(
 
     fun getPinnedCategoryIds(providerId: Long, type: ContentType): Flow<Set<Long>> {
         val key = stringPreferencesKey(pinnedCategoriesKey(providerId, type))
-        return context.dataStore.data.map { preferences ->
+        return preferenceFlow { preferences ->
             preferences[key]
                 ?.split(',')
                 ?.mapNotNull { token -> token.toLongOrNull() }
@@ -2370,7 +2378,7 @@ class PreferencesRepository @Inject constructor(
 
     override fun getCategorySortMode(providerId: Long, type: ContentType): Flow<CategorySortMode> {
         val key = stringPreferencesKey(categorySortModeKey(providerId, type))
-        return context.dataStore.data.map { preferences ->
+        return preferenceFlow { preferences ->
             preferences[key]
                 ?.let { saved -> CategorySortMode.entries.firstOrNull { it.name == saved } }
                 ?: CategorySortMode.DEFAULT
@@ -2390,7 +2398,7 @@ class PreferencesRepository @Inject constructor(
             1 -> PreferencesKeys.MULTIVIEW_PRESET_2
             else -> PreferencesKeys.MULTIVIEW_PRESET_3
         }
-        return context.dataStore.data.map { preferences ->
+        return preferenceFlow { preferences ->
             preferences[key]
                 ?.split(",")
                 ?.mapNotNull { token -> token.toLongOrNull() }
@@ -2413,7 +2421,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val multiViewPerformanceMode: Flow<String?> = context.dataStore.data.map { preferences ->
+    override val multiViewPerformanceMode: Flow<String?> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.MULTIVIEW_PERFORMANCE_MODE]
     }
 
@@ -2423,7 +2431,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val multiViewCenterTwoSlotLayout: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val multiViewCenterTwoSlotLayout: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.MULTIVIEW_CENTER_TWO_SLOT_LAYOUT] ?: false
     }
 
@@ -2433,7 +2441,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    override val multiViewRespectProviderConnectionLimit: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val multiViewRespectProviderConnectionLimit: Flow<Boolean> = preferenceFlow { preferences ->
         preferences[PreferencesKeys.MULTIVIEW_RESPECT_PROVIDER_CONNECTION_LIMIT] ?: true
     }
 
@@ -2450,7 +2458,7 @@ class PreferencesRepository @Inject constructor(
                 flowOf(persistedRatio)
             } else {
                 val legacyKey = stringPreferencesKey("aspect_ratio_$channelId")
-                context.dataStore.data.map { preferences ->
+                preferenceFlow { preferences ->
                     preferences[legacyKey]
                 }
             }

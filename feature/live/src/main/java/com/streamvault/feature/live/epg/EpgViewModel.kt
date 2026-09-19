@@ -1518,9 +1518,8 @@ class EpgViewModel @Inject constructor(
             startupCategoryId.value = preferencesRepository.guideDefaultCategoryId.first() ?: VirtualCategoryIds.FAVORITES
             showFavoritesOnly.value = preferencesRepository.guideFavoritesOnly.first()
             showScheduledOnly.value = preferencesRepository.guideScheduledOnly.first()
-            preferencesRepository.guideAnchorTime.first()
-                ?.takeIf { it > 0L }
-                ?.let { guideAnchorTime.value = it }
+            // The saved anchor is deliberately not restored: a fresh guide always opens on "now".
+            // Returning from the player still restores the browsed time through the nav route.
         }
     }
 

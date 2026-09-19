@@ -24,14 +24,21 @@ internal fun classifyTelevisionDevice(
         uiModeType == Configuration.UI_MODE_TYPE_TELEVISION ||
         (!hasTouchscreen && screenWidthDp >= 900)
 
+// System features never change while the process lives, and this runs once per clickable cell
+// (mouseClickable), so the PackageManager binder calls are paid once instead of per row.
+@Volatile
+private var cachedTelevisionFeature: Boolean? = null
+
 fun Context.isTelevisionDevice(): Boolean {
     val packageManager = packageManager
 
-    if (packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK) ||
-        packageManager.hasSystemFeature("android.software.leanback_only") ||
-        packageManager.hasSystemFeature(PackageManager.FEATURE_TELEVISION) ||
-        packageManager.hasSystemFeature("amazon.hardware.fire_tv")
-    ) {
+    val hasTelevisionFeature = cachedTelevisionFeature ?: (
+        packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK) ||
+            packageManager.hasSystemFeature("android.software.leanback_only") ||
+            packageManager.hasSystemFeature(PackageManager.FEATURE_TELEVISION) ||
+            packageManager.hasSystemFeature("amazon.hardware.fire_tv")
+        ).also { cachedTelevisionFeature = it }
+    if (hasTelevisionFeature) {
         return true
     }
 
