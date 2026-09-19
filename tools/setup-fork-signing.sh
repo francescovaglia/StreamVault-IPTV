@@ -19,9 +19,9 @@ if [ ! -f "$JKS" ]; then
 fi
 
 PW=$(sed -n 's/^storePassword=//p' "$PROPS")
-cd "$(dirname "$0")/.."
-base64 -i "$JKS" | gh secret set RELEASE_KEYSTORE_BASE64
-printf '%s' "$PW" | gh secret set RELEASE_STORE_PASSWORD
-printf '%s' "$PW" | gh secret set RELEASE_KEY_PASSWORD
-printf '%s' streamvault | gh secret set RELEASE_KEY_ALIAS
-gh secret list
+REPO=francescovaglia/StreamVault-IPTV
+base64 -i "$JKS" | gh secret set -R "$REPO" RELEASE_KEYSTORE_BASE64
+printf '%s' "$PW" | gh secret set -R "$REPO" RELEASE_STORE_PASSWORD
+printf '%s' "$PW" | gh secret set -R "$REPO" RELEASE_KEY_PASSWORD
+printf '%s' streamvault | gh secret set -R "$REPO" RELEASE_KEY_ALIAS
+gh secret list -R "$REPO"
