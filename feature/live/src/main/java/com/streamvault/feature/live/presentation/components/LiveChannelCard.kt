@@ -72,7 +72,7 @@ fun LiveChannelCard(
     recordingLabel: String = "Recording",
     scheduledLabel: String = "Scheduled"
 ) {
-    val hasArchive = channel.archivePlaybackCapability().canBuildReplayCandidate
+    val hasArchive = channel.archivePlaybackCapability().offersReplay
     val description = buildString {
         append(channel.number.takeIf { it > 0 }?.let { "$it  ${channel.name}" } ?: channel.name)
         if (!isLocked) {

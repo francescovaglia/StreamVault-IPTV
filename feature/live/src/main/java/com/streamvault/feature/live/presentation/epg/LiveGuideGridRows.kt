@@ -90,7 +90,7 @@ fun LiveGuideGridRow(
     var isFocused by remember { mutableStateOf(false) }
     val now = currentLiveGuideNow()
     val currentProgram = remember(programs, now) { programs.liveCurrentProgramAt(now) }
-    val hasUsableArchive = channel.archivePlaybackCapability().canBuildReplayCandidate
+    val hasUsableArchive = channel.archivePlaybackCapability().offersReplay
     val totalDuration = (windowEnd - windowStart).coerceAtLeast(1L)
     val channelPaddingVertical = when (density) {
         GuideDensity.COMPACT -> 3.dp
