@@ -3,8 +3,15 @@ name: Fork build and release
 # Every push to master builds a signed release APK and publishes it as the latest GitHub
 # release. The app's updater reads this repo's releases, so the TV updates itself from here.
 # Manual only: Francesco decides when a build happens, so a push must not start one.
+# With publish=false it stops after the unit tests: a dry run that checks the work without
+# putting a new release on the TV.
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Sign, build and publish the APK
+        type: boolean
+        default: true
 
 permissions:
   contents: write
@@ -46,6 +53,7 @@ jobs:
           :feature:live:testDebugUnitTest :feature:playback:testDebugUnitTest
 
       - name: Prepare signing
+        if: ${{ inputs.publish }}
         shell: bash
         env:
           RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
@@ -68,9 +76,11 @@ jobs:
             > keystore.properties
 
       - name: Build release APK
+        if: ${{ inputs.publish }}
         run: ./gradlew --console=plain :app:assembleRelease -PforkVersionCode=${{ steps.version.outputs.code }}
 
       - name: Publish release
+        if: ${{ inputs.publish }}
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
