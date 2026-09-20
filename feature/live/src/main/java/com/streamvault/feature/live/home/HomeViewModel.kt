@@ -253,20 +253,27 @@ class HomeViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            combinedM3uRepository.getActiveLiveSourceOptions().collectLatest { options ->
-                _uiState.update { state ->
-                    state.copy(
-                        liveSourceOptions = options.filter { option ->
-                            when (val source = option.source) {
-                                is ActiveLiveSource.ProviderSource -> {
-                                    state.allProviders.firstOrNull { it.id == source.providerId }?.type == ProviderType.M3U
+            combine(
+                combinedM3uRepository.getActiveLiveSourceOptions(),
+                preferencesRepository.fallbackOnlyProviderIds
+            ) { options, fallbackOnly -> options to fallbackOnly }
+                .collectLatest { (options, fallbackOnly) ->
+                    _uiState.update { state ->
+                        state.copy(
+                            liveSourceOptions = options.filter { option ->
+                                when (val source = option.source) {
+                                    // A reserve playlist is not something to switch to: it only
+                                    // lends its streams to the channels of the lists you browse.
+                                    is ActiveLiveSource.ProviderSource -> {
+                                        source.providerId !in fallbackOnly &&
+                                            state.allProviders.firstOrNull { it.id == source.providerId }?.type == ProviderType.M3U
+                                    }
+                                    is ActiveLiveSource.CombinedM3uSource -> true
                                 }
-                                is ActiveLiveSource.CombinedM3uSource -> true
                             }
-                        }
-                    )
+                        )
+                    }
                 }
-            }
         }
 
         // Observe channels, search query, and favorites to update UI

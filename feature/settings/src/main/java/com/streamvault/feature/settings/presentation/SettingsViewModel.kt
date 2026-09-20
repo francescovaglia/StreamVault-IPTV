@@ -426,6 +426,13 @@ class SettingsViewModel @Inject constructor(
         providerActions.setCombinedProviderEnabled(viewModelScope, profileId, providerId, enabled)
     }
 
+    val fallbackOnlyProviderIds: StateFlow<Set<Long>> = preferencesRepository.fallbackOnlyProviderIds
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
+
+    fun setFallbackOnlyProvider(providerId: Long, fallbackOnly: Boolean) {
+        viewModelScope.launch { preferencesRepository.setFallbackOnlyProvider(providerId, fallbackOnly) }
+    }
+
     fun setM3uVodClassificationEnabled(providerId: Long, enabled: Boolean) {
         providerActions.setM3uVodClassificationEnabled(viewModelScope, providerId, enabled)
     }

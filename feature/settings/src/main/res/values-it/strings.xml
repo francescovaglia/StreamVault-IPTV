@@ -681,4 +681,6 @@
 <string name="settings_drive_manage_title">Saved Drive backups</string>
 <string name="settings_providers_subtitle">Cambia, sincronizza, modifica e risolvi i problemi delle tue sorgenti IPTV.</string>
 <string name="settings_title">Impostazioni</string>
+    <string name="settings_provider_fallback_only_title">Solo riserva</string>
+    <string name="settings_provider_fallback_only_summary">Tieni questa lista fuori dalla navigazione e usala solo per sostituire un canale il cui stream non parte.</string>
 </resources>

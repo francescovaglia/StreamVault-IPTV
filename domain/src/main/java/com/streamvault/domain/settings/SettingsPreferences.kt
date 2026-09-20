@@ -29,10 +29,16 @@ import com.streamvault.domain.model.RemoteShortcutProfile
 import com.streamvault.domain.model.RemoteShortcutSelection
 import com.streamvault.domain.model.TimeshiftBackendPreference
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 /** Preference streams and commands consumed by settings; persistence remains in the data layer. */
 interface SettingsPreferences {
     val isIncognitoMode: Flow<Boolean>
+
+    /** Playlists kept out of browsing and used only as a source of alternative streams. */
+    val fallbackOnlyProviderIds: Flow<Set<Long>> get() = flowOf(emptySet())
+
+    suspend fun setFallbackOnlyProvider(providerId: Long, fallbackOnly: Boolean) = Unit
 
     val useXtreamTextClassification: Flow<Boolean>
 

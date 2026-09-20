@@ -171,6 +171,9 @@ internal fun BoxScope.PlayerLiveOverlayHost(
         channelName = currentChannel?.name,
         programTitle = currentProgram?.title,
         nextProgramTitle = nextProgram?.title,
+        sourceLabel = currentChannel?.takeIf { channel ->
+            channel.variants.map { it.providerId }.distinct().size > 1
+        }?.currentVariant?.sourceName,
         programStartTime = currentProgram?.startTime ?: 0L,
         programEndTime = currentProgram?.endTime ?: 0L,
         modifier = Modifier.align(if (isRtl) Alignment.BottomEnd else Alignment.BottomStart)

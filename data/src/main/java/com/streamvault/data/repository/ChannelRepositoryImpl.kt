@@ -329,10 +329,19 @@ class ChannelRepositoryImpl @Inject constructor(
         val settings = currentPresentationSettingsFlow().first()
         val providerNames = entities.map { it.providerId }.distinct()
             .associateWith { providerId -> channelDao.getProviderName(providerId) }
+        val fallbackOnly = preferencesRepository.fallbackOnlyProviderIds.first()
+        // Rank: the playlist being watched, then the other browsable ones, then the reserves.
+        // Quality only decides inside a rank, so a reserve never outranks the curated list.
+        fun rank(providerId: Long): Int = when {
+            providerId == channel.providerId -> 0
+            providerId !in fallbackOnly -> 1
+            else -> 2
+        }
         return entities
             .map { it.toVariant(settings.observedQualities[it.id]).copy(sourceName = providerNames[it.providerId]) }
             .sortedWith(
-                compareByDescending<LiveChannelVariant> { variantScore(it, settings.preferenceMode) }
+                compareBy<LiveChannelVariant> { rank(it.providerId) }
+                    .thenByDescending { variantScore(it, settings.preferenceMode) }
                     .thenBy { it.errorCount }
                     .thenBy { it.originalName.length }
             )

@@ -37,6 +37,8 @@ public fun ProviderSettingsCard(
     onEdit: () -> Unit,
     onParentalControl: () -> Unit,
     onToggleM3uVodClassification: (Boolean) -> Unit,
+    fallbackOnly: Boolean,
+    onToggleFallbackOnly: (Boolean) -> Unit,
     onRefreshM3uClassification: () -> Unit,
     targetItemId: String? = null,
     targetFocusModifier: Modifier = Modifier,
@@ -178,6 +180,11 @@ public fun ProviderSettingsCard(
                 databaseMaintenance = databaseMaintenance
             )
         }
+
+        ProviderFallbackOnlyPanel(
+            fallbackOnly = fallbackOnly,
+            onToggleFallbackOnly = onToggleFallbackOnly,
+        )
 
         if (provider.type == ProviderType.M3U) {
             ProviderM3uOptionsPanel(
