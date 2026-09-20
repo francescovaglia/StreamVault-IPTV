@@ -79,6 +79,37 @@ public fun LazyListScope.settingsBrowsingSection(
     item {
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            // The short list. Same rows as their own pages, gathered here so the settings that
+            // change how live TV behaves are in one screen instead of six.
+            if (page == SettingsPage.ESSENTIALS_PAGE) {
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_live_tv_channel_mode),
+                    value = stringResource(uiState.liveTvChannelMode.labelResId()),
+                    onClick = { onShowLiveTvModeDialogChange(true) },
+                )
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_live_channel_numbering_mode),
+                    value = stringResource(uiState.liveChannelNumberingMode.labelResId()),
+                    onClick = { onShowLiveChannelNumberingDialogChange(true) },
+                )
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_guide_default_category),
+                    value = guideDefaultCategoryLabel,
+                    onClick = { onShowGuideDefaultCategoryDialogChange(true) },
+                )
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_show_live_source_switcher),
+                    value = stringResource(R.string.settings_show_live_source_switcher_subtitle),
+                    checked = uiState.showLiveSourceSwitcher,
+                    onCheckedChange = viewModel::setShowLiveSourceSwitcher,
+                )
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_show_favorites_category),
+                    value = stringResource(R.string.settings_show_favorites_category_subtitle),
+                    checked = uiState.showFavoritesCategory,
+                    onCheckedChange = viewModel::setShowFavoritesCategory,
+                )
+            }
             if (page == null || page == SettingsPage.LIVE_LAYOUT) {
                 ClickableSettingsRow(
                     label = stringResource(R.string.settings_live_tv_channel_mode),

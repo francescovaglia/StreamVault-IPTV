@@ -17,6 +17,11 @@ class SettingsDestinationTest {
         assertTrue(SettingsCategory.entries.none { it.name == "BROWSING" })
     }
 
+    @Test fun `essentials comes first and is a single page`() {
+        assertEquals(SettingsCategory.ESSENTIALS, SettingsCategory.entries.first())
+        assertEquals(1, SettingsCategory.ESSENTIALS.pages.size)
+    }
+
     @Test fun `playback has short focused pages and remote has its own home`() {
         assertTrue(SettingsPage.entries.count { it.categoryId == 1 } in 5..8)
         assertEquals(SettingsCategory.APP.legacyId, SettingsPage.REMOTE.categoryId)

@@ -153,6 +153,10 @@
     <string name="settings_restore_item_title">%1$s · %2$s</string>
     <string name="settings_restore_dismiss_job">Ignora ripristino</string>
     <string name="settings_restore_dismiss_job_description">Scartare tutte le istruzioni rimanenti</string>
+    <string name="settings_domain_essentials">Essenziali</string>
+    <string name="settings_essentials_description">Le poche impostazioni che decidono come si comporta la TV.</string>
+    <string name="settings_page_essentials">Essenziali</string>
+    <string name="settings_page_essentials_description">Modalità canali, numerazione, selettore sorgenti, buffer e cosa succede quando un canale non parte.</string>
     <string name="settings_domain_live">TV in diretta</string>
     <string name="settings_domain_movies">Film e serie</string>
     <string name="settings_domain_app">App e telecomando</string>

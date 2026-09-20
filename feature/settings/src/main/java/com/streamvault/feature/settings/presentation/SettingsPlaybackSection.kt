@@ -210,6 +210,21 @@ public fun LazyListScope.settingsPlaybackSection(
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            // The two playback settings that decide how a weak stream behaves; the rest of
+            // this section stays in its own pages.
+            if (page == SettingsPage.ESSENTIALS_PAGE) {
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_live_buffer_size),
+                    value = playbackBufferModeLabel,
+                    onClick = { onShowPlaybackBufferModeDialogChange(true) },
+                )
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_zap_auto_revert),
+                    value = stringResource(R.string.settings_zap_auto_revert_subtitle),
+                    checked = uiState.zapAutoRevert,
+                    onCheckedChange = viewModel::setZapAutoRevert,
+                )
+            }
             if (page == null || page == SettingsPage.CLOCK) {
                 SwitchSettingsRow(
                     label = stringResource(R.string.settings_live_clock),

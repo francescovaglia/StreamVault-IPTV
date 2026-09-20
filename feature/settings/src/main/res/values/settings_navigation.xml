@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="settings_domain_essentials">Essentials</string>
+    <string name="settings_essentials_description">The few settings that decide how live TV behaves.</string>
+    <string name="settings_page_essentials">Essentials</string>
+    <string name="settings_page_essentials_description">Channel mode, numbering, source switcher, buffer and what happens when a channel fails.</string>
     <string name="settings_domain_live">Live TV</string>
     <string name="settings_domain_movies">Movies &amp; Series</string>
     <string name="settings_domain_app">App &amp; Remote</string>
