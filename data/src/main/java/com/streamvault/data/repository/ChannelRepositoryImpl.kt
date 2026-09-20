@@ -311,6 +311,31 @@ class ChannelRepositoryImpl @Inject constructor(
     override suspend fun refreshChannels(providerId: Long): Result<Unit> =
         Result.success(Unit)
 
+    override suspend fun getEquivalentVariants(channel: Channel): List<LiveChannelVariant> {
+        val logicalGroupId = channel.logicalGroupId.ifBlank {
+            ChannelNormalizer.classify(channel.name, channel.providerId, channel.streamUrl).logicalGroupId
+        }
+        val logicalKey = logicalGroupId.removePrefix("${channel.providerId}_")
+        if (logicalKey.isBlank() || logicalKey == logicalGroupId) return emptyList()
+        val entities = applyVisibilityFilter(
+            channelDao.getByLogicalKeyAcrossProviders(logicalKey),
+            preferencesRepository.parentalControlLevel.first(),
+            emptySet(),
+            hideDecorativeRows = true
+        )
+        if (entities.none { it.providerId != channel.providerId }) return emptyList()
+        val settings = currentPresentationSettingsFlow().first()
+        val providerNames = entities.map { it.providerId }.distinct()
+            .associateWith { providerId -> channelDao.getProviderName(providerId) }
+        return entities
+            .map { it.toVariant(settings.observedQualities[it.id]).copy(sourceName = providerNames[it.providerId]) }
+            .sortedWith(
+                compareByDescending<LiveChannelVariant> { variantScore(it, settings.preferenceMode) }
+                    .thenBy { it.errorCount }
+                    .thenBy { it.originalName.length }
+            )
+    }
+
     override fun getChannelsByIds(ids: List<Long>): Flow<List<Channel>> {
         if (ids.isEmpty()) return flowOf(emptyList())
         return channelDao.getByIds(ids).flatMapLatest { requestedEntities ->

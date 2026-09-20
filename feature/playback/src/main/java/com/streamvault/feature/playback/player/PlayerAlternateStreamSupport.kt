@@ -202,3 +202,15 @@ private fun liveVariantCodecPriority(variant: LiveChannelVariant): Int {
         else -> 1
     }
 }
+
+/**
+ * Adds the same channel from the other playlists to [Channel.variants], so the variant picker,
+ * automatic recovery and the quick "alternative" key all see them without knowing about providers.
+ */
+internal fun Channel.withEquivalentVariants(pool: List<LiveChannelVariant>): Channel {
+    if (pool.isEmpty()) return this
+    val base = variants.ifEmpty { pool.filter { it.rawChannelId == id } }
+    val known = base.mapTo(HashSet()) { it.rawChannelId }
+    val merged = base + pool.filter { it.rawChannelId !in known }
+    return if (merged.size == variants.size) this else copy(variants = merged)
+}

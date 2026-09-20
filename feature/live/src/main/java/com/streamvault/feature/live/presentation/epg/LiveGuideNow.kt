@@ -6,11 +6,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.delay
 
-private val LocalLiveGuideNow = staticCompositionLocalOf { 0L }
+// Not static: a static local recomposes the whole guide every tick instead of only its readers.
+private val LocalLiveGuideNow = compositionLocalOf { 0L }
 
 @Composable
 fun rememberLiveGuideNow(): Long {

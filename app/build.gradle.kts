@@ -65,16 +65,18 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.streamvault.app"
+        // Fork identity: installs next to the official app, and CI stamps a growing versionCode
+        // so the in-app updater (pointed at the fork's releases) sees every build as newer.
+        applicationId = "com.streamvault.fork"
         minSdk = 25
         targetSdk = 36
-        versionCode = 20
+        versionCode = providers.gradleProperty("forkVersionCode").orNull?.toInt() ?: 20
         versionName = "1.0.18"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         providers.gradleProperty("compatApi").orNull?.let { expectedApi ->
             testInstrumentationRunnerArguments["expected_api"] = expectedApi
         }
-        buildConfigField("String", "OFFICIAL_APPLICATION_ID", "\"com.streamvault.app\"")
+        buildConfigField("String", "OFFICIAL_APPLICATION_ID", "\"com.streamvault.fork\"")
         buildConfigField("String", "OFFICIAL_SIGNING_CERT_SHA256", "\"$officialSigningCertSha256\"")
         buildConfigField("String", "APP_UPDATE_CHANNEL", "\"stable\"")
         buildConfigField("long", "BUILD_TIMESTAMP_UTC", "0L")

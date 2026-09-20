@@ -1345,6 +1345,10 @@ private fun buildVariantSelectionLabel(variant: LiveChannelVariant): String {
 
     return buildString {
         append(variant.originalName)
+        variant.sourceName?.takeIf(String::isNotBlank)?.let {
+            append(" • ")
+            append(it)
+        }
         if (metaParts.isNotEmpty()) {
             append(" • ")
             append(metaParts.joinToString(" • "))

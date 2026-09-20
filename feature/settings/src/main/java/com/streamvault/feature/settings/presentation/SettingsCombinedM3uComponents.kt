@@ -285,7 +285,7 @@ public fun CreateCombinedM3uDialog(
 ) {
     var name by rememberSaveable { mutableStateOf("") }
     var selectedProviderIds by rememberSaveable { mutableStateOf(setOf<Long>()) }
-    val m3uProviders = remember(providers) { providers.filter { it.type == ProviderType.M3U } }
+    val m3uProviders = remember(providers) { providers.filter { it.type == ProviderType.M3U || it.type == ProviderType.XTREAM_CODES } }
     val effectiveName = remember(name, selectedProviderIds, m3uProviders) {
         val manualName = name.trim()
         if (manualName.isNotBlank()) {

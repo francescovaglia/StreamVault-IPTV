@@ -2,7 +2,39 @@ package com.streamvault.feature.playback.player
 
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.ContentType
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+
+/**
+ * Whenever a different live channel becomes current, look up the same channel in the other
+ * playlists and attach it as variants. One indexed query per zap, off the zap's critical path.
+ */
+internal fun PlayerViewModel.observeEquivalentVariants() {
+    viewModelScope.launch {
+        currentChannelFlow
+            .filterNotNull()
+            .distinctUntilChangedBy { it.logicalGroupId.ifBlank { it.id.toString() } }
+            .collectLatest { channel ->
+                if (currentContentType != ContentType.LIVE) return@collectLatest
+                val pool = try {
+                    playerChannelCoordinator.getEquivalentVariants(channel)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    android.util.Log.w("PlayerVM", "equivalent-variants lookup failed", e)
+                    return@collectLatest
+                }
+                val current = currentChannelFlow.value ?: return@collectLatest
+                if (current.logicalGroupId != channel.logicalGroupId) return@collectLatest
+                val enriched = current.withEquivalentVariants(pool)
+                if (enriched !== current) currentChannelFlow.value = enriched.sanitizedForPlayer()
+            }
+    }
+}
 
 fun PlayerViewModel.hasAlternateStream(): Boolean {
     if (isCatchUpPlayback()) {

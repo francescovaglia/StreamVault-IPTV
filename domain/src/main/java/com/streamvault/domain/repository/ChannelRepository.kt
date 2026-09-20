@@ -2,6 +2,7 @@ package com.streamvault.domain.repository
 
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
+import com.streamvault.domain.model.LiveChannelVariant
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.StreamInfo
 import kotlinx.coroutines.flow.Flow
@@ -25,6 +26,8 @@ interface ChannelRepository {
     suspend fun getStreamInfo(channel: Channel, preferStableUrl: Boolean = false): Result<StreamInfo>
     suspend fun refreshChannels(providerId: Long): Result<Unit>
     fun getChannelsByIds(ids: List<Long>): Flow<List<Channel>>
+    /** The same channel in every playlist (and every quality of it), best candidate first. */
+    suspend fun getEquivalentVariants(channel: Channel): List<LiveChannelVariant> = emptyList()
     suspend fun incrementChannelErrorCount(channelId: Long): Result<Unit>
     suspend fun resetChannelErrorCount(channelId: Long): Result<Unit>
 

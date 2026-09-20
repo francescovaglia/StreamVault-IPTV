@@ -68,6 +68,8 @@ data class Channel(
             catchUpDays = selected.catchUpDays,
             catchUpSource = selected.catchUpSource,
             selectedVariantId = selected.rawChannelId,
+            // A variant can come from another playlist: streams resolve against its own provider.
+            providerId = selected.providerId.takeIf { it > 0L } ?: providerId,
             errorCount = selected.errorCount,
             qualityOptions = updatedQualityOptions,
             alternativeStreams = variants.map(LiveChannelVariant::streamUrl)
@@ -99,7 +101,9 @@ data class LiveChannelVariant(
     val catchUpDays: Int = 0,
     val catchUpSource: String? = null,
     val attributes: LiveChannelVariantAttributes = LiveChannelVariantAttributes(),
-    val observedQuality: LiveChannelObservedQuality = LiveChannelObservedQuality()
+    val observedQuality: LiveChannelObservedQuality = LiveChannelObservedQuality(),
+    /** Playlist name, set only when the variant was matched across playlists. */
+    val sourceName: String? = null
 ) {
     init {
         require(number >= 0) { "number must be non-negative" }
