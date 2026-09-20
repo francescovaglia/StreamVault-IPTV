@@ -20,6 +20,7 @@ import com.streamvault.domain.model.RecordingItem
 import com.streamvault.domain.model.RecordingRecurrence
 import com.streamvault.domain.model.RecordingStatus
 import com.streamvault.domain.model.ProviderType
+import com.streamvault.domain.model.providerAllowsExtraStream
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.StreamInfo
@@ -1063,6 +1064,14 @@ class PlayerViewModel @Inject constructor(
         preloadWindowJob?.cancel()
         preloadWindowInFlightFingerprint = fingerprint
         preloadWindowJob = playbackSessionScope(requestVersion)?.launch {
+            // Unlike the lazy adjacent-channel cache, this window really downloads its
+            // neighbours, so it needs a connection the subscription can spare.
+            val provider = playerProviderCoordinator.getProvider(snapshot.providerId)
+            if (!providerAllowsExtraStream(provider?.type, provider?.maxConnections ?: 1)) {
+                clearPreloadWindow()
+                preloadWindowInFlightFingerprint = null
+                return@launch
+            }
             val window = when {
                 snapshot.series != null && snapshot.episode != null ->
                     playerPreloadWindowCoordinator.buildEpisodeWindow(

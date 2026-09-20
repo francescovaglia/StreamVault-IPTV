@@ -79,11 +79,23 @@ class PlayerZapActionsTest {
     }
 
     @Test
-    fun `shouldPreloadAdjacentChannel allows M3U streams`() {
+    fun `shouldPreloadAdjacentChannel holds back an M3U playlist with a single connection`() {
         val shouldPreload = shouldPreloadAdjacentChannel(
             streamUrl = "http://cdn.example.com/live/stream.ts",
             providerType = ProviderType.M3U,
             maxConnections = 1,
+            preloadCoolingDown = false
+        )
+
+        assertThat(shouldPreload).isFalse()
+    }
+
+    @Test
+    fun `shouldPreloadAdjacentChannel allows M3U streams once a second connection exists`() {
+        val shouldPreload = shouldPreloadAdjacentChannel(
+            streamUrl = "http://cdn.example.com/live/stream.ts",
+            providerType = ProviderType.M3U,
+            maxConnections = 2,
             preloadCoolingDown = false
         )
 

@@ -6,6 +6,7 @@ import com.streamvault.domain.model.ChannelNumberingMode
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.PlaybackHistory
 import com.streamvault.domain.model.ProviderType
+import com.streamvault.domain.model.providerAllowsExtraStream
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
@@ -157,13 +158,9 @@ internal fun shouldPreloadAdjacentChannel(
     preloadCoolingDown: Boolean
 ): Boolean {
     if (streamUrl.isBlank() || preloadCoolingDown) return false
-    return when (providerType) {
-        ProviderType.M3U -> true
-        ProviderType.JELLYFIN -> true
-        ProviderType.XTREAM_CODES,
-        ProviderType.STALKER_PORTAL -> maxConnections >= 2
-        null -> false
-    }
+    // M3U used to be waved through here. Nobody reports its connection count, which is a reason
+    // to be careful with it, not a reason to assume it is unlimited.
+    return providerAllowsExtraStream(providerType, maxConnections)
 }
 
 fun PlayerViewModel.playNext() {

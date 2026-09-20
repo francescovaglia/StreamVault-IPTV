@@ -147,8 +147,11 @@ class MultiViewViewModel @Inject constructor(
                 if (!respectProviderLimit) {
                     null
                 } else {
+                    // Was Xtream-only, so an M3U playlist could open four streams against a
+                    // subscription that allows one. Jellyfin is the user's own server and keeps
+                    // no limit; everyone else is held to the figure we have.
                     provider
-                        ?.takeIf { it.type == ProviderType.XTREAM_CODES }
+                        ?.takeIf { it.type != ProviderType.JELLYFIN }
                         ?.maxConnections
                         ?.coerceAtLeast(1)
                 }
