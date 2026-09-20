@@ -123,6 +123,10 @@ class EpgViewModelTest {
             if (condition()) {
                 return
             }
+            // Building the guide snapshot hops to Dispatchers.Default, which the test scheduler
+            // does not drive: hand those real threads a slice before looking again, or the loop
+            // spins through all its attempts in microseconds and calls a slow pass a failure.
+            Thread.sleep(1)
         }
         testDispatcher.scheduler.advanceUntilIdle()
         assertWithMessage(createdViewModels.lastOrNull()?.uiState?.value.toString()).that(condition()).isTrue()
