@@ -157,7 +157,12 @@ class HomeViewModelTest {
             livePreviewHandoffManager = livePreviewHandoffManager,
             pluginManager = pluginManager,
             playerEngineProvider = playerEngineProvider
-        ).also(createdViewModels::add)
+        ).also { viewModel ->
+            // Set before the first advance: nothing in the view model has run yet, and from here
+            // its background mapping is driven by the test scheduler like everything else.
+            viewModel.heavyMappingDispatcher = testDispatcher
+            createdViewModels.add(viewModel)
+        }
 
     private fun clearViewModel(viewModel: HomeViewModel) {
         val clearMethod = ViewModel::class.java.declaredMethods.firstOrNull {

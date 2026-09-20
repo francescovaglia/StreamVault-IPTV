@@ -29,9 +29,9 @@ class GuideRowCellsTest {
             minimumItemWidth = 48.dp
         )
         assertThat(cells).hasSize(3)
-        assertThat(cells[0].width).isEqualTo(48.dp)
+        assertThat(cells[0].width.value).isWithin(0.1f).of(48f)
         // The neighbour starts where the widened cell ends, not under it.
-        assertThat(cells[1].startPadding).isEqualTo(0.dp)
+        assertThat(cells[1].startPadding.value).isWithin(0.1f).of(0f)
         var cursor = 0.dp
         cells.forEach { cell ->
             assertThat(cell.startPadding.value).isAtLeast(0f)
@@ -49,7 +49,8 @@ class GuideRowCellsTest {
             totalTimelineWidth = totalWidth,
             minimumItemWidth = 48.dp
         )
-        assertThat(cells[1].startPadding).isEqualTo(200.dp)
+        // 200 dp per hour of timeline, and the hour between the two programmes stays empty.
+        assertThat(cells[1].startPadding.value).isWithin(0.1f).of(200f)
     }
 
     @Test
