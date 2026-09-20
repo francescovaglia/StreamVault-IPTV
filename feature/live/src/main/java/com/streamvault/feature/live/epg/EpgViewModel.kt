@@ -1460,12 +1460,16 @@ class EpgViewModel @Inject constructor(
                     return@collectLatest
                 }
 
-                val displaySnapshot = buildGuideDisplaySnapshot(
-                    baseSnapshot = baseSnapshot,
-                    searchQuery = presentation.searchQuery,
-                    scheduledOnly = presentation.scheduledOnly,
-                    channelMode = presentation.channelMode
-                )
+                // Filtering and grouping the whole guide is too heavy for the main thread of a
+                // cheap TV: it showed up as a freeze when typing in guide search.
+                val displaySnapshot = withContext(Dispatchers.Default) {
+                    buildGuideDisplaySnapshot(
+                        baseSnapshot = baseSnapshot,
+                        searchQuery = presentation.searchQuery,
+                        scheduledOnly = presentation.scheduledOnly,
+                        channelMode = presentation.channelMode
+                    )
+                }
 
                 _uiState.update {
                     it.copy(
