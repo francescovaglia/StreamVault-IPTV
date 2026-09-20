@@ -66,6 +66,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -98,6 +99,13 @@ class HomeViewModel @Inject constructor(
     @param:AuxiliaryPlayerEngine
     private val playerEngineProvider: InjectProvider<PlayerEngine>
 ) : ViewModel() {
+    /**
+     * Where the channel-marking pass runs. Dispatchers.Default in the app; a test overrides it
+     * before the first tick so the work lives on the test scheduler instead of outliving it,
+     * which otherwise drops a stray failure onto whichever test runs next.
+     */
+    internal var heavyMappingDispatcher: CoroutineDispatcher = Dispatchers.Default
+
     private companion object {
         const val MIN_CHANNEL_SEARCH_QUERY_LENGTH = 2
         const val CHANNEL_PAGE_SIZE = 200
@@ -294,7 +302,7 @@ class HomeViewModel @Inject constructor(
                     previousById[channel.id]?.takeIf { it == marked } ?: marked
                 }
                 // Mapping thousands of channels is too much for the main thread of a cheap TV.
-            }.flowOn(Dispatchers.Default).collectLatest { markedChannels ->
+            }.flowOn(heavyMappingDispatcher).collectLatest { markedChannels ->
                 _uiState.update { state ->
                     if (state.isChannelReorderMode) {
                         state
