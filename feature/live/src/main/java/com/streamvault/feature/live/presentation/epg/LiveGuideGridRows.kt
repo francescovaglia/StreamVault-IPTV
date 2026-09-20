@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -90,9 +89,7 @@ fun LiveGuideGridRow(
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val now = currentLiveGuideNow()
-    val currentProgram by remember(programs, now) {
-        derivedStateOf { programs.liveCurrentProgramAt(now) }
-    }
+    val currentProgram = remember(programs, now) { programs.liveCurrentProgramAt(now) }
     val hasUsableArchive = channel.archivePlaybackCapability().canBuildReplayCandidate
     val totalDuration = (windowEnd - windowStart).coerceAtLeast(1L)
     val channelPaddingVertical = when (density) {
@@ -264,6 +261,7 @@ fun LiveGuideGridRow(
                         programs.forEach { program ->
                             LiveGuideProgramItem(
                                 program = program,
+                                isCurrent = program === currentProgram,
                                 density = density,
                                 transparentOverlay = transparentOverlay,
                                 windowStart = windowStart,
@@ -283,6 +281,9 @@ fun LiveGuideGridRow(
 @Composable
 fun LiveGuideProgramItem(
     program: Program,
+    // Passed in: reading the guide clock here made every cell of every row recompose on each
+    // 30-second tick, for a highlight that concerns one cell per row.
+    isCurrent: Boolean,
     density: GuideDensity,
     transparentOverlay: Boolean,
     windowStart: Long,
@@ -292,14 +293,16 @@ fun LiveGuideProgramItem(
     onFocused: () -> Unit
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val now = currentLiveGuideNow()
-    val isCurrent = now in program.startTime until program.endTime
 
     val appTimeFormat = LocalLiveTimeFormat.current
     val format = remember(appTimeFormat) { appTimeFormat.createLiveTimeFormatter() }
     val zone = remember { ZoneId.systemDefault() }
-    val startStr = format.format(Instant.ofEpochMilli(program.startTime).atZone(zone))
-    val endStr = format.format(Instant.ofEpochMilli(program.endTime).atZone(zone))
+    val startStr = remember(format, program.startTime) {
+        format.format(Instant.ofEpochMilli(program.startTime).atZone(zone))
+    }
+    val endStr = remember(format, program.endTime) {
+        format.format(Instant.ofEpochMilli(program.endTime).atZone(zone))
+    }
     val totalDuration = (windowEnd - windowStart).coerceAtLeast(1L)
     val visibleStart = max(program.startTime, windowStart)
     val visibleEnd = max(visibleStart + 1, minOf(program.endTime, windowEnd))
@@ -329,30 +332,31 @@ fun LiveGuideProgramItem(
         GuideDensity.COMFORTABLE -> 3.dp
         GuideDensity.CINEMATIC -> 4.dp
     }
-    val titleStyle = when {
-        isVeryCompactCell -> MaterialTheme.typography.labelSmall.copy(
+    val typography = MaterialTheme.typography
+    val titleStyle = remember(typography, isVeryCompactCell, isCompactCell, density) { when {
+        isVeryCompactCell -> typography.labelSmall.copy(
             fontSize = 10.sp,
             lineHeight = 11.sp
         )
-        isCompactCell || density == GuideDensity.COMPACT -> MaterialTheme.typography.labelMedium.copy(
+        isCompactCell || density == GuideDensity.COMPACT -> typography.labelMedium.copy(
             fontSize = 11.sp,
             lineHeight = 12.sp
         )
-        else -> MaterialTheme.typography.labelLarge.copy(
+        else -> typography.labelLarge.copy(
             fontSize = 12.sp,
             lineHeight = 14.sp
         )
-    }
-    val timeStyle = when {
-        isCompactCell || density == GuideDensity.COMPACT -> MaterialTheme.typography.labelSmall.copy(
+    } }
+    val timeStyle = remember(typography, isCompactCell, density) { when {
+        isCompactCell || density == GuideDensity.COMPACT -> typography.labelSmall.copy(
             fontSize = 9.sp,
             lineHeight = 10.sp
         )
-        else -> MaterialTheme.typography.labelSmall.copy(
+        else -> typography.labelSmall.copy(
             fontSize = 10.sp,
             lineHeight = 11.sp
         )
-    }
+    } }
 
     TvClickableSurface(
         onClick = onClick,

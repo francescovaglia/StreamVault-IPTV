@@ -83,8 +83,20 @@ internal fun PlayerControlsOverlayHost(
     showBackButton: Boolean = false,
     onBackToMenu: () -> Unit = {}
 ) {
-    val currentPosition by playerEngine.currentPosition.collectAsStateWithLifecycle()
-    val duration by playerEngine.duration.collectAsStateWithLifecycle()
+    // Position ticks 4x/s. Reading it while the overlay is hidden recomposed this host (and
+    // rebuilt the VOD overlay state) four times a second through the whole playback, which a
+    // weak TV pays for in dropped frames. Nothing below is drawn when the overlay is hidden.
+    val showsPosition = visible || showChapterSheet || showPlaybackSettingsSheet
+    val currentPosition = if (showsPosition) {
+        playerEngine.currentPosition.collectAsStateWithLifecycle().value
+    } else {
+        0L
+    }
+    val duration = if (showsPosition) {
+        playerEngine.duration.collectAsStateWithLifecycle().value
+    } else {
+        0L
+    }
     val chapters by playerEngine.chapters.collectAsStateWithLifecycle()
     val currentProgram by viewModel.currentProgram.collectAsStateWithLifecycle()
     val playbackTitle by viewModel.playbackTitle.collectAsStateWithLifecycle()

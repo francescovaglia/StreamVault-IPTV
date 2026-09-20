@@ -46,7 +46,17 @@ fun ChannelLogoBadge(
             .background(backgroundColor),
         contentAlignment = Alignment.Center
     ) {
-        if (!showFallback && model != null) {
+        // One AsyncImage call site only: switching between two of them on success disposed the
+        // loaded node and started a second request (and a second crossfade) for every row.
+        if (showFallback) {
+            Text(
+                text = remember(channelName) { channelInitials(channelName) },
+                style = textStyle,
+                color = textColor,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        if (model != null) {
             AsyncImage(
                 model = model,
                 contentDescription = channelName,
@@ -58,26 +68,6 @@ fun ChannelLogoBadge(
                     .fillMaxSize()
                     .padding(contentPadding)
             )
-        } else {
-            Text(
-                text = channelInitials(channelName),
-                style = textStyle,
-                color = textColor,
-                fontWeight = FontWeight.Bold
-            )
-            if (model != null) {
-                AsyncImage(
-                    model = model,
-                    contentDescription = channelName,
-                    contentScale = ContentScale.Fit,
-                    onLoading = { showFallback = true },
-                    onError = { showFallback = true },
-                    onSuccess = { showFallback = false },
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(contentPadding)
-                )
-            }
         }
     }
 }
