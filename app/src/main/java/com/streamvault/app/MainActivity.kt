@@ -65,6 +65,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.res.AssetManager
 import android.content.res.Resources
+import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -470,7 +471,7 @@ private fun DatabaseStartupScreen(
                 }
                 is DatabaseStartupState.Failed -> {
                     Text(
-                        text = "StreamVault couldn't open your library",
+                        text = stringResource(R.string.startup_library_failed),
                         style = MaterialTheme.typography.headlineSmall,
                         textAlign = TextAlign.Center
                     )

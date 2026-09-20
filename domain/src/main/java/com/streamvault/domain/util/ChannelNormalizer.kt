@@ -12,7 +12,11 @@ data class ChannelClassification(
 
 object ChannelNormalizer {
     private val bracketRegex = Regex("""\[(.*?)]|\((.*?)\)|\|(.*?)\|""")
-    private val leadingRegionRegex = Regex("""^\s*([a-z]{2,3})\s*[:\-]\s*""", RegexOption.IGNORE_CASE)
+    // "IT| RAI 1" is as common a country tag as "IT: RAI 1". Without the pipe the tag stayed in
+    // the name, so the same channel taken from two playlists (one that keeps the provider's
+    // naming, one renamed by hand) landed in two different logical groups and never showed up
+    // as a variant of the other.
+    private val leadingRegionRegex = Regex("""^\s*([a-z]{2,3})\s*[:\-|]\s*""", RegexOption.IGNORE_CASE)
     private val separatorRegex = Regex("""[\s_\-./]+""")
     private val collapseWhitespaceRegex = Regex("""\s+""")
     private val nonAlphaNumericRegex = Regex("""[^a-z0-9 ]""")

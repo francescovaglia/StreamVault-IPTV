@@ -15,6 +15,7 @@ import android.provider.Settings
 import androidx.core.content.FileProvider
 import androidx.core.content.ContextCompat
 import com.streamvault.app.BuildConfig
+import com.streamvault.app.R
 import com.streamvault.feature.playback.api.CastMediaRequest
 import com.streamvault.app.tvinput.TvInputChannelSyncManager
 import com.streamvault.data.local.dao.PluginProviderOwnershipDao
@@ -548,7 +549,7 @@ class StreamVaultPluginManager @Inject constructor(
     }
 
     suspend fun rewriteCastUrl(url: String): String? =
-        rewriteCastUrl(CastMediaRequest(url = url, title = "StreamVault"))
+        rewriteCastUrl(CastMediaRequest(url = url, title = context.getString(R.string.app_name)))
 
     private fun applyPlaybackPreparationResponse(
         streamInfo: StreamInfo,

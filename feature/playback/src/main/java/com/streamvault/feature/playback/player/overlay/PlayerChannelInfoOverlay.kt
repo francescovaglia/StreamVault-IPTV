@@ -132,9 +132,11 @@ fun ChannelInfoOverlay(
     var expandedPanel by remember { mutableStateOf<ChannelInfoPanel?>(null) }
     val recordButtonFocusRequester = remember { FocusRequester() }
     val catchUpButtonFocusRequester = remember { FocusRequester() }
+    val moreButtonFocusRequester = remember { FocusRequester() }
     val liveDvrPanelFocusRequester = remember { FocusRequester() }
     val recordPanelFocusRequester = remember { FocusRequester() }
     val catchUpPanelFocusRequester = remember { FocusRequester() }
+    val morePanelFocusRequester = remember { FocusRequester() }
 
     fun handleMainActionFocus(ownerPanel: ChannelInfoPanel?) {
         onOverlayInteracted()
@@ -509,29 +511,6 @@ fun ChannelInfoOverlay(
                         onInteraction = { handleMainActionFocus(null) }
                     )
                 }
-                item {
-                    QuickActionButton(
-                        icon = stringResource(R.string.player_action_split),
-                        label = stringResource(R.string.player_multiview_short),
-                        onClick = {
-                            expandedPanel = null
-                            onDismiss()
-                            onOpenSplitScreen()
-                        },
-                        onInteraction = { handleMainActionFocus(null) }
-                    )
-                }
-                item {
-                    QuickActionButton(
-                        icon = stringResource(R.string.player_action_diagnostics),
-                        label = stringResource(R.string.player_stats),
-                        onClick = {
-                            expandedPanel = null
-                            onToggleDiagnostics()
-                        },
-                        onInteraction = { handleMainActionFocus(null) }
-                    )
-                }
                 if (!lastVisitedCategoryName.isNullOrBlank()) {
                     item {
                         QuickActionButton(
@@ -585,37 +564,25 @@ fun ChannelInfoOverlay(
                         )
                     }
                 }
+                // Split, diagnostics, cast, PiP and aspect ratio live one level down: they are
+                // rarely used and they were pushing the everyday actions off the visible strip.
                 item {
                     QuickActionButton(
-                        icon = stringResource(R.string.player_action_cast),
-                        label = if (isCastConnected) stringResource(R.string.player_stop_casting) else stringResource(R.string.player_cast),
-                        onClick = {
-                            expandedPanel = null
-                            if (isCastConnected) onStopCasting() else onCast()
-                        },
-                        onInteraction = { handleMainActionFocus(null) }
-                    )
-                }
-                item {
-                    QuickActionButton(
-                        icon = stringResource(R.string.player_action_pip),
-                        label = stringResource(R.string.player_pip_short),
-                        onClick = {
-                            expandedPanel = null
-                            onEnterPictureInPicture()
-                        },
-                        onInteraction = { handleMainActionFocus(null) }
-                    )
-                }
-                item {
-                    QuickActionButton(
-                        icon = stringResource(R.string.player_action_view),
-                        label = currentAspectRatio,
-                        onClick = {
-                            expandedPanel = null
-                            onToggleAspectRatio()
-                        },
-                        onInteraction = { handleMainActionFocus(null) }
+                        icon = stringResource(R.string.player_action_more),
+                        label = stringResource(R.string.player_more_short),
+                        onClick = { togglePanel(ChannelInfoPanel.MORE) },
+                        onInteraction = { handleMainActionFocus(ChannelInfoPanel.MORE) },
+                        colors = ClickableSurfaceDefaults.colors(
+                            containerColor = if (expandedPanel == ChannelInfoPanel.MORE) Primary.copy(alpha = 0.22f) else AppColors.SurfaceEmphasis,
+                            focusedContainerColor = Primary.copy(alpha = 0.85f)
+                        ),
+                        modifier = Modifier
+                            .focusRequester(moreButtonFocusRequester)
+                            .focusProperties {
+                                if (expandedPanel == ChannelInfoPanel.MORE) {
+                                    up = morePanelFocusRequester
+                                }
+                            }
                     )
                 }
             }
@@ -695,6 +662,44 @@ fun ChannelInfoOverlay(
                     )
                 }
 
+                ChannelInfoPanel.MORE -> {
+                    ChannelInfoActionMenuTray(
+                        title = stringResource(R.string.player_more_options),
+                        actions = listOf(
+                            ChannelInfoMenuEntry(stringResource(R.string.player_multiview_short)) {
+                                expandedPanel = null
+                                onDismiss()
+                                onOpenSplitScreen()
+                            },
+                            ChannelInfoMenuEntry(
+                                if (isCastConnected) {
+                                    stringResource(R.string.player_stop_casting)
+                                } else {
+                                    stringResource(R.string.player_cast)
+                                }
+                            ) {
+                                expandedPanel = null
+                                if (isCastConnected) onStopCasting() else onCast()
+                            },
+                            ChannelInfoMenuEntry(stringResource(R.string.player_pip_short)) {
+                                expandedPanel = null
+                                onEnterPictureInPicture()
+                            },
+                            ChannelInfoMenuEntry(currentAspectRatio) {
+                                expandedPanel = null
+                                onToggleAspectRatio()
+                            },
+                            ChannelInfoMenuEntry(stringResource(R.string.player_stats)) {
+                                expandedPanel = null
+                                onToggleDiagnostics()
+                            }
+                        ),
+                        onInteraction = onOverlayInteracted,
+                        firstActionFocusRequester = morePanelFocusRequester,
+                        ownerFocusRequester = moreButtonFocusRequester
+                    )
+                }
+
                 ChannelInfoPanel.LIVE_DVR,
                 null -> Unit
             }
@@ -728,7 +733,8 @@ private fun ChannelInfoOverlayFrame(
 private enum class ChannelInfoPanel {
     LIVE_DVR,
     RECORD,
-    CATCH_UP
+    CATCH_UP,
+    MORE
 }
 
 private fun com.streamvault.domain.model.LiveChannelVariantAttributes.toOverlayBadgeLabel(): String {

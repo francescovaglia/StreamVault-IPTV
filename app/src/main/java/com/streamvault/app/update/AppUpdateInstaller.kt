@@ -12,6 +12,7 @@ import android.os.Environment
 import android.provider.Settings
 import androidx.core.content.FileProvider
 import com.streamvault.app.BuildConfig
+import com.streamvault.app.R
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.model.Result
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -182,8 +183,8 @@ class AppUpdateInstaller @Inject constructor(
             }
 
             val request = DownloadManager.Request(Uri.parse(downloadUrl))
-                .setTitle("StreamVault ${releaseInfo.versionName}")
-                .setDescription("Downloading the latest StreamVault update")
+                .setTitle(context.getString(R.string.app_name) + " " + releaseInfo.versionName)
+                .setDescription(context.getString(R.string.app_update_download_description))
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                 .setMimeType("application/vnd.android.package-archive")
                 .setAllowedOverMetered(true)

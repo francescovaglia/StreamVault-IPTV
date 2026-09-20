@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="app_name">Tivù</string>
+    <string name="startup_library_failed">Tivù non riesce ad aprire la tua libreria</string>
+    <string name="app_update_download_description">Scaricamento dell\'ultimo aggiornamento di Tivù</string>
     <string name="nav_home">Home</string>
     <string name="nav_live_tv">TV in diretta</string>
     <string name="nav_movies">Film</string>

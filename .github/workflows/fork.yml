@@ -89,6 +89,6 @@ jobs:
           [ -n "$APK" ] || { echo "::error::No APK produced"; exit 1; }
           cp "$APK" StreamVault.apk
           gh release create "${{ steps.version.outputs.tag }}" StreamVault.apk \
-            --title "StreamVault fork ${{ steps.version.outputs.name }} (${{ steps.version.outputs.code }})" \
+            --title "Tivù ${{ steps.version.outputs.name }} (${{ steps.version.outputs.code }})" \
             --notes "$(git log -1 --pretty=%s)" \
             --latest
