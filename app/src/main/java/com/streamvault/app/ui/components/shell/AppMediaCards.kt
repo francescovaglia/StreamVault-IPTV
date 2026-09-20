@@ -93,7 +93,7 @@ fun LiveChannelRowCard(
     val logoPadding = if (isDense) 5.dp else if (isUltraCompact) 6.dp else 8.dp
     val contentSpacing = if (isUltraCompact) 8.dp else 10.dp
     val badgeSpacing = if (isUltraCompact) 3.dp else 4.dp
-    val hasUsableArchive = channel.archivePlaybackCapability().canBuildReplayCandidate
+    val hasUsableArchive = channel.archivePlaybackCapability().offersReplay
 
     Box(
         modifier = modifier
@@ -223,7 +223,7 @@ fun LiveChannelRowSurface(
     val favoriteLabel = stringResource(R.string.a11y_favorite)
     val catchUpLabel = stringResource(R.string.a11y_catch_up_available)
     val lockedLabel = stringResource(R.string.a11y_locked)
-    val hasUsableArchive = channel.archivePlaybackCapability().canBuildReplayCandidate
+    val hasUsableArchive = channel.archivePlaybackCapability().offersReplay
     val channelDescription = buildString {
         append(
             channel.number.takeIf { it > 0 }?.let {

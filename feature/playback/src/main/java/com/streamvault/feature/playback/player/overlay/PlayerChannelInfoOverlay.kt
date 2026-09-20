@@ -124,7 +124,7 @@ fun ChannelInfoOverlay(
     val timeFormat = remember(appTimeFormat) { appTimeFormat.createTimeFormat() }
     val showTimeshiftControls = timeshiftUiState.available && !isCastConnected
     val archiveCapability = currentChannel?.archivePlaybackCapability()
-    val canBrowseArchive = archiveCapability?.canBuildReplayCandidate == true
+    val canBrowseArchive = archiveCapability?.offersReplay == true
     val canRestartProgram = currentChannel != null &&
         currentProgram != null &&
         currentChannel.isArchivePlayable(currentProgram)
@@ -274,7 +274,7 @@ fun ChannelInfoOverlay(
                                         containerColor = AppColors.SurfaceEmphasis
                                     )
                                 }
-                            if (archiveCapability?.canBuildReplayCandidate == true) {
+                            if (archiveCapability?.offersReplay == true) {
                                 StatusPill(
                                     label = stringResource(R.string.player_catchup_badge),
                                     containerColor = AppColors.Live

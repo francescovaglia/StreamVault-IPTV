@@ -361,7 +361,7 @@ fun ChannelListOverlay(
                                             containerColor = AppColors.BrandMuted
                                         )
                                     }
-                                    if (channel.archivePlaybackCapability().canBuildReplayCandidate) {
+                                    if (channel.archivePlaybackCapability().offersReplay) {
                                         StatusPill(
                                             label = stringResource(R.string.player_archive_badge),
                                             containerColor = AppColors.Warning,
@@ -579,7 +579,7 @@ fun EpgOverlay(
                                 fontWeight = FontWeight.Bold
                             )
                             val archiveCapability = currentChannel.archivePlaybackCapability()
-                            if (archiveCapability.canBuildReplayCandidate) {
+                            if (archiveCapability.offersReplay) {
                                 val catchUpLabel = archiveCapability.windowDays?.let { days ->
                                     stringResource(R.string.epg_catchup_available, days)
                                 } ?: stringResource(R.string.epg_catchup_available_unknown)

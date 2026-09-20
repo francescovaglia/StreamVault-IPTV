@@ -80,7 +80,7 @@ fun LiveChannelRowSurface(
     var isFocused by remember { mutableStateOf(false) }
     val sounds = rememberTvInteractionSounds()
     val focusRequester = remember { FocusRequester() }
-    val hasArchive = channel.archivePlaybackCapability().canBuildReplayCandidate
+    val hasArchive = channel.archivePlaybackCapability().offersReplay
     val resolvedAccessibilityDescription = accessibilityDescription ?: buildString {
         append(channel.number.takeIf { it > 0 }?.let { "Channel $it, ${channel.name}" } ?: channel.name)
         channel.currentProgram?.title?.takeIf { it.isNotBlank() }?.let { append(". Now playing $it") }
@@ -167,7 +167,7 @@ fun LiveChannelRowCard(
     val dense = rowHeight <= 56.dp
     val ultraCompact = rowHeight <= 60.dp
     val logoWidth = if (dense) 42.dp else if (ultraCompact) 46.dp else 52.dp
-    val hasArchive = channel.archivePlaybackCapability().canBuildReplayCandidate
+    val hasArchive = channel.archivePlaybackCapability().offersReplay
     Box(modifier = modifier.clip(RoundedCornerShape(18.dp)).background(AppColors.SurfaceElevated).fillMaxWidth().height(rowHeight)) {
         Row(modifier = Modifier.fillMaxSize().padding(horizontal = if (ultraCompact) 8.dp else 10.dp, vertical = if (ultraCompact) 5.dp else 6.dp), horizontalArrangement = Arrangement.spacedBy(if (ultraCompact) 8.dp else 10.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(modifier = Modifier.width(logoWidth).fillMaxHeight().clip(RoundedCornerShape(12.dp))) {

@@ -184,7 +184,7 @@ fun ChannelCard(
     isScheduledRecording: Boolean = false
 ) {
     val channelCardShape = LocalAppShapes.current.small
-    val hasUsableArchive = channel.archivePlaybackCapability().canBuildReplayCandidate
+    val hasUsableArchive = channel.archivePlaybackCapability().offersReplay
     val channelDescription = buildString {
         append(
             channel.number.takeIf { it > 0 }?.let {

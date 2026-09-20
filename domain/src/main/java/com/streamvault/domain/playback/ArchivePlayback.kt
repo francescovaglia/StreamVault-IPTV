@@ -23,6 +23,13 @@ data class ArchivePlaybackCapability(
     val windowDays: Int?
 ) {
     val hasKnownWindow: Boolean get() = windowDays != null && windowDays > 0
+
+    /**
+     * What the user is told about. Every Xtream live stream can *technically* have a catch-up URL
+     * built for it, so [canBuildReplayCandidate] alone put the badge on every single channel;
+     * the provider's own flag (tv_archive / catch-up days) is what says it really has one.
+     */
+    val offersReplay: Boolean get() = canBuildReplayCandidate && (advertisedByProvider || hasKnownWindow)
 }
 
 fun Channel.archivePlaybackCapability(): ArchivePlaybackCapability {

@@ -956,7 +956,7 @@ fun LiveHomeScreen(
                                         savedLabel = stringResource(R.string.badge_saved),
                                         catchUpLabel = stringResource(R.string.badge_catch_up),
                                         accessibilityDescription = buildString {
-                                            val hasUsableArchive = channel.archivePlaybackCapability().canBuildReplayCandidate
+                                            val hasUsableArchive = channel.archivePlaybackCapability().offersReplay
                                             append(
                                                 channel.number.takeIf { it > 0 }?.let {
                                                     stringResource(R.string.a11y_channel_with_number, it, channel.name)
