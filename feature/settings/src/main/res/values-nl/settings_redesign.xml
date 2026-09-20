@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">Kies waar opnamen worden opgeslagen.</string>
     <string name="settings_page_recording_defaults">Standaardinstellingen voor opnemen</string>
     <string name="settings_page_recording_defaults_description">Bestandsnamen, retentie, opvulling en gelijktijdige opnamen.</string>
+    <string name="settings_domain_essentials">Essentie</string>
+    <string name="settings_essentials_description">De paar instellingen die bepalen hoe live tv zich gedraagt.</string>
+    <string name="settings_page_essentials">Essentie</string>
+    <string name="settings_page_essentials_description">Kanaalmodus, nummering, bronkiezer, buffer en wat er gebeurt als een kanaal het niet doet.</string>
 </resources>

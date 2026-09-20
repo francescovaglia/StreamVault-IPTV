@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">Wählen Sie aus, wo Aufnahmen gespeichert werden.</string>
     <string name="settings_page_recording_defaults">Aufnahmestandards</string>
     <string name="settings_page_recording_defaults_description">Dateinamen, Aufbewahrung, Auffüllung und gleichzeitige Aufzeichnungen.</string>
+    <string name="settings_domain_essentials">Wesentliches</string>
+    <string name="settings_essentials_description">Die wenigen Einstellungen, die bestimmen, wie sich Live-TV verhält.</string>
+    <string name="settings_page_essentials">Wesentliches</string>
+    <string name="settings_page_essentials_description">Kanalmodus, Nummerierung, Quellenumschalter, Puffer und was passiert, wenn ein Kanal ausfällt.</string>
 </resources>

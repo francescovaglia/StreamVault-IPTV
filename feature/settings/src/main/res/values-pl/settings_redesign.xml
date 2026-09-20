@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">Wybierz miejsce zapisywania nagrań.</string>
     <string name="settings_page_recording_defaults">Domyślne ustawienia nagrywania</string>
     <string name="settings_page_recording_defaults_description">Nazwy plików, przechowywanie, dopełnianie i jednoczesne nagrania.</string>
+    <string name="settings_domain_essentials">Podstawy</string>
+    <string name="settings_essentials_description">Kilka ustawień, które decydują o zachowaniu telewizji na żywo.</string>
+    <string name="settings_page_essentials">Podstawy</string>
+    <string name="settings_page_essentials_description">Tryb kanałów, numeracja, przełącznik źródeł, bufor i co się dzieje, gdy kanał nie działa.</string>
 </resources>

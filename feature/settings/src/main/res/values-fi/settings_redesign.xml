@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">Valitse, mihin tallenteet tallennetaan.</string>
     <string name="settings_page_recording_defaults">Tallennuksen oletusasetukset</string>
     <string name="settings_page_recording_defaults_description">Tiedostojen nimet, säilytys, täyte ja samanaikaiset tallenteet.</string>
+    <string name="settings_domain_essentials">Olennaiset</string>
+    <string name="settings_essentials_description">Ne harvat asetukset, jotka ratkaisevat suoran TV:n toiminnan.</string>
+    <string name="settings_page_essentials">Olennaiset</string>
+    <string name="settings_page_essentials_description">Kanavatila, numerointi, lähteenvaihtaja, puskuri ja mitä tapahtuu, kun kanava ei toimi.</string>
 </resources>

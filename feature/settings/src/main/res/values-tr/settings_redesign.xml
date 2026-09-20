@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">Kayıtların nereye kaydedileceğini seçin.</string>
     <string name="settings_page_recording_defaults">Varsayılanları kaydetme</string>
     <string name="settings_page_recording_defaults_description">Dosya adları, saklama, doldurma ve eşzamanlı kayıtlar.</string>
+    <string name="settings_domain_essentials">Temeller</string>
+    <string name="settings_essentials_description">Canlı TV\'nin nasıl davrandığını belirleyen birkaç ayar.</string>
+    <string name="settings_page_essentials">Temeller</string>
+    <string name="settings_page_essentials_description">Kanal modu, numaralandırma, kaynak değiştirici, arabellek ve bir kanal açılmadığında olanlar.</string>
 </resources>

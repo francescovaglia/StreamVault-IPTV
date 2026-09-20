@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">Elija dónde se guardan las grabaciones.</string>
     <string name="settings_page_recording_defaults">Valores predeterminados de grabación</string>
     <string name="settings_page_recording_defaults_description">Nombres de archivos, retención, relleno y grabaciones simultáneas.</string>
+    <string name="settings_domain_essentials">Esenciales</string>
+    <string name="settings_essentials_description">Los pocos ajustes que deciden cómo se comporta la TV en directo.</string>
+    <string name="settings_page_essentials">Esenciales</string>
+    <string name="settings_page_essentials_description">Modo de canales, numeración, selector de fuentes, búfer y qué pasa cuando un canal falla.</string>
 </resources>

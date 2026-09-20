@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">Виберіть місце збереження записів.</string>
     <string name="settings_page_recording_defaults">Стандартні параметри запису</string>
     <string name="settings_page_recording_defaults_description">Імена файлів, збереження, доповнення та одночасні записи.</string>
+    <string name="settings_domain_essentials">Основне</string>
+    <string name="settings_essentials_description">Кілька налаштувань, які визначають поведінку прямого ефіру.</string>
+    <string name="settings_page_essentials">Основне</string>
+    <string name="settings_page_essentials_description">Режим каналів, нумерація, перемикач джерел, буфер і що відбувається, коли канал не запускається.</string>
 </resources>

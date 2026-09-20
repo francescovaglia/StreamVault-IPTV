@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">Vyberte, kam se mají nahrávky ukládat.</string>
     <string name="settings_page_recording_defaults">Výchozí nastavení nahrávání</string>
     <string name="settings_page_recording_defaults_description">Názvy souborů, uchování, výplň a simultánní nahrávky.</string>
+    <string name="settings_domain_essentials">Základy</string>
+    <string name="settings_essentials_description">Několik nastavení, která určují chování živého vysílání.</string>
+    <string name="settings_page_essentials">Základy</string>
+    <string name="settings_page_essentials_description">Režim kanálů, číslování, přepínač zdrojů, vyrovnávací paměť a co se stane, když kanál selže.</string>
 </resources>

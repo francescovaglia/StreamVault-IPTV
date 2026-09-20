@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">Vælg, hvor optagelserne skal gemmes.</string>
     <string name="settings_page_recording_defaults">Standardindstillinger for optagelse</string>
     <string name="settings_page_recording_defaults_description">Filnavne, opbevaring, polstring og samtidige optagelser.</string>
+    <string name="settings_domain_essentials">Vigtigst</string>
+    <string name="settings_essentials_description">De få indstillinger, der bestemmer, hvordan live-tv opfører sig.</string>
+    <string name="settings_page_essentials">Vigtigst</string>
+    <string name="settings_page_essentials_description">Kanaltilstand, nummerering, kildeskifter, buffer og hvad der sker, når en kanal fejler.</string>
 </resources>

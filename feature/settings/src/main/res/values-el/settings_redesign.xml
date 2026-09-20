@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">Επιλέξτε πού θα αποθηκεύονται οι εγγραφές.</string>
     <string name="settings_page_recording_defaults">Προεπιλογές εγγραφής</string>
     <string name="settings_page_recording_defaults_description">Ονόματα αρχείων, διατήρηση, συμπλήρωση και ταυτόχρονες εγγραφές.</string>
+    <string name="settings_domain_essentials">Βασικά</string>
+    <string name="settings_essentials_description">Οι λίγες ρυθμίσεις που καθορίζουν τη συμπεριφορά της ζωντανής τηλεόρασης.</string>
+    <string name="settings_page_essentials">Βασικά</string>
+    <string name="settings_page_essentials_description">Λειτουργία καναλιών, αρίθμηση, εναλλαγή πηγών, buffer και τι γίνεται όταν ένα κανάλι δεν παίζει.</string>
 </resources>

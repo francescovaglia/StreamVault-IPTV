@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">选择录音的保存位置。</string>
     <string name="settings_page_recording_defaults">录音默认值</string>
     <string name="settings_page_recording_defaults_description">文件名、保留、填充和同步录音。</string>
+    <string name="settings_domain_essentials">核心设置</string>
+    <string name="settings_essentials_description">决定直播电视行为的几项设置。</string>
+    <string name="settings_page_essentials">核心设置</string>
+    <string name="settings_page_essentials_description">频道模式、编号、信号源切换、缓冲，以及频道打不开时的处理。</string>
 </resources>

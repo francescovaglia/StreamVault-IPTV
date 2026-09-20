@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">Chọn nơi lưu bản ghi.</string>
     <string name="settings_page_recording_defaults">Ghi mặc định</string>
     <string name="settings_page_recording_defaults_description">Tên tệp, lưu giữ, đệm và ghi đồng thời.</string>
+    <string name="settings_domain_essentials">Thiết yếu</string>
+    <string name="settings_essentials_description">Vài cài đặt quyết định cách TV trực tiếp hoạt động.</string>
+    <string name="settings_page_essentials">Thiết yếu</string>
+    <string name="settings_page_essentials_description">Chế độ kênh, đánh số, bộ chuyển nguồn, bộ đệm và điều xảy ra khi một kênh không chạy.</string>
 </resources>

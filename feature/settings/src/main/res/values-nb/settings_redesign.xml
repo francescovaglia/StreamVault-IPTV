@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">Velg hvor opptakene skal lagres.</string>
     <string name="settings_page_recording_defaults">Standardinnstillinger for opptak</string>
     <string name="settings_page_recording_defaults_description">Filnavn, oppbevaring, utfylling og samtidige opptak.</string>
+    <string name="settings_domain_essentials">Det viktigste</string>
+    <string name="settings_essentials_description">De få innstillingene som avgjør hvordan direkte-TV oppfører seg.</string>
+    <string name="settings_page_essentials">Det viktigste</string>
+    <string name="settings_page_essentials_description">Kanalmodus, nummerering, kildebytter, buffer og hva som skjer når en kanal svikter.</string>
 </resources>

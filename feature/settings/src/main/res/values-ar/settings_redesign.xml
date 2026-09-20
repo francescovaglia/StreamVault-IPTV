@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">اختر مكان حفظ التسجيلات.</string>
     <string name="settings_page_recording_defaults">تسجيل الافتراضيات</string>
     <string name="settings_page_recording_defaults_description">أسماء الملفات والاحتفاظ بها والحشو والتسجيلات المتزامنة.</string>
+    <string name="settings_domain_essentials">الأساسيات</string>
+    <string name="settings_essentials_description">الإعدادات القليلة التي تحدد سلوك البث المباشر.</string>
+    <string name="settings_page_essentials">الأساسيات</string>
+    <string name="settings_page_essentials_description">وضع القنوات والترقيم ومبدّل المصادر والتخزين المؤقت وما يحدث عند تعذّر تشغيل قناة.</string>
 </resources>
