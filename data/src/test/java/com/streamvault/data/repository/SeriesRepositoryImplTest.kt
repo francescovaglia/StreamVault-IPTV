@@ -87,6 +87,7 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.times
+import org.mockito.kotlin.timeout
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
@@ -515,7 +516,9 @@ class SeriesRepositoryImplTest {
 
         repository.getCategoryPreviewRows(7L, listOf(77L), 18).first()
 
-        verify(stalkerApiService).getSeriesPage(any(), any(), anyOrNull(), eq(1))
+        // Preview hydration is fired on the repository's own IO scope, so the call can land just
+        // after first() returns. Waiting for it beats racing it and failing once in a while.
+        verify(stalkerApiService, timeout(5_000)).getSeriesPage(any(), any(), anyOrNull(), eq(1))
         verify(stalkerApiService, never()).getSeriesPage(any(), any(), anyOrNull(), eq(2))
     }
 
