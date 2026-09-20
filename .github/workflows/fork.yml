@@ -46,11 +46,10 @@ jobs:
           # "+code" is the structured tag GitHubReleaseChecker parses into a versionCode.
           echo "tag=v$VERSION_NAME+$VERSION_CODE" >> "$GITHUB_OUTPUT"
 
-      - name: Unit tests of the touched modules
-        run: >
-          ./gradlew --console=plain
-          :domain:test :data:testDebugUnitTest :core:ui:testDebugUnitTest
-          :feature:live:testDebugUnitTest :feature:playback:testDebugUnitTest
+      # Every module, not a hand-picked list: the picked list kept missing the module a change
+      # had actually landed in, and a red test found after a release is the expensive kind.
+      - name: Unit tests
+        run: ./gradlew --console=plain :domain:test testDebugUnitTest
 
       - name: Prepare signing
         if: ${{ inputs.publish }}

@@ -134,7 +134,7 @@ class VodViewModel @Inject constructor(
     private var portalSearchRequestInFlight = false
     private var portalSearchGeneration = 0L
 
-    private val activeProvider = providerRepository.getActiveProvider()
+    private val activeProvider = providerRepository.getActiveCatalogProvider()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     init {

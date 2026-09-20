@@ -130,7 +130,7 @@ class MoviesViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            providerRepository.getActiveProvider().collectLatest { provider ->
+            providerRepository.getActiveCatalogProvider().collectLatest { provider ->
                 activeProviderId = provider?.id
                 _uiState.update {
                     it.copy(
@@ -146,7 +146,7 @@ class MoviesViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-            providerRepository.getActiveProvider()
+            providerRepository.getActiveCatalogProvider()
                 .filterNotNull()
                 .flatMapLatest { provider ->
                     activeProviderId = provider.id
@@ -321,7 +321,7 @@ class MoviesViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            providerRepository.getActiveProvider()
+            providerRepository.getActiveCatalogProvider()
                 .filterNotNull()
                 .flatMapLatest { provider ->
                     combine(
@@ -346,7 +346,7 @@ class MoviesViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            providerRepository.getActiveProvider()
+            providerRepository.getActiveCatalogProvider()
                 .filterNotNull()
                 .flatMapLatest { provider ->
                     combine(
@@ -430,7 +430,7 @@ class MoviesViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            providerRepository.getActiveProvider()
+            providerRepository.getActiveCatalogProvider()
                 .filterNotNull()
                 .collectLatest { provider ->
                     launch {
@@ -454,7 +454,7 @@ class MoviesViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            providerRepository.getActiveProvider()
+            providerRepository.getActiveCatalogProvider()
                 .filterNotNull()
                 .flatMapLatest { provider ->
                     combine(
@@ -525,7 +525,7 @@ class MoviesViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            providerRepository.getActiveProvider()
+            providerRepository.getActiveCatalogProvider()
                 .filterNotNull()
                 .flatMapLatest { provider ->
                     parentalControlManager.unlockedCategoriesForProvider(provider.id)
@@ -536,7 +536,7 @@ class MoviesViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            providerRepository.getActiveProvider()
+            providerRepository.getActiveCatalogProvider()
                 .filterNotNull()
                 .flatMapLatest { provider -> getCustomCategories(provider.id, ContentType.MOVIE) }
                 .collect { categories ->
@@ -545,7 +545,7 @@ class MoviesViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            providerRepository.getActiveProvider()
+            providerRepository.getActiveCatalogProvider()
                 .filterNotNull()
                 .flatMapLatest { provider ->
                     preferencesRepository.getPinnedCategoryIds(provider.id, ContentType.MOVIE)
@@ -601,7 +601,7 @@ class MoviesViewModel @Inject constructor(
 
         viewModelScope.launch {
             combine(
-                providerRepository.getActiveProvider(),
+                providerRepository.getActiveCatalogProvider(),
                 _uiState.map { state ->
                     state.providerCategories.firstOrNull { it.name == state.selectedCategory }?.id
                 }.distinctUntilChanged()
@@ -732,7 +732,7 @@ class MoviesViewModel @Inject constructor(
 
     fun unlockCategory(category: Category) {
         viewModelScope.launch {
-            val activeProviderId = providerRepository.getActiveProvider().first()?.id ?: return@launch
+            val activeProviderId = providerRepository.getActiveCatalogProvider().first()?.id ?: return@launch
             parentalControlManager.unlockCategory(activeProviderId, kotlin.math.abs(category.id))
             if (_uiState.value.selectedCategory != category.name) {
                 selectCategory(category.name)
@@ -766,7 +766,7 @@ class MoviesViewModel @Inject constructor(
 
     fun moveM3uMovieBackToLive(movie: Movie) {
         viewModelScope.launch {
-            val provider = providerRepository.getActiveProvider().first() ?: return@launch
+            val provider = providerRepository.getActiveCatalogProvider().first() ?: return@launch
             if (provider.type != ProviderType.M3U) return@launch
             when (val result = m3uClassificationRepository.moveMovieBackToLive(provider.id, movie.id)) {
                 is Result.Success -> {
@@ -904,7 +904,7 @@ class MoviesViewModel @Inject constructor(
     fun hideCategory(category: Category) {
         if (category.isVirtual) return
         viewModelScope.launch {
-            val providerId = providerRepository.getActiveProvider().first()?.id ?: return@launch
+            val providerId = providerRepository.getActiveCatalogProvider().first()?.id ?: return@launch
             preferencesRepository.setCategoryHidden(
                 providerId = providerId,
                 type = ContentType.MOVIE,

@@ -52,6 +52,13 @@ data class ProviderDeleteOutcome(
 interface ProviderRepository {
     fun getProviders(): Flow<List<Provider>>
     fun getActiveProvider(): Flow<Provider?>
+
+    /**
+     * The provider whose films and series the catalog browses. The active one normally; when the
+     * active playlist carries no VOD at all, the first provider that does, so choosing a live-only
+     * playlist does not empty the library. Default keeps existing fakes compiling.
+     */
+    fun getActiveCatalogProvider(): Flow<Provider?> = getActiveProvider()
     suspend fun getProvider(id: Long): Provider?
     suspend fun addProvider(provider: Provider): Result<Long>
     suspend fun updateProvider(provider: Provider): Result<Unit>

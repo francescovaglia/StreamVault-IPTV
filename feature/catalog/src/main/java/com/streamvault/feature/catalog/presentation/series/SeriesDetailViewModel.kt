@@ -81,7 +81,7 @@ class SeriesDetailViewModel @Inject constructor(
     init {
         observeCastPlaybackEvents()
         viewModelScope.launch {
-            providerRepository.getActiveProvider().collect { provider ->
+            providerRepository.getActiveCatalogProvider().collect { provider ->
                 providerDetailJob?.cancel()
                 _uiState.value = SeriesDetailUiState(isLoading = true)
                 if (provider == null) {

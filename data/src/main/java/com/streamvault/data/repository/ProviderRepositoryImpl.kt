@@ -80,6 +80,8 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -167,6 +169,20 @@ class ProviderRepositoryImpl @Inject constructor(
     override fun getProviders(): Flow<List<Provider>> = observationStreams.providers
 
     override fun getActiveProvider(): Flow<Provider?> = observationStreams.activeProvider
+
+    override fun getActiveCatalogProvider(): Flow<Provider?> = combine(
+        observationStreams.activeProvider,
+        getProviders(),
+        movieDao.getProviderIdsWithCatalog()
+    ) { active, providers, withCatalog ->
+        val ids = withCatalog.toSet()
+        when {
+            active != null && active.id in ids -> active
+            // A live-only playlist is active: keep films and series reachable from the provider
+            // that has them instead of showing an empty library.
+            else -> providers.firstOrNull { it.id in ids } ?: active
+        }
+    }.distinctUntilChanged()
 
     override suspend fun getProvider(id: Long): Provider? =
         loadLegacyProvider(id)?.redactedCredentials()
