@@ -23,12 +23,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Border
@@ -60,6 +66,28 @@ data class LiveGuideGridLabels(
     val favoriteBadge: String
 )
 
+/** Pixel geometry of the half-hour grid, resolved once per row instead of per frame. */
+internal data class GuideMarkerGeometry(
+    /** Offset of the marker at or before the window start, so it is <= 0. */
+    val firstOffsetPx: Float,
+    val stepPx: Float,
+    val widthPx: Float
+)
+
+internal fun guideMarkerGeometry(
+    totalTimelineWidthPx: Float,
+    windowStart: Long,
+    markerStepMs: Long,
+    totalDurationMs: Long,
+    lineWidthPx: Float
+): GuideMarkerGeometry = GuideMarkerGeometry(
+    firstOffsetPx = -totalTimelineWidthPx * windowStart.mod(markerStepMs) / totalDurationMs,
+    stepPx = totalTimelineWidthPx * markerStepMs / totalDurationMs,
+    widthPx = lineWidthPx
+)
+
+private val GuideMarkerColor = Color.White.copy(alpha = 0.08f)
+
 fun List<Program>.liveCurrentProgramAt(now: Long): Program? =
     firstOrNull { now in it.startTime until it.endTime }
 
@@ -90,6 +118,8 @@ fun LiveGuideGridRow(
     var isFocused by remember { mutableStateOf(false) }
     val now = currentLiveGuideNow()
     val currentProgram = remember(programs, now) { programs.liveCurrentProgramAt(now) }
+    val localDensity = LocalDensity.current
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val hasUsableArchive = channel.archivePlaybackCapability().offersReplay
     val totalDuration = (windowEnd - windowStart).coerceAtLeast(1L)
     val channelPaddingVertical = when (density) {
@@ -213,6 +243,21 @@ fun LiveGuideGridRow(
 
         Spacer(modifier = Modifier.width(timelineGap))
 
+        // The half-hour grid used to be one Box per marker inside every row: ~14 extra layout
+        // nodes per channel, for lines nothing ever interacts with. Drawing them here keeps the
+        // same look (over the row background, under the cells) and reads the scroll at draw
+        // time, so panning the timeline redraws without recomposing a single row.
+        val markerGeometry = remember(totalTimelineWidth, windowStart, markerStepMs, totalDuration, localDensity) {
+            with(localDensity) {
+                guideMarkerGeometry(
+                    totalTimelineWidthPx = totalTimelineWidth.toPx(),
+                    windowStart = windowStart,
+                    markerStepMs = markerStepMs,
+                    totalDurationMs = totalDuration,
+                    lineWidthPx = 1.dp.toPx()
+                )
+            }
+        }
         Box(
             modifier = Modifier
                 .width(timelineViewportWidth)
@@ -222,42 +267,36 @@ fun LiveGuideGridRow(
                     androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
                 )
                 .clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
-        ) {
-            Row(
-                modifier = Modifier
-                    .width(totalTimelineWidth)
-                    .horizontalScroll(scrollState)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .width(totalTimelineWidth)
-                        .fillMaxHeight()
-                ) {
-                    val markers = remember(windowStart, windowEnd, markerStepMs) {
-                        buildList {
-                            val firstMarker = windowStart - (windowStart % markerStepMs)
-                            var marker = firstMarker
-                            while (marker <= windowEnd) {
-                                add(marker)
-                                marker += markerStepMs
-                            }
-                        }
-                    }
-                    markers.forEach { marker ->
-                        val markerRatio = ((marker - windowStart).toFloat() / totalDuration.toFloat()).coerceIn(0f, 1f)
-                        Box(
-                            modifier = Modifier
-                                .padding(start = totalTimelineWidth * markerRatio)
-                                .width(1.dp)
-                                .fillMaxHeight()
-                                .background(Color.White.copy(alpha = 0.08f))
+                .drawBehind {
+                    if (markerGeometry.stepPx <= 0f) return@drawBehind
+                    var x = markerGeometry.firstOffsetPx - scrollState.value
+                    while (x < 0f) x += markerGeometry.stepPx
+                    while (x <= size.width) {
+                        val drawX = if (isRtl) size.width - x - markerGeometry.widthPx else x
+                        drawRect(
+                            color = GuideMarkerColor,
+                            topLeft = Offset(drawX, 0f),
+                            size = Size(markerGeometry.widthPx, size.height)
                         )
+                        x += markerGeometry.stepPx
                     }
-                    if (programs.isEmpty()) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text(labels.noSchedule, color = OnSurfaceDim)
-                        }
-                    } else {
+                }
+        ) {
+            if (programs.isEmpty()) {
+                // Kept out of the scrolling content: centred in the whole 7-hour timeline the
+                // label sat off-screen, so a channel without EPG looked like an empty band.
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(labels.noSchedule, color = OnSurfaceDim)
+                }
+            } else {
+                Row(
+                    modifier = Modifier.horizontalScroll(scrollState)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(totalTimelineWidth)
+                            .fillMaxHeight()
+                    ) {
                         programs.forEach { program ->
                             LiveGuideProgramItem(
                                 program = program,
