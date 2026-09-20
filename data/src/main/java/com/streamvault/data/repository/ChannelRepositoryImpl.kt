@@ -330,17 +330,12 @@ class ChannelRepositoryImpl @Inject constructor(
         val providerNames = entities.map { it.providerId }.distinct()
             .associateWith { providerId -> channelDao.getProviderName(providerId) }
         val fallbackOnly = preferencesRepository.fallbackOnlyProviderIds.first()
-        // Rank: the playlist being watched, then the other browsable ones, then the reserves.
-        // Quality only decides inside a rank, so a reserve never outranks the curated list.
-        fun rank(providerId: Long): Int = when {
-            providerId == channel.providerId -> 0
-            providerId !in fallbackOnly -> 1
-            else -> 2
-        }
         return entities
             .map { it.toVariant(settings.observedQualities[it.id]).copy(sourceName = providerNames[it.providerId]) }
             .sortedWith(
-                compareBy<LiveChannelVariant> { rank(it.providerId) }
+                compareBy<LiveChannelVariant> {
+                    variantSourceRank(it.providerId, channel.providerId, fallbackOnly)
+                }
                     .thenByDescending { variantScore(it, settings.preferenceMode) }
                     .thenBy { it.errorCount }
                     .thenBy { it.originalName.length }
@@ -954,4 +949,18 @@ class ChannelRepositoryImpl @Inject constructor(
         }.getOrNull()
         return (decoded as? StalkerConfig)?.portalUrl?.trim()?.takeIf(String::isNotBlank)
     }
+}
+
+/**
+ * Rank: the playlist being watched, then the other browsable ones, then the reserves.
+ * Quality only decides inside a rank, so a reserve never outranks the curated playlist.
+ */
+internal fun variantSourceRank(
+    providerId: Long,
+    currentProviderId: Long,
+    fallbackOnlyProviderIds: Set<Long>
+): Int = when {
+    providerId == currentProviderId -> 0
+    providerId !in fallbackOnlyProviderIds -> 1
+    else -> 2
 }
