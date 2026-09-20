@@ -138,12 +138,18 @@ internal class M3uCatalogSyncExecutor(
         if (stats.liveCount == 0) {
             throw IllegalStateException("Playlist contains no live TV entries")
         }
+        val warnings = stats.warnings.toMutableList()
+        // A live-only retry re-reads the playlist header, so it is also the moment a guide URL
+        // that was added to the playlist (or that failed to attach on the full sync) can land.
+        if (provider.epgUrl.isBlank()) {
+            assignPlaylistEpgSources(provider, stats, warnings)
+        }
         val metadata = (syncMetadataRepository.getMetadata(provider.id) ?: SyncMetadata(provider.id))
             .copy(lastLiveSync = now, lastLiveSuccess = now, liveCount = stats.liveCount)
         syncMetadataRepository.updateMetadata(metadata)
         return SyncOutcome(
-            partial = stats.warnings.isNotEmpty(),
-            warnings = stats.warnings.distinct(),
+            partial = warnings.isNotEmpty(),
+            warnings = warnings.distinct(),
             stagedMutations = stats.liveCount,
             activation = SyncActivation.ACTIVATED_CATALOG
         )
