@@ -323,7 +323,9 @@ class ChannelRepositoryImpl @Inject constructor(
             emptySet(),
             hideDecorativeRows = true
         )
-        if (entities.none { it.providerId != channel.providerId }) return emptyList()
+        // Twins inside the same playlist count too: with the default raw grouping "Rai 1" and
+        // "Rai 1 FHD" are two rows, and the player still has to be able to hop between them.
+        if (entities.size <= 1) return emptyList()
         val settings = currentPresentationSettingsFlow().first()
         val providerNames = entities.map { it.providerId }.distinct()
             .associateWith { providerId -> channelDao.getProviderName(providerId) }
