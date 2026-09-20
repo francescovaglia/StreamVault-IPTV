@@ -51,6 +51,12 @@ jobs:
       - name: Unit tests
         run: ./gradlew --console=plain :domain:test testDebugUnitTest
 
+      # A dry run skips the release build, so nothing would compile the app module or anything
+      # only it depends on: this is what let a broken 'when' through a green dry run once.
+      - name: Compile the app
+        if: ${{ !inputs.publish }}
+        run: ./gradlew --console=plain :app:assembleDebug
+
       - name: Prepare signing
         if: ${{ inputs.publish }}
         shell: bash
