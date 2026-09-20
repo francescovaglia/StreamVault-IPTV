@@ -72,8 +72,22 @@ private val QUALITY_CLEANUP_REGEX = Regex(
     RegexOption.IGNORE_CASE
 )
 private val NON_ALPHANUMERIC_REGEX = Regex("""[^a-z0-9]+""")
+private val WHITESPACE_REGEX = Regex("""\s+""")
 private val NON_ASCII_REGEX = Regex("[^\\u0000-\\u007F]")
 private val COMBINING_MARKS_REGEX = Regex("\\p{Mn}+")
+
+private fun normalizeConstantToken(token: String): String = token.lowercase(Locale.ROOT)
+    .replace(NON_ALPHANUMERIC_REGEX, " ")
+    .replace(WHITESPACE_REGEX, " ")
+    .trim()
+
+// Every token compared against a title comes from the three lists above, so normalise them once
+// here instead of re-deriving the same handful of strings on each of the ~80 comparisons a single
+// movie costs.
+private val NORMALIZED_TOKENS: Map<String, String> =
+    (QUALITY_TOKENS.map { it.first } + QUALITY_BONUS_TOKENS.map { it.first } + EDITION_TOKENS)
+        .distinct()
+        .associateWith(::normalizeConstantToken)
 
 private data class MovieDisplayYearCacheKey(
     val name: String,
@@ -363,9 +377,26 @@ private fun metadataScore(movie: Movie): Int = listOfNotNull(
     movie.tmdbId?.toString()
 ).count { it.isNotBlank() }
 
+// Year.now() reads the system clock and allocates a LocalDate, and recencyBucket is used inside a
+// comparator key selector, so it ran on both sides of every comparison. Cached per calendar day
+// rather than per process: a TV box is left on across New Year.
+private object CurrentYearCache {
+    @Volatile private var day = Long.MIN_VALUE
+    @Volatile private var year = 0
+
+    fun value(): Int {
+        val today = System.currentTimeMillis() / 86_400_000L
+        if (today != day) {
+            year = Year.now().value
+            day = today
+        }
+        return year
+    }
+}
+
 private fun recencyBucket(movie: Movie): Int {
     val year = movieDisplayYear(movie) ?: return 0
-    val currentYear = Year.now().value
+    val currentYear = CurrentYearCache.value()
     return when {
         year >= currentYear -> 5
         year == currentYear - 1 -> 4
@@ -383,17 +414,14 @@ private fun normalizeTokenText(value: String): String {
         value
     }
         .lowercase(Locale.ROOT)
-        .replace(Regex("""[^a-z0-9]+"""), " ")
-        .replace(Regex("""\s+"""), " ")
+        .replace(NON_ALPHANUMERIC_REGEX, " ")
+        .replace(WHITESPACE_REGEX, " ")
         .trim()
     return " $normalized "
 }
 
 private fun containsToken(normalizedValue: String, token: String): Boolean {
-    val normalizedToken = token.lowercase(Locale.ROOT)
-        .replace(Regex("""[^a-z0-9]+"""), " ")
-        .replace(Regex("""\s+"""), " ")
-        .trim()
+    val normalizedToken = NORMALIZED_TOKENS[token] ?: normalizeConstantToken(token)
     if (normalizedToken.isBlank()) return false
     return normalizedValue.contains(" $normalizedToken ")
 }

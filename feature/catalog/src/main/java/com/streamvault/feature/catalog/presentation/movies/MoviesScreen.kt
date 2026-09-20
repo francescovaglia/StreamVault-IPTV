@@ -929,7 +929,8 @@ private fun MoviesVodContent(
         } else {
             gridItems(filteredGridMovies, key = { it.id }) { movie ->
                 val isLocked = isMovieLocked(movie)
-                val isDraggingThis = draggingMovie == movie
+                // Comparing the objects deep-compares the variant list of every tile.
+                val isDraggingThis = draggingMovie?.id == movie.id
                 MovieCard(
                     movie = movie,
                     isLocked = isLocked,
@@ -1313,7 +1314,7 @@ private fun MoviesVodClassicContent(
                 } else {
                     gridItems(filteredGridMovies, key = { it.id }) { movie ->
                         val isLocked = isMovieLocked(movie)
-                        val isDraggingThis = draggingMovie == movie
+                        val isDraggingThis = draggingMovie?.id == movie.id
                         MovieCard(
                             movie = movie,
                             isLocked = isLocked,

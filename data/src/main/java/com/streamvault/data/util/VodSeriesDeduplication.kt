@@ -59,6 +59,8 @@ private val SERIES_QUALITY_CLEANUP_REGEX = Regex(
     RegexOption.IGNORE_CASE
 )
 private val SERIES_NON_ALPHANUMERIC_REGEX = Regex("""[^a-z0-9]+""")
+private val SERIES_WHITESPACE_REGEX = Regex("""\s+""")
+private val SERIES_DIGITS_REGEX = Regex("""\d+""")
 private val SERIES_NON_ASCII_REGEX = Regex("[^\\u0000-\\u007F]")
 private val SERIES_COMBINING_MARKS_REGEX = Regex("\\p{Mn}+")
 
@@ -272,9 +274,26 @@ private fun seriesMetadataScore(series: Series): Int = listOfNotNull(
     series.providerSeriesId
 ).count { it.isNotBlank() }
 
+// Year.now() reads the system clock and allocates a LocalDate, and recencyBucket is used inside a
+// comparator key selector, so it ran on both sides of every comparison. Cached per calendar day
+// rather than per process: a TV box is left on across New Year.
+private object CurrentYearCache {
+    @Volatile private var day = Long.MIN_VALUE
+    @Volatile private var year = 0
+
+    fun value(): Int {
+        val today = System.currentTimeMillis() / 86_400_000L
+        if (today != day) {
+            year = Year.now().value
+            day = today
+        }
+        return year
+    }
+}
+
 private fun seriesRecencyBucket(series: Series): Int {
     val year = seriesDisplayYear(series) ?: return 0
-    val currentYear = Year.now().value
+    val currentYear = CurrentYearCache.value()
     return when {
         year >= currentYear -> 5
         year == currentYear - 1 -> 4
@@ -350,16 +369,25 @@ private fun normalizeSeriesTokenText(value: String): String {
         value
     }
         .lowercase(Locale.ROOT)
-        .replace(Regex("""[^a-z0-9]+"""), " ")
-        .replace(Regex("""\s+"""), " ")
+        .replace(SERIES_NON_ALPHANUMERIC_REGEX, " ")
+        .replace(SERIES_WHITESPACE_REGEX, " ")
         .trim()
     return " $normalized "
 }
 
+private fun normalizeConstantSeriesToken(token: String): String = token.lowercase(Locale.ROOT)
+    .replace(SERIES_NON_ALPHANUMERIC_REGEX, " ")
+    .trim()
+
+// Same reasoning as the movie side: these tokens are compile-time constants, so they are
+// normalised once rather than on every comparison.
+private val SERIES_NORMALIZED_TOKENS: Map<String, String> =
+    (SERIES_QUALITY_TOKENS.map { it.first } + SERIES_QUALITY_BONUS_TOKENS.map { it.first })
+        .distinct()
+        .associateWith(::normalizeConstantSeriesToken)
+
 private fun containsSeriesToken(normalizedValue: String, token: String): Boolean {
-    val normalizedToken = token.lowercase(Locale.ROOT)
-        .replace(Regex("""[^a-z0-9]+"""), " ")
-        .trim()
+    val normalizedToken = SERIES_NORMALIZED_TOKENS[token] ?: normalizeConstantSeriesToken(token)
     return normalizedValue.contains(" $normalizedToken ")
 }
 
@@ -367,7 +395,7 @@ private fun runtimeMinutes(value: String?): Int? = value
     ?.trim()
     ?.takeIf { it.isNotBlank() }
     ?.let { raw ->
-        raw.toIntOrNull() ?: Regex("""\d+""").find(raw)?.value?.toIntOrNull()
+        raw.toIntOrNull() ?: SERIES_DIGITS_REGEX.find(raw)?.value?.toIntOrNull()
     }
 
 private fun Int?.orZero(): Int = this ?: 0

@@ -1,6 +1,5 @@
 ﻿package com.streamvault.feature.catalog.presentation.components
 
-import java.util.Locale
 
 fun formatVodRatingLabel(rating: Float): String {
     val normalizedRating = rating.coerceAtLeast(0f)
@@ -10,7 +9,11 @@ fun formatVodRatingLabel(rating: Float): String {
 }
 
 private fun formatVodRatingValue(rating: Float): String {
-    val formatted = String.format(Locale.US, "%.1f", rating)
-    return formatted.removeSuffix(".0")
+    // String.format builds a Formatter and parses the pattern every time, and this runs on each
+    // visible poster on each recomposition. A rating never needs more than one decimal.
+    val tenths = Math.round(rating * 10f)
+    val whole = tenths / 10
+    val decimal = tenths % 10
+    return if (decimal == 0) whole.toString() else "$whole.$decimal"
 }
 

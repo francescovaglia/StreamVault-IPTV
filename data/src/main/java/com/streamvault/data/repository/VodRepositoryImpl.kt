@@ -310,4 +310,7 @@ class VodRepositoryImpl @Inject constructor(
                 }.take(limit).toList()
             }
         }
+        // Building the two lookup maps and mapping every entity to domain ran in the collector's
+        // context, which for the VOD screen is the main thread.
+        .flowOn(Dispatchers.Default)
 }

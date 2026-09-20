@@ -324,7 +324,9 @@ class HomeViewModel @Inject constructor(
                 _visibleChannelWindow.debounce(120)
             ) { providerIds, channels, visibleIds ->
                 Triple(providerIds, channels, visibleIds)
-            }.collectLatest { (_, channels, visibleIds) ->
+                // Both distinctUntilChanged above walk the whole channel list, and the first
+                // also builds a Set from it, on every single ui-state emission.
+            }.flowOn(heavyMappingDispatcher).collectLatest { (_, channels, visibleIds) ->
                 if (channels.isEmpty()) {
                     epgJob?.cancel()
                     _epgProgramMap.value = emptyMap()
@@ -876,7 +878,9 @@ class HomeViewModel @Inject constructor(
                             numbered, level
                         ) { isAdult || isUserProtected }
                     } else numbered
-                }.collect { displayedChannels ->
+                    // Renumbering copies every Channel, and the list reaches the full playlist
+                    // once the browse limit has grown. flowOn upstream does not cover a combine.
+                }.flowOn(heavyMappingDispatcher).collect { displayedChannels ->
                     val currentQuery = _uiState.value.channelSearchQuery.trim()
                     val currentLimit = if (currentQuery.length < MIN_CHANNEL_SEARCH_QUERY_LENGTH) {
                         _channelBrowseLimit.value

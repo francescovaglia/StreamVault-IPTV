@@ -451,7 +451,8 @@ private fun SeriesDetailContent(
                             items(series.seasons, key = { it.seasonNumber }) { season ->
                                 SeasonChip(
                                     season = season,
-                                    isSelected = season == selectedSeason,
+                                    // Deep-compared the whole episode list, once per chip.
+                                    isSelected = season.seasonNumber == selectedSeason?.seasonNumber,
                                     onClick = { onSeasonSelected(season) }
                                 )
                             }

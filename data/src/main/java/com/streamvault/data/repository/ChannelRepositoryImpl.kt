@@ -41,6 +41,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -427,7 +428,10 @@ class ChannelRepositoryImpl @Inject constructor(
             ),
             settings.numberingMode
         )
-    }.flowOn(Dispatchers.Default)
+        // Room invalidates per table, so bumping a channel's error count after a failed stream
+        // re-runs this whole pipeline and republishes an identical list all the way to the
+        // screen. Comparing once here is far cheaper than recomposing the list.
+    }.distinctUntilChanged().flowOn(Dispatchers.Default)
 
     private fun decorativeAwareCategoryCountFlow(providerId: Long): Flow<List<CategoryCount>> =
         combine(

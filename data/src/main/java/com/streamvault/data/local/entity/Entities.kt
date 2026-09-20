@@ -211,7 +211,11 @@ data class BackupRestoreCheckpointEntity(
         Index(value = ["provider_id", "category_id"]),
         Index(value = ["provider_id", "stream_id"], unique = true),
         Index(value = ["logical_group_id"]),
-        Index(value = ["provider_id", "category_id", "logical_group_id"])
+        Index(value = ["provider_id", "category_id", "logical_group_id"]),
+        // Every browse query ends in ORDER BY number; without these SQLite sorted the whole
+        // playlist into a temp B-tree before applying its LIMIT.
+        Index(value = ["provider_id", "number"]),
+        Index(value = ["provider_id", "category_id", "number"])
     ]
 )
 data class ChannelEntity(
@@ -346,7 +350,11 @@ data class PlaybackCompatibilityRecordEntity(
         Index(name = "index_movies_provider_id_name_id", value = ["provider_id", "name", "id"]),
         Index(name = "index_movies_provider_id_category_id_name_id", value = ["provider_id", "category_id", "name", "id"]),
         Index(name = "index_movies_provider_id_rating_name_id", value = ["provider_id", "rating", "name", "id"]),
-        Index(name = "index_movies_provider_id_added_at_release_date_name_id", value = ["provider_id", "added_at", "release_date", "name", "id"])
+        Index(name = "index_movies_provider_id_added_at_release_date_name_id", value = ["provider_id", "added_at", "release_date", "name", "id"]),
+        // Opening a title looks for its other copies by tmdb id and by year; neither was indexed,
+        // so each detail screen scanned the provider's whole catalogue.
+        Index(value = ["provider_id", "tmdb_id"]),
+        Index(value = ["provider_id", "year"])
     ]
 )
 data class MovieEntity(
@@ -422,7 +430,8 @@ data class MovieBrowseEntity(
         Index(name = "index_series_provider_id_name_id", value = ["provider_id", "name", "id"]),
         Index(name = "index_series_provider_id_category_id_name_id", value = ["provider_id", "category_id", "name", "id"]),
         Index(name = "index_series_provider_id_rating_name_id", value = ["provider_id", "rating", "name", "id"]),
-        Index(name = "index_series_provider_id_last_modified_name_id", value = ["provider_id", "last_modified", "name", "id"])
+        Index(name = "index_series_provider_id_last_modified_name_id", value = ["provider_id", "last_modified", "name", "id"]),
+        Index(value = ["provider_id", "tmdb_id"])
     ]
 )
 data class SeriesEntity(

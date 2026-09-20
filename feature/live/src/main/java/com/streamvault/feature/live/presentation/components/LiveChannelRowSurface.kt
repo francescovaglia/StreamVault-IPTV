@@ -80,24 +80,19 @@ fun LiveChannelRowSurface(
     var isFocused by remember { mutableStateOf(false) }
     val sounds = rememberTvInteractionSounds()
     val focusRequester = remember { FocusRequester() }
-    val hasArchive = channel.archivePlaybackCapability().offersReplay
+    // Only built when the caller has not supplied one. The list screen always does, so keep the
+    // archive lookup inside the fallback: it trims and lowercases two strings on every row.
     val resolvedAccessibilityDescription = accessibilityDescription ?: buildString {
         append(channel.number.takeIf { it > 0 }?.let { "Channel $it, ${channel.name}" } ?: channel.name)
         channel.currentProgram?.title?.takeIf { it.isNotBlank() }?.let { append(". Now playing $it") }
         if (channel.isFavorite) append(". Favorite")
-        if (hasArchive) append(". Catch-up available")
+        if (channel.archivePlaybackCapability().offersReplay) append(". Catch-up available")
     }
     val scale by animateFloatAsState(
         targetValue = if (isDragging) FocusSpec.FocusedScale else 1f,
         animationSpec = AppMotion.FocusSpec,
         label = "liveRowScale"
     )
-    val channelDescription = buildString {
-        append(channel.number.takeIf { it > 0 }?.let { "$it  ${channel.name}" } ?: channel.name)
-        channel.currentProgram?.title?.takeIf { it.isNotBlank() }?.let { append(". $it") }
-        if (channel.isFavorite) append(". Favorite")
-        if (hasArchive) append(". Catch-up available")
-    }
     Surface(
         onClick = { sounds.playSelect(); onClick() },
         onLongClick = onLongClick,

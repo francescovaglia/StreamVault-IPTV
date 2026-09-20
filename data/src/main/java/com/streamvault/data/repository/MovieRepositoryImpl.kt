@@ -347,7 +347,9 @@ class MovieRepositoryImpl @Inject constructor(
                     .toSet(),
                 limit = limit
             )
-        }
+            // Scoring walks every candidate against every seed; upstream flowOn does not reach
+            // a combine transform, so without this it ran on whatever collected it.
+        }.flowOn(Dispatchers.Default)
 
     override fun getRelatedContent(providerId: Long, movieId: Long, limit: Int): Flow<List<Movie>> =
         flow {
@@ -370,10 +372,12 @@ class MovieRepositoryImpl @Inject constructor(
                     )
                 }
             )
-        }
+        }.flowOn(Dispatchers.Default)
 
     override fun getMoviesByIds(ids: List<Long>): Flow<List<Movie>> =
-        movieDao.getByIds(ids).map { entities -> entities.map { it.toDomain() } }
+        movieDao.getByIds(ids)
+            .map { entities -> entities.map { it.toDomain() } }
+            .flowOn(Dispatchers.Default)
 
     override fun getCategories(providerId: Long): Flow<List<Category>> =
         combine(

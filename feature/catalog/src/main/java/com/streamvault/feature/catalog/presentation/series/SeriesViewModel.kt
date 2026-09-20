@@ -402,6 +402,9 @@ class SeriesViewModel @Inject constructor(
                         )
                     }
                 }
+                // Movies has always had this. Without it every write to playback_history, which
+                // happens continuously while something is playing, reloads the whole category.
+                .distinctUntilChanged()
                 .flatMapLatest { request ->
                     flow {
                         emit(loadSelectedCategoryItems(request))

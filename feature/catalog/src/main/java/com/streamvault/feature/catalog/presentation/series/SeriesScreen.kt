@@ -935,7 +935,8 @@ private fun SeriesVodContent(
         } else {
             gridItems(filteredGridSeries, key = { it.id }) { series ->
                 val isLocked = isSeriesLocked(series)
-                val isDraggingThis = draggingSeries == series
+                // Comparing the objects walks every season and every episode of each tile.
+                val isDraggingThis = draggingSeries?.id == series.id
                 SeriesCard(
                     series = series,
                     isLocked = isLocked,
@@ -1320,7 +1321,7 @@ private fun SeriesVodClassicContent(
                 } else {
                     gridItems(filteredGridSeries, key = { it.id }) { series ->
                         val isLocked = isSeriesLocked(series)
-                        val isDraggingThis = draggingSeries == series
+                        val isDraggingThis = draggingSeries?.id == series.id
                         SeriesCard(
                             series = series,
                             isLocked = isLocked,
