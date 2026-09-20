@@ -40,7 +40,6 @@ import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
-import com.streamvault.feature.live.presentation.components.LiveChannelProgressTicker
 import com.streamvault.feature.live.home.HomeViewModel
 import com.streamvault.feature.live.home.CategoryItem
 import com.streamvault.feature.live.home.HomeLoadingPane
@@ -116,7 +115,6 @@ fun LiveHomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val remoteShortcutPreferences by viewModel.remoteShortcutPreferences.collectAsStateWithLifecycle()
-    val nowMs by LiveChannelProgressTicker.nowMs.collectAsStateWithLifecycle()
     val providerNameById = remember(uiState.allProviders) {
         uiState.allProviders.associateBy({ it.id }, { it.name })
     }
@@ -942,7 +940,6 @@ fun LiveHomeScreen(
                                     val isLocked = isChannelLocked(channel)
                                     LiveChannelRowSurface(
                                         channel = channel,
-                                        nowMs = nowMs,
                                         sourceBadgeLabel = uiState.currentCombinedProfileMembers
                                             .firstOrNull { it.providerId == channel.providerId }
                                             ?.providerName

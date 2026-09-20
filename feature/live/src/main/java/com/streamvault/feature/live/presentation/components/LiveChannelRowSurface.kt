@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,7 +58,9 @@ import com.streamvault.domain.playback.archivePlaybackCapability
 @Composable
 fun LiveChannelRowSurface(
     channel: Channel,
-    nowMs: Long,
+    // null means "use the shared live clock", so the 30-second tick recomposes the progress
+    // bar alone instead of the row, the list and the whole screen above it.
+    nowMs: Long? = null,
     onClick: () -> Unit,
     sourceBadgeLabel: String? = null,
     modifier: Modifier = Modifier,
@@ -152,7 +155,7 @@ fun LiveChannelRowSurface(
 @Composable
 fun LiveChannelRowCard(
     channel: Channel,
-    nowMs: Long,
+    nowMs: Long? = null,
     sourceBadgeLabel: String? = null,
     modifier: Modifier = Modifier,
     rowHeight: Dp = 68.dp,
@@ -183,10 +186,21 @@ fun LiveChannelRowCard(
                 channel.currentProgram?.let { program ->
                     Text(text = program.title, style = if (dense) MaterialTheme.typography.labelMedium else MaterialTheme.typography.bodySmall, color = AppColors.TextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     if (!dense) {
-                        LinearProgressIndicator(progress = { liveChannelProgressFraction(nowMs, program.startTime, program.endTime) }, modifier = Modifier.fillMaxWidth().height(2.dp).clip(RoundedCornerShape(999.dp)), color = AppColors.Info, trackColor = AppColors.SurfaceEmphasis)
+                        LiveProgramProgressBar(nowMs = nowMs, startTimeMs = program.startTime, endTimeMs = program.endTime)
                     }
                 } ?: Text(text = noScheduleLabel, style = if (dense) MaterialTheme.typography.labelMedium else MaterialTheme.typography.bodySmall, color = AppColors.TextTertiary)
             }
         }
     }
+}
+
+@Composable
+private fun LiveProgramProgressBar(nowMs: Long?, startTimeMs: Long, endTimeMs: Long) {
+    val tick = nowMs ?: LiveChannelProgressTicker.nowMs.collectAsStateWithLifecycle().value
+    LinearProgressIndicator(
+        progress = { liveChannelProgressFraction(tick, startTimeMs, endTimeMs) },
+        modifier = Modifier.fillMaxWidth().height(2.dp).clip(RoundedCornerShape(999.dp)),
+        color = AppColors.Info,
+        trackColor = AppColors.SurfaceEmphasis
+    )
 }
