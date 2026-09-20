@@ -25,6 +25,19 @@ class M3uSourceIdentityTest {
     }
 
     @Test
+    fun `the same channel in two groups gets two identities`() {
+        val item = entry(tvgId = "iris", name = "Iris", url = "https://cdn.example.com/iris")
+
+        // Same bucket is still the same channel: a true duplicate must not become a second row.
+        assertThat(M3uSourceIdentity.stableLongId(7L, item, "Cinema"))
+            .isEqualTo(M3uSourceIdentity.stableLongId(7L, item, "cinema "))
+        assertThat(M3uSourceIdentity.stableLongId(7L, item, "Cinema"))
+            .isNotEqualTo(M3uSourceIdentity.stableLongId(7L, item, "Digitale Terrestre"))
+        assertThat(M3uSourceIdentity.stableLongId(7L, item, "Cinema"))
+            .isNotEqualTo(M3uSourceIdentity.stableLongId(7L, item))
+    }
+
+    @Test
     fun `different providers do not share source identities`() {
         val item = entry(tvgId = "same-id", name = "Same title", url = "https://cdn.example.com/item")
 

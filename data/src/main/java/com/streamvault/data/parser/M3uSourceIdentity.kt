@@ -14,6 +14,20 @@ internal object M3uSourceIdentity {
     fun stableLongId(providerId: Long, entry: M3uParser.M3uEntry): Long =
         stableLong(providerId, entry.tvgId ?: entry.tvgName, entry.url, entry.name)
 
+    /**
+     * Same entry, different bucket. A curated playlist can list one channel under two groups;
+     * [discriminator] (the group title) gives the second listing an identity of its own instead
+     * of colliding with the first and being dropped as a duplicate.
+     */
+    fun stableLongId(providerId: Long, entry: M3uParser.M3uEntry, discriminator: String): Long =
+        stableLong(
+            providerId,
+            entry.tvgId ?: entry.tvgName,
+            entry.url,
+            entry.name,
+            normalize(discriminator)
+        )
+
     fun fromChannel(channel: ChannelEntity): String =
         hash(channel.providerId, channel.epgChannelId, channel.streamUrl, channel.name)
 
@@ -28,9 +42,17 @@ internal object M3uSourceIdentity {
         return digest.joinToString("") { byte -> "%02x".format(Locale.ROOT, byte) }
     }
 
-    private fun stableLong(providerId: Long, externalId: String?, url: String, title: String): Long {
+    private fun stableLong(
+        providerId: Long,
+        externalId: String?,
+        url: String,
+        title: String,
+        discriminator: String = ""
+    ): Long {
+        val identity = identity(providerId, externalId, url, title) +
+            if (discriminator.isBlank()) "" else "|bucket=$discriminator"
         val digest = MessageDigest.getInstance("SHA-256")
-            .digest(identity(providerId, externalId, url, title).toByteArray(Charsets.UTF_8))
+            .digest(identity.toByteArray(Charsets.UTF_8))
         var result = 0L
         repeat(8) { index -> result = (result shl 8) or (digest[index].toLong() and 0xff) }
         return (result and Long.MAX_VALUE).coerceAtLeast(1L)

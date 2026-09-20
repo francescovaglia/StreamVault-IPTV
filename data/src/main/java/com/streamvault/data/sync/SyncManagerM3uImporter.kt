@@ -287,9 +287,13 @@ internal class SyncManagerM3uImporter(
                         } else {
                             if (!includeLive) return@parseStreaming
                             val groupTitle = entry.groupTitle.ifBlank { "Uncategorized" }
-                            val stableStreamId = override?.streamId
-                                ?: sourceStableId
-                            if (seenLiveStreamIds?.add(stableStreamId) != true) return@parseStreaming
+                            val stableStreamId = admitLiveChannel(
+                                seen = seenLiveStreamIds,
+                                preferredId = override?.streamId ?: sourceStableId,
+                                providerId = provider.id,
+                                entry = entry,
+                                groupTitle = groupTitle
+                            ) ?: return@parseStreaming
                             if (liveCount >= sizeLimits.maxChannelsPerProvider) throw CatalogAdmissionExceeded("M3U live-channel limit exceeded")
                             val categoryId = liveCategories.idFor(groupTitle)
                             if (liveCategories.count > sizeLimits.maxM3uCategoriesPerType) throw CatalogAdmissionExceeded("M3U live category limit exceeded")
@@ -556,6 +560,27 @@ internal class SyncManagerM3uImporter(
                 }
             }
         }
+    }
+
+    /**
+     * The id this live entry is stored under, or null when it is a true duplicate.
+     *
+     * A hand-curated playlist lists the same channel in more than one group on purpose (Iris
+     * under both "Digitale Terrestre" and "Cinema"). The importer used to keep the first and
+     * drop the rest, so the channel vanished from every other list it belonged to. A repeat in
+     * a different group now gets an id of its own; a repeat in the same group is still dropped.
+     */
+    private fun admitLiveChannel(
+        seen: MutableSet<Long>?,
+        preferredId: Long,
+        providerId: Long,
+        entry: M3uParser.M3uEntry,
+        groupTitle: String
+    ): Long? {
+        if (seen == null) return preferredId
+        if (seen.add(preferredId)) return preferredId
+        val grouped = M3uSourceIdentity.stableLongId(providerId, entry, groupTitle)
+        return if (seen.add(grouped)) grouped else null
     }
 
     private fun manualCategoryId(providerId: Long, type: ContentType, hasher: StableLongHasher): Long =
