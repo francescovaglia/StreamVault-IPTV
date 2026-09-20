@@ -45,7 +45,9 @@ internal object PreferenceBackupRegistry {
         "recording_wifi_only", "recording_padding_before_minutes", "recording_padding_after_minutes",
         "max_concurrent_streams"
     )
-    private val deviceBoundStorageKeys = setOf("download_tree_uri")
+    // Local provider row ids: on another install they would point at other playlists, and the
+    // portable codecs resolve provider references one by one, so this stays out of the backup.
+    private val deviceBoundStorageKeys = setOf("download_tree_uri", "fallback_only_provider_ids")
     private val runtimeStorageKeys = setOf(
         "parental_v2_migrated", "parental_pin", "live_variant_observations", "vod_variant_observations",
         "player_decoder_mode", "player_movie_http_protocol_mode", "last_speed_test_megabits",

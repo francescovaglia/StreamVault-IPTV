@@ -80,6 +80,7 @@ class EpgPreviewPortTest {
         whenever(combinedM3uRepository.getActiveLiveSource()).thenReturn(flowOf(null))
         whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
         whenever(preferencesRepository.showAllChannelsCategory).thenReturn(flowOf(true))
+        whenever(preferencesRepository.liveTvChannelMode).thenReturn(flowOf(null))
         whenever(preferencesRepository.guideDensity).thenReturn(flowOf(null))
         whenever(preferencesRepository.guideChannelMode).thenReturn(flowOf(null))
         whenever(preferencesRepository.guideDefaultCategoryId).thenReturn(flowOf(null))

@@ -89,6 +89,7 @@ class EpgViewModelTest {
         whenever(providerRepository.getActiveProvider()).thenReturn(flowOf(null))
         whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
         whenever(preferencesRepository.showAllChannelsCategory).thenReturn(flowOf(true))
+        whenever(preferencesRepository.liveTvChannelMode).thenReturn(flowOf(null))
         whenever(combinedM3uRepository.getActiveLiveSource()).thenReturn(flowOf(null))
         whenever(preferencesRepository.guideDefaultCategoryId).thenReturn(flowOf(null))
         whenever(livePreviewHandoffManager.reverseHandoffOrigin).thenReturn(MutableStateFlow(null))
