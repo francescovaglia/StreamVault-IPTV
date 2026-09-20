@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">Alegeți unde sunt salvate înregistrările.</string>
     <string name="settings_page_recording_defaults">Valori implicite de înregistrare</string>
     <string name="settings_page_recording_defaults_description">Nume de fișiere, reținere, umplutură și înregistrări simultane.</string>
+    <string name="settings_domain_essentials">Esențiale</string>
+    <string name="settings_essentials_description">Cele câteva setări care decid cum se comportă televiziunea live.</string>
+    <string name="settings_page_essentials">Esențiale</string>
+    <string name="settings_page_essentials_description">Modul canalelor, numerotarea, comutatorul de surse, bufferul și ce se întâmplă când un canal nu pornește.</string>
 </resources>

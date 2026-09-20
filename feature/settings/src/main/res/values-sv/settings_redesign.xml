@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">Välj var inspelningar ska sparas.</string>
     <string name="settings_page_recording_defaults">Standardinställningar för inspelning</string>
     <string name="settings_page_recording_defaults_description">Filnamn, retention, utfyllnad och samtidiga inspelningar.</string>
+    <string name="settings_domain_essentials">Viktigast</string>
+    <string name="settings_essentials_description">De få inställningar som avgör hur live-TV beter sig.</string>
+    <string name="settings_page_essentials">Viktigast</string>
+    <string name="settings_page_essentials_description">Kanalläge, numrering, källväljare, buffert och vad som händer när en kanal inte startar.</string>
 </resources>

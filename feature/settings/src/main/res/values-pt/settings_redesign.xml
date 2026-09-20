@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">Escolha onde as gravações serão salvas.</string>
     <string name="settings_page_recording_defaults">Padrões de gravação</string>
     <string name="settings_page_recording_defaults_description">Nomes de arquivos, retenção, preenchimento e gravações simultâneas.</string>
+    <string name="settings_domain_essentials">Essenciais</string>
+    <string name="settings_essentials_description">As poucas definições que decidem como a TV em direto se comporta.</string>
+    <string name="settings_page_essentials">Essenciais</string>
+    <string name="settings_page_essentials_description">Modo de canais, numeração, seletor de fontes, buffer e o que acontece quando um canal falha.</string>
 </resources>

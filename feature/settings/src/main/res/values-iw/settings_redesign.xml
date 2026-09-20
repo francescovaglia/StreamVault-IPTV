@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">בחר היכן נשמרות ההקלטות.</string>
     <string name="settings_page_recording_defaults">ברירת מחדל להקלטה</string>
     <string name="settings_page_recording_defaults_description">שמות קבצים, שמירה, ריפוד והקלטות בו-זמנית.</string>
+    <string name="settings_domain_essentials">עיקריים</string>
+    <string name="settings_essentials_description">מעט ההגדרות שקובעות איך טלוויזיה בשידור חי מתנהגת.</string>
+    <string name="settings_page_essentials">עיקריים</string>
+    <string name="settings_page_essentials_description">מצב ערוצים, מספור, מחליף מקורות, מאגר, ומה קורה כשערוץ לא עולה.</string>
 </resources>

@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">Válassza ki a felvételek mentési helyét.</string>
     <string name="settings_page_recording_defaults">Felvétel alapbeállításai</string>
     <string name="settings_page_recording_defaults_description">Fájlnevek, megőrzés, kitöltés és egyidejű felvételek.</string>
+    <string name="settings_domain_essentials">Alapok</string>
+    <string name="settings_essentials_description">Az a néhány beállítás, amely meghatározza az élő TV működését.</string>
+    <string name="settings_page_essentials">Alapok</string>
+    <string name="settings_page_essentials_description">Csatornamód, számozás, forrásváltó, puffer és mi történik, ha egy csatorna nem indul.</string>
 </resources>

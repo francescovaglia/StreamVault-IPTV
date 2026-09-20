@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">Choisissez où les enregistrements sont enregistrés.</string>
     <string name="settings_page_recording_defaults">Paramètres d\'enregistrement par défaut</string>
     <string name="settings_page_recording_defaults_description">Noms de fichiers, conservation, remplissage et enregistrements simultanés.</string>
+    <string name="settings_domain_essentials">Essentiels</string>
+    <string name="settings_essentials_description">Les quelques réglages qui décident du comportement de la TV en direct.</string>
+    <string name="settings_page_essentials">Essentiels</string>
+    <string name="settings_page_essentials_description">Mode des chaînes, numérotation, sélecteur de sources, tampon et ce qui se passe quand une chaîne échoue.</string>
 </resources>

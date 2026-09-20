@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">Pilih di mana rekaman disimpan.</string>
     <string name="settings_page_recording_defaults">Perekaman default</string>
     <string name="settings_page_recording_defaults_description">Nama file, retensi, padding, dan rekaman simultan.</string>
+    <string name="settings_domain_essentials">Penting</string>
+    <string name="settings_essentials_description">Beberapa pengaturan yang menentukan perilaku TV langsung.</string>
+    <string name="settings_page_essentials">Penting</string>
+    <string name="settings_page_essentials_description">Mode saluran, penomoran, pengalih sumber, buffer, dan apa yang terjadi saat saluran gagal.</string>
 </resources>

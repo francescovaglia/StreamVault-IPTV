@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">녹음이 저장되는 위치를 선택하세요.</string>
     <string name="settings_page_recording_defaults">녹음 기본값</string>
     <string name="settings_page_recording_defaults_description">파일 이름, 보존, 패딩 및 동시 녹음.</string>
+    <string name="settings_domain_essentials">필수 설정</string>
+    <string name="settings_essentials_description">라이브 TV의 동작을 결정하는 몇 가지 설정.</string>
+    <string name="settings_page_essentials">필수 설정</string>
+    <string name="settings_page_essentials_description">채널 모드, 번호, 소스 전환기, 버퍼, 채널 재생 실패 시 동작.</string>
 </resources>

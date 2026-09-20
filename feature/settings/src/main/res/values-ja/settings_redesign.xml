@@ -220,4 +220,8 @@
     <string name="settings_page_recording_storage_description">録音を保存する場所を選択します。</string>
     <string name="settings_page_recording_defaults">デフォルトの記録</string>
     <string name="settings_page_recording_defaults_description">ファイル名、保存期間、パディング、同時録音。</string>
+    <string name="settings_domain_essentials">基本設定</string>
+    <string name="settings_essentials_description">ライブTVの挙動を決める少数の設定。</string>
+    <string name="settings_page_essentials">基本設定</string>
+    <string name="settings_page_essentials_description">チャンネル表示、番号、ソース切り替え、バッファ、チャンネルが再生できないときの動作。</string>
 </resources>
