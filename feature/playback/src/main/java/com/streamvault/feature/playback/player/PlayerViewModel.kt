@@ -394,7 +394,7 @@ class PlayerViewModel @Inject constructor(
     internal var autoPlayCountdownJob: Job? = null
     internal var lastTriggeredCreditsChapterStartMs: Long? = null
     internal var creditsAutoPlayTriggeredForSession: Boolean = false
-    internal var zapAutoRevertEnabled: Boolean = true
+    internal var zapAutoRevertEnabled: Boolean = false
     internal var autoPlayNextEpisodeEnabled: Boolean = true
     internal var isAppInForeground: Boolean = true
     internal var shouldResumeAfterForeground: Boolean = false

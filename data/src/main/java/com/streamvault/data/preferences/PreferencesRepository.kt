@@ -891,8 +891,10 @@ class PreferencesRepository @Inject constructor(
         )
     }
 
+    // Off by default: a channel that will not start should show the error, not quietly hand the
+    // viewer a different channel. Whoever prefers the hop can switch it back on in Settings.
     override val zapAutoRevert: Flow<Boolean> = preferenceFlow { preferences ->
-        preferences[PreferencesKeys.ZAP_AUTO_REVERT] ?: true
+        preferences[PreferencesKeys.ZAP_AUTO_REVERT] ?: false
     }
 
     override val recordingWifiOnly: Flow<Boolean> = preferenceFlow { preferences ->
