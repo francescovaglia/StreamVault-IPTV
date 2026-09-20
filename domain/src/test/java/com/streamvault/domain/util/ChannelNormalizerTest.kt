@@ -24,6 +24,14 @@ class ChannelNormalizerTest {
     }
 
     @Test
+    fun `a single trailing pipe after the country code groups with the renamed twin`() {
+        // The provider ships "IT| RAI 1 UHD"; the hand-curated playlist calls it "Rai 1".
+        // Same channel, so the same group, otherwise neither is ever offered as a variant.
+        assertThat(ChannelNormalizer.getLogicalGroupId("IT| RAI 1 UHD", 1L)).isEqualTo("1_rai1")
+        assertThat(ChannelNormalizer.getLogicalGroupId("Rai 1", 2L)).isEqualTo("2_rai1")
+    }
+
+    @Test
     fun `strips parenthesized content`() {
         val id = ChannelNormalizer.getLogicalGroupId("CNN (US)", 1L)
         assertThat(id).isEqualTo("1_cnn")

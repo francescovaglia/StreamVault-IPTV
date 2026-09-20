@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="app_name">Tivù</string>
+    <string name="startup_library_failed">Tivù couldn\'t open your library</string>
+    <string name="app_update_download_description">Downloading the latest Tivù update</string>
 
     
     <string name="nav_home">Home</string>

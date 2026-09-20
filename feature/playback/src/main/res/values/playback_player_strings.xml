@@ -24,6 +24,7 @@
     <string name="player_action_format">Format</string>
     <string name="player_action_group">Group</string>
     <string name="player_action_guide">Guide</string>
+    <string name="player_action_more">More</string>
     <string name="player_action_mute">Mute</string>
     <string name="player_action_pip">PiP</string>
     <string name="player_action_playback">Playback</string>
@@ -153,6 +154,8 @@
     <string name="player_live_timeshift_buffering">Local live rewind is still buffering.</string>
     <string name="player_minutes_remaining">%1$d min remaining</string>
     <string name="player_more_controls">More controls</string>
+    <string name="player_more_options">More options</string>
+    <string name="player_more_short">More</string>
     <string name="player_multiview_short">Multiview</string>
     <string name="player_mute">Mute</string>
     <string name="player_muted_badge">Muted</string>
