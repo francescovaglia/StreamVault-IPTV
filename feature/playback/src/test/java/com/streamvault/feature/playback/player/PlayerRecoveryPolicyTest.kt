@@ -49,6 +49,8 @@ class PlayerRecoveryPolicyTest {
     fun `provider limit messages disable preload`() {
         assertThat(PlayerRecoveryPolicy.shouldCooldownLivePreloadAfterError("HTTP 429"))
             .isTrue()
+        assertThat(PlayerRecoveryPolicy.shouldCooldownLivePreloadAfterError("Response code: 458"))
+            .isTrue()
         assertThat(PlayerRecoveryPolicy.shouldCooldownLivePreloadAfterError("decoder failed"))
             .isFalse()
     }

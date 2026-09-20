@@ -328,9 +328,11 @@ internal fun PlayerViewModel.changeChannel(index: Int, isAutoFallback: Boolean =
         internalChannelId = channel.id
     )
 
-    showZapOverlayFlow.value = false
+    // A channel change shows the light plate, not the 13-button bar: on a remote the bar also
+    // swallowed the next "up" press, so zapping up twice in a row did nothing.
     showControlsFlow.value = false
-    openChannelInfoOverlay()
+    showZapOverlayFlow.value = true
+    hideZapOverlayAfterDelay()
 
     playerRecoveryCoordinator.clearStreamAttempts()
     playerRecoveryCoordinator.markStreamAttempt(channel.streamUrl)

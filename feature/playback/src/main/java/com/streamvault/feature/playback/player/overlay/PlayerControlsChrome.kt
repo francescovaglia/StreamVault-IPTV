@@ -268,8 +268,20 @@ fun PlayerZapOverlay(
     displayChannelNumber: Int,
     channelName: String?,
     programTitle: String?,
+    nextProgramTitle: String? = null,
+    programStartTime: Long = 0L,
+    programEndTime: Long = 0L,
     modifier: Modifier = Modifier
 ) {
+    val appTimeFormat = LocalUiTimeFormat.current
+    val timeFormat = remember(appTimeFormat) { appTimeFormat.createTimeFormat() }
+    val hasSlot = programEndTime > programStartTime && programStartTime > 0L
+    val slotProgress = if (hasSlot) {
+        ((System.currentTimeMillis() - programStartTime).toFloat() /
+            (programEndTime - programStartTime).toFloat()).coerceIn(0f, 1f)
+    } else {
+        0f
+    }
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn() + slideInHorizontally(),
@@ -311,6 +323,50 @@ fun PlayerZapOverlay(
                             text = programTitle,
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.White.copy(alpha = 0.78f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    // The bar is the programme slot, not the stream position: where we are
+                    // inside what is on, with its end time and what follows written on it.
+                    if (hasSlot) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        LinearProgressIndicator(
+                            progress = { slotProgress },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(3.dp)
+                                .clip(RoundedCornerShape(999.dp)),
+                            color = Primary,
+                            trackColor = Color.White.copy(alpha = 0.2f)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                text = timeFormat.format(Date(programStartTime)),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White.copy(alpha = 0.6f)
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text(
+                                text = buildString {
+                                    append(timeFormat.format(Date(programEndTime)))
+                                    if (!nextProgramTitle.isNullOrBlank()) {
+                                        append(" · ")
+                                        append(nextProgramTitle)
+                                    }
+                                },
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White.copy(alpha = 0.6f),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    } else if (!nextProgramTitle.isNullOrBlank()) {
+                        Text(
+                            text = "${stringResource(R.string.player_next_label)} $nextProgramTitle",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White.copy(alpha = 0.6f),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )

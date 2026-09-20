@@ -17,6 +17,7 @@ import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.EpgOverrideCandidate
 import com.streamvault.domain.model.Favorite
 import com.streamvault.domain.model.GuideSourcePolicy
+import com.streamvault.domain.model.LiveTvChannelMode
 import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.ProgramReminder
 import com.streamvault.domain.model.ProgramReminderDeliveryState
@@ -128,6 +129,8 @@ data class EpgUiState(
     val isPreviewLoading: Boolean = false,
     val previewErrorMessage: String? = null,
     val previewChannelId: Long? = null,
+    /** Guide previews are a second player: only PRO mode asks for one. */
+    val livePreviewEnabled: Boolean = false,
 ) {
     companion object {
         private val DEFAULT_NOW = System.currentTimeMillis()
@@ -1506,6 +1509,12 @@ class EpgViewModel @Inject constructor(
     }
 
     private fun restoreGuidePreferences() {
+        viewModelScope.launch {
+            preferencesRepository.liveTvChannelMode.collect { stored ->
+                val previewEnabled = LiveTvChannelMode.fromStorage(stored) == LiveTvChannelMode.PRO
+                _uiState.update { it.copy(livePreviewEnabled = previewEnabled) }
+            }
+        }
         viewModelScope.launch {
             preferencesRepository.guideDensity.first()
                 ?.let { saved ->

@@ -447,7 +447,9 @@ fun LiveEpgScreen(
             onChannelClick = { channel ->
                 if (isGuideChannelLocked(channel, categoriesById, uiState.parentalControlLevel)) {
                     requestLockedGuideAction(LockedGuideAction.PlayChannel(channel, returnRoute))
-                } else if (uiState.previewChannelId == channel.id) {
+                } else if (!uiState.livePreviewEnabled || uiState.previewChannelId == channel.id) {
+                    // Outside PRO mode the first click plays: previewing opens a second
+                    // connection next to the one about to go fullscreen.
                     viewModel.handoffOrClearForFullscreen(channel)
                     onPlayChannel(
                         channel,
