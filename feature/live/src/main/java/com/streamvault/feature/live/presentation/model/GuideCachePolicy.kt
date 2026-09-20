@@ -1,6 +1,7 @@
 package com.streamvault.feature.live.presentation.model
 
 import com.streamvault.domain.model.Channel
+import com.streamvault.domain.model.guideLookupKey
 
 data class GuideCacheKey(
     val providerId: Long,

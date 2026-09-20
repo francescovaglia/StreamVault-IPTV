@@ -392,6 +392,7 @@
 <string name="nav_movies">Фильмы</string>
 <string name="nav_vod">VOD</string>
 <string name="nav_series">Сериалы</string>
+<string name="nav_favorites">Избранное</string>
 <string name="settings_category_mode_protection">Блокировать / Разблокировать</string>
 <string name="settings_category_mode_visibility">Скрыть / Показать</string>
 <string name="settings_category_protection_summary_title">Изменения блокировки проверяются перед применением</string>

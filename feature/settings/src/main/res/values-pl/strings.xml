@@ -392,6 +392,7 @@
 <string name="nav_movies">Filmy</string>
 <string name="nav_vod">VOD</string>
 <string name="nav_series">Seria</string>
+<string name="nav_favorites">Ulubione</string>
 <string name="settings_category_mode_protection">Zablokuj / Odblokuj</string>
 <string name="settings_category_mode_visibility">Ukryj / Pokaż</string>
 <string name="settings_category_protection_summary_title">Zmiany blokad są sprawdzane przed zastosowaniem</string>

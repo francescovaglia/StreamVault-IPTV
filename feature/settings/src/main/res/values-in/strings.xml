@@ -392,6 +392,7 @@
 <string name="nav_movies">Film</string>
 <string name="nav_vod">VOD</string>
 <string name="nav_series">Seri</string>
+<string name="nav_favorites">Favorit</string>
 <string name="settings_category_mode_protection">Kunci / Buka Kunci</string>
 <string name="settings_category_mode_visibility">Sembunyikan / Tampilkan</string>
 <string name="settings_category_protection_summary_title">Perubahan kunci ditinjau sebelum diterapkan</string>

@@ -392,6 +392,7 @@
 <string name="nav_movies">Films</string>
 <string name="nav_vod">VOD</string>
 <string name="nav_series">Serie</string>
+<string name="nav_favorites">Favorieten</string>
 <string name="settings_category_mode_protection">Vergrendelen / Ontgrendelen</string>
 <string name="settings_category_mode_visibility">Verbergen / Zichtbaar maken</string>
 <string name="settings_category_protection_summary_title">Wijzigingen in vergrendeling worden beoordeeld voordat ze live gaan</string>

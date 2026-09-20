@@ -10,7 +10,7 @@ import com.streamvault.feature.live.api.LivePreviewStreamPreparer
 import com.streamvault.feature.live.api.LiveSurfaceRefreshPort
 import com.streamvault.domain.policy.applyProviderCategoryDisplayPreferences
 import com.streamvault.domain.playback.orderedByRequestedRawIds
-import com.streamvault.feature.live.presentation.model.guideLookupKey
+import com.streamvault.domain.model.guideLookupKey
 import com.streamvault.feature.live.presentation.model.GuideCacheKey
 import com.streamvault.feature.live.presentation.model.GuideCachePolicy
 import com.streamvault.domain.model.LiveTvChannelMode

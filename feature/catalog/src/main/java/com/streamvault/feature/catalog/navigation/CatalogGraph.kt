@@ -9,6 +9,7 @@ import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.NavigationActions
 import com.streamvault.core.navigation.NavigationOptions
 import com.streamvault.domain.model.Channel
+import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.PlaybackHistory
@@ -18,6 +19,7 @@ import com.streamvault.feature.catalog.api.CatalogDashboardShelfCustomizationCon
 import com.streamvault.feature.catalog.api.CatalogPlatformHost
 import com.streamvault.feature.catalog.api.CatalogScaffoldContent
 import com.streamvault.feature.catalog.presentation.dashboard.DashboardScreen
+import com.streamvault.feature.catalog.presentation.favorites.FavoritesScreen
 import com.streamvault.feature.catalog.presentation.movies.MovieDetailScreen
 import com.streamvault.feature.catalog.presentation.movies.MoviesScreen
 import com.streamvault.feature.catalog.presentation.search.SearchScreen
@@ -106,6 +108,40 @@ fun NavGraphBuilder.registerCatalogGraph(
         VodScreen(
             onMovieClick = { movie -> onOpenMovieDetail(movie, AppDestination.Vod) },
             onSeriesClick = { series -> onOpenSeriesDetail(series, AppDestination.Vod) },
+            scaffold = scaffold,
+        )
+    }
+
+    composable(CatalogRoutePatterns.FAVORITES) {
+        FavoritesScreen(
+            onItemClick = { item ->
+                when (item.favorite.contentType) {
+                    ContentType.LIVE -> item.channel?.let { channel ->
+                        onPlayChannel(
+                            channel,
+                            CatalogChannelPlaybackContext(
+                                categoryId = item.launchCategoryId,
+                                providerId = item.providerId,
+                                isVirtual = item.launchIsVirtual,
+                                combinedProfileId = null,
+                                returnDestination = AppDestination.Favorites,
+                            )
+                        )
+                    }
+                    // Movies and series open their detail page: the saved library has an id,
+                    // not a loaded Movie or Series, and the detail screen loads it anyway.
+                    ContentType.MOVIE -> actions.navigate(
+                        AppDestination.MovieDetail(item.favorite.contentId, AppDestination.Favorites)
+                    )
+                    ContentType.SERIES -> actions.navigate(
+                        AppDestination.SeriesDetail(item.favorite.contentId, AppDestination.Favorites)
+                    )
+                    ContentType.VOD, ContentType.SERIES_EPISODE -> Unit
+                }
+            },
+            onHistoryClick = { item -> onPlayHistory(item.history, AppDestination.Favorites) },
+            currentDestination = AppDestination.Favorites,
+            onDestinationRequested = onTopLevelDestinationRequested,
             scaffold = scaffold,
         )
     }

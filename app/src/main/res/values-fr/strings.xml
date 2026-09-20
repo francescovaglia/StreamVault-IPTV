@@ -5,6 +5,7 @@
     <string name="nav_live_tv">Télévision en direct</string>
     <string name="nav_movies">Films</string>
     <string name="nav_series">Série</string>
+    <string name="nav_favorites">Favoris</string>
     <string name="nav_epg">Guider</string>
     <string name="nav_settings">Paramètres</string>
     <string name="welcome_enter_app">Entrez dans l’application</string>

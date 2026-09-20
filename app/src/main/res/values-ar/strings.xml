@@ -5,6 +5,7 @@
     <string name="nav_live_tv">البث المباشر</string>
     <string name="nav_movies">الأفلام</string>
     <string name="nav_series">المسلسلات</string>
+    <string name="nav_favorites">المفضلة</string>
     <string name="nav_epg">دليل البرامج</string>
     <string name="nav_settings">الإعدادات</string>
     <string name="welcome_enter_app">دخول التطبيق</string>

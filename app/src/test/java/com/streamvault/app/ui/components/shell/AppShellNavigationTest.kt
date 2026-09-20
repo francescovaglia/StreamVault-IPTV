@@ -21,6 +21,7 @@ class AppShellNavigationTest {
                 Routes.LIVE_TV,
                 Routes.MOVIES,
                 Routes.SERIES,
+                Routes.FAVORITES,
                 Routes.DOWNLOADS,
                 Routes.EPG,
                 Routes.SEARCH,

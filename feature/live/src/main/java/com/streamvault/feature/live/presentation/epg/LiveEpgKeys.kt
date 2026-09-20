@@ -1,7 +1,7 @@
 package com.streamvault.feature.live.presentation.epg
 
 import com.streamvault.domain.model.Channel
-import com.streamvault.feature.live.presentation.model.guideLookupKey
+import com.streamvault.domain.model.guideLookupKey
 
 fun liveEpgChannelKey(channel: Channel, index: Int): String {
     val epgId = channel.guideLookupKey().orEmpty()

@@ -5,6 +5,7 @@
     <string name="nav_live_tv">라이브 TV</string>
     <string name="nav_movies">영화</string>
     <string name="nav_series">시리즈</string>
+    <string name="nav_favorites">즐겨찾기</string>
     <string name="nav_epg">가이드</string>
     <string name="nav_settings">설정</string>
     <string name="welcome_enter_app">앱 시작</string>

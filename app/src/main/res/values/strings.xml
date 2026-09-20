@@ -337,6 +337,7 @@
     <string name="download_in_progress">Downloading %s</string>
     <string name="download_progress">%1$s / %2$s</string>
     <string name="nav_downloads">Downloads</string>
+    <string name="nav_favorites">Favorites</string>
     <string name="downloads_empty">No downloads yet</string>
     <string name="downloads_delete_confirm">Delete this download?</string>
     <string name="download_play_local">Play</string>

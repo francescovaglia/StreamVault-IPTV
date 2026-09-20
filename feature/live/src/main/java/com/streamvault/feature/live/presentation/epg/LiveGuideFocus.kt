@@ -2,7 +2,7 @@ package com.streamvault.feature.live.presentation.epg
 
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
-import com.streamvault.feature.live.presentation.model.guideLookupKey
+import com.streamvault.domain.model.guideLookupKey
 
 data class LiveGuideFocusSelection(
     val channel: Channel?,

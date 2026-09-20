@@ -392,6 +392,7 @@
 <string name="nav_movies">Phim</string>
 <string name="nav_vod">VOD</string>
 <string name="nav_series">loạt</string>
+<string name="nav_favorites">Yêu thích</string>
 <string name="settings_category_mode_protection">Khóa / Mở khóa</string>
 <string name="settings_category_mode_visibility">Ẩn / Hiện</string>
 <string name="settings_category_protection_summary_title">Các thay đổi khóa sẽ được xem xét trước khi áp dụng</string>

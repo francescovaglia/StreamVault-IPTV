@@ -22,6 +22,11 @@ val InterFamily = FontFamily(
 
 private val LocaleSafeSansFamily = FontFamily.SansSerif
 
+// Inter's cmap covers Latin (incl. extended), Greek, Cyrillic and Vietnamese, so every shipped
+// locale can use it except the five whose script it has no glyphs for. Checking for English only
+// dropped 20 locales onto the system font for no reason.
+private val ScriptsWithoutInterGlyphs = setOf("ar", "iw", "he", "ja", "ko", "zh")
+
 @Composable
 fun rememberAppTypography(): Typography {
     val context = LocalContext.current
@@ -38,14 +43,10 @@ fun rememberAppTypography(): Typography {
     }
 }
 
-private fun appTypographyFor(locale: Locale): Typography {
-    val fontFamily = if (locale.language.equals("en", ignoreCase = true)) {
-        InterFamily
-    } else {
-        LocaleSafeSansFamily
-    }
-    return createTypography(fontFamily)
-}
+internal fun appFontFamilyFor(locale: Locale): FontFamily =
+    if (locale.language.lowercase() in ScriptsWithoutInterGlyphs) LocaleSafeSansFamily else InterFamily
+
+private fun appTypographyFor(locale: Locale): Typography = createTypography(appFontFamilyFor(locale))
 
 private fun createTypography(fontFamily: FontFamily) = Typography(
     displayLarge = TextStyle(

@@ -36,7 +36,7 @@ import com.streamvault.feature.live.presentation.epg.LiveGuideHeroBadge
 import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
 import com.streamvault.core.ui.image.ChannelLogoBadge
 import com.streamvault.domain.playback.isArchivePlayable
-import com.streamvault.feature.live.presentation.model.guideLookupKey
+import com.streamvault.domain.model.guideLookupKey
 import com.streamvault.feature.live.presentation.time.LocalLiveTimeFormat
 import com.streamvault.feature.live.presentation.time.createLiveTimeFormat
 import com.streamvault.core.ui.theme.OnSurface

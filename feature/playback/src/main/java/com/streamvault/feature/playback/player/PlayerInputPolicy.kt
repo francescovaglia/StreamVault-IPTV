@@ -49,6 +49,19 @@ internal data class PlayerInputState(
 )
 
 /**
+ * Auto-repeat is fine for seeking, where each event nudges a position that is already loaded.
+ * It is not fine for zapping: every repeat tears down the stream and opens the next one, so
+ * holding the button down fires a burst of channel changes the provider has to serve at once.
+ * On a single-connection subscription that burst is what leaves the player on a dead channel.
+ */
+internal fun PlayerInputAction.allowedOnKeyRepeat(): Boolean = when (this) {
+    PlayerInputAction.PlayNext,
+    PlayerInputAction.PlayPrevious,
+    PlayerInputAction.ZapToLastChannel -> false
+    else -> true
+}
+
+/**
  * Builds the input snapshot when an event is handled instead of reusing a
  * snapshot captured during composition. This matters for ViewModel-backed
  * buffers, whose value can change before Compose has had a chance to

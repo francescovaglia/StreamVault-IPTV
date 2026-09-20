@@ -5,6 +5,7 @@
     <string name="nav_live_tv">直播电视</string>
     <string name="nav_movies">电影</string>
     <string name="nav_series">剧集</string>
+    <string name="nav_favorites">收藏</string>
     <string name="nav_epg">节目指南</string>
     <string name="nav_settings">设置</string>
     <string name="welcome_enter_app">进入应用</string>

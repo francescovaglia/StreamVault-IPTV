@@ -52,7 +52,10 @@ data class FavoriteUiModel(
     val categoryId: Long? = null,
     val epgChannelId: String? = null,
     val launchCategoryId: Long? = null,
-    val launchIsVirtual: Boolean = false
+    val launchIsVirtual: Boolean = false,
+    // Carried so the saved library can start playback without rebuilding a half-populated
+    // Channel from the fields above.
+    val channel: Channel? = null
 )
 
 data class FavoriteSectionUiModel(
@@ -629,7 +632,8 @@ class FavoritesViewModel @Inject constructor(
                                 categoryId = channel.categoryId,
                                 epgChannelId = channel.epgChannelId,
                                 launchCategoryId = favorite.groupId?.let { -it } ?: VirtualCategoryIds.FAVORITES,
-                                launchIsVirtual = true
+                                launchIsVirtual = true,
+                                channel = channel
                             )
                         }
 

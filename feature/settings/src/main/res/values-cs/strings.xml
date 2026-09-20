@@ -392,6 +392,7 @@
 <string name="nav_movies">Filmy</string>
 <string name="nav_vod">VOD</string>
 <string name="nav_series">série</string>
+<string name="nav_favorites">Oblíbené</string>
 <string name="settings_category_mode_protection">Zamknout / Odemknout</string>
 <string name="settings_category_mode_visibility">Skrýt / Zobrazit</string>
 <string name="settings_category_protection_summary_title">Změny zámků se před zveřejněním kontrolují</string>

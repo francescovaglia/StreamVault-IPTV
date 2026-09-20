@@ -28,7 +28,7 @@ import com.streamvault.domain.model.Channel
 import com.streamvault.core.ui.theme.Primary
 import com.streamvault.domain.model.Program
 import com.streamvault.feature.live.epg.EpgViewModel
-import com.streamvault.feature.live.presentation.model.guideLookupKey
+import com.streamvault.domain.model.guideLookupKey
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlin.math.roundToInt

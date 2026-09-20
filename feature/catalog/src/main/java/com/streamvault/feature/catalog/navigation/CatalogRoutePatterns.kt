@@ -5,6 +5,7 @@ object CatalogRoutePatterns {
     const val MOVIES = "movies"
     const val SERIES = "series"
     const val VOD = "vod"
+    const val FAVORITES = "favorites"
     const val SEARCH = "search"
     const val SEARCH_DESTINATION = "search?query={query}"
     const val MOVIE_DETAIL = "movie_detail/{movieId}?returnRoute={returnRoute}"

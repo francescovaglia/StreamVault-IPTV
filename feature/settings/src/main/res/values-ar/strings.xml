@@ -392,6 +392,7 @@
 <string name="nav_movies">الأفلام</string>
 <string name="nav_vod">VOD</string>
 <string name="nav_series">المسلسلات</string>
+<string name="nav_favorites">المفضلة</string>
 <string name="settings_category_mode_protection">قفل / إلغاء القفل</string>
 <string name="settings_category_mode_visibility">إخفاء / إظهار</string>
 <string name="settings_category_protection_summary_title">تتم مراجعة تغييرات القفل قبل تفعيلها</string>

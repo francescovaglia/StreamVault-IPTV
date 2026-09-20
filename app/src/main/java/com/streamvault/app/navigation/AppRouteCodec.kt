@@ -19,6 +19,7 @@ internal object AppRoutePatterns {
     const val SERIES = CatalogRoutePatterns.SERIES
     const val VOD = CatalogRoutePatterns.VOD
     const val DOWNLOADS = SystemRoutePatterns.DOWNLOADS
+    const val FAVORITES = CatalogRoutePatterns.FAVORITES
     const val EPG = LiveRoutePatterns.EPG
     const val EPG_DESTINATION = LiveRoutePatterns.EPG_DESTINATION
     const val SETTINGS = "settings"
@@ -45,6 +46,7 @@ internal object AppRouteCodec {
         AppDestination.Series -> AppRoutePatterns.SERIES
         AppDestination.Vod -> AppRoutePatterns.VOD
         AppDestination.Downloads -> AppRoutePatterns.DOWNLOADS
+        AppDestination.Favorites -> AppRoutePatterns.FAVORITES
         is AppDestination.Guide -> {
             val categoryId = destination.categoryId ?: -1L
             val anchorTime = destination.anchorTimeMs ?: -1L
@@ -98,6 +100,7 @@ internal object AppRouteCodec {
             path == AppRoutePatterns.SERIES -> AppDestination.Series
             path == AppRoutePatterns.VOD -> AppDestination.Vod
             path == AppRoutePatterns.DOWNLOADS -> AppDestination.Downloads
+            path == AppRoutePatterns.FAVORITES -> AppDestination.Favorites
             path == AppRoutePatterns.EPG -> decodeGuide(query)
             path == AppRoutePatterns.SETTINGS -> AppDestination.Settings(
                 backupUri = query["backupUri"]?.takeIf(String::isNotBlank)
@@ -184,6 +187,7 @@ internal object Routes {
     const val SERIES = AppRoutePatterns.SERIES
     const val VOD = AppRoutePatterns.VOD
     const val DOWNLOADS = AppRoutePatterns.DOWNLOADS
+    const val FAVORITES = AppRoutePatterns.FAVORITES
     const val EPG = AppRoutePatterns.EPG
     const val EPG_DESTINATION = AppRoutePatterns.EPG_DESTINATION
     const val SETTINGS = AppRoutePatterns.SETTINGS

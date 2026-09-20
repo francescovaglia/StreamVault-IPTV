@@ -5,6 +5,7 @@
     <string name="nav_live_tv">TV în direct</string>
     <string name="nav_movies">Filme</string>
     <string name="nav_series">Seria</string>
+    <string name="nav_favorites">Favorite</string>
     <string name="nav_epg">Ghid</string>
     <string name="nav_settings">Setări</string>
     <string name="welcome_enter_app">Intrați în aplicație</string>

@@ -1,7 +1,7 @@
-package com.streamvault.feature.live.presentation.model
+package com.streamvault.domain.model
 
 import com.google.common.truth.Truth.assertThat
-import com.streamvault.domain.model.Channel
+
 import org.junit.Test
 
 class GuideLookupKeyTest {
