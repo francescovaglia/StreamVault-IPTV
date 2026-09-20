@@ -999,6 +999,16 @@ interface TmdbIdentityDao {
 @Dao
 @RewriteQueriesToDropUnusedColumns
 interface MovieDao {
+    /** Providers that actually carry on-demand content, whichever one is active for live. */
+    @Query(
+        """
+        SELECT DISTINCT provider_id FROM movies
+        UNION
+        SELECT DISTINCT provider_id FROM series
+        """
+    )
+    fun getProviderIdsWithCatalog(): Flow<List<Long>>
+
     @Query("SELECT * FROM movies WHERE provider_id = :providerId ORDER BY added_at DESC, name ASC, id ASC")
     fun getByProvider(providerId: Long): Flow<List<MovieBrowseEntity>>
 

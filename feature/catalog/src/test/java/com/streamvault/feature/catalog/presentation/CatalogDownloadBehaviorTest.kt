@@ -134,6 +134,7 @@ class CatalogDownloadBehaviorTest {
             .thenReturn(flowOf(emptyList()))
         whenever(movieRepository.getStreamInfo(any())).thenReturn(streamResult)
         whenever(providerRepository.getActiveProvider()).thenReturn(flowOf(provider))
+        whenever(providerRepository.getActiveCatalogProvider()).thenReturn(flowOf(provider))
         whenever(
             playbackHistoryRepository.getPlaybackHistory(
                 contentId = eq(movie.id),

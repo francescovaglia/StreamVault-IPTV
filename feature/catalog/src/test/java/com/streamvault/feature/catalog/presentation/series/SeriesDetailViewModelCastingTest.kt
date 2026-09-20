@@ -189,6 +189,7 @@ class SeriesDetailViewModelCastingTest {
         val favoriteRepository: FavoriteRepository = mock()
 
         whenever(providerRepository.getActiveProvider()).thenReturn(flowOf(provider))
+        whenever(providerRepository.getActiveCatalogProvider()).thenReturn(flowOf(provider))
         whenever(seriesRepository.getSeriesById(series.id)).thenReturn(series)
         whenever(seriesRepository.getSeriesDetails(eq(provider.id), eq(series.id), anyOrNull()))
             .thenReturn(Result.success(series))

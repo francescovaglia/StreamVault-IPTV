@@ -85,7 +85,7 @@ class MovieDetailViewModel @Inject constructor(
                 // correct even when the globally active provider differs from the opened movie.
                 val movieRow = movieRepository.getMovie(movieId)
                 val effectiveProviderId = movieRow?.providerId?.takeIf { it > 0L }
-                    ?: providerRepository.getActiveProvider().first()?.id
+                    ?: providerRepository.getActiveCatalogProvider().first()?.id
                     ?: run {
                         _uiState.update { it.copy(isLoading = false, error = "No active provider") }
                         return@launch
