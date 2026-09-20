@@ -392,6 +392,7 @@
 <string name="nav_movies">映画</string>
 <string name="nav_vod">VOD</string>
 <string name="nav_series">シリーズ</string>
+<string name="nav_favorites">お気に入り</string>
 <string name="settings_category_mode_protection">ロック / ロック解除</string>
 <string name="settings_category_mode_visibility">非表示 / 再表示</string>
 <string name="settings_category_protection_summary_title">ロックの変更は反映前に確認されます</string>

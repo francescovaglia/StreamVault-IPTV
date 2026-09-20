@@ -392,6 +392,7 @@
 <string name="nav_movies">Filmer</string>
 <string name="nav_vod">VOD</string>
 <string name="nav_series">Serie</string>
+<string name="nav_favorites">Favoritter</string>
 <string name="settings_category_mode_protection">Lås / Lås opp</string>
 <string name="settings_category_mode_visibility">Skjul / Vis</string>
 <string name="settings_category_protection_summary_title">Lås- endringer gjennomgås før de tas i bruk</string>

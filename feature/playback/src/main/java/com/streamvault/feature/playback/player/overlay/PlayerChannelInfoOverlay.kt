@@ -49,6 +49,7 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.feature.playback.R
 import com.streamvault.core.ui.image.ChannelLogoBadge
+import com.streamvault.core.ui.time.rememberCurrentTimeMillis
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.interaction.TvClickableSurface
@@ -309,7 +310,7 @@ fun ChannelInfoOverlay(
                                     color = AppColors.TextSecondary,
                                     maxLines = 1
                                 )
-                                val now = System.currentTimeMillis()
+                                val now = rememberCurrentTimeMillis()
                                 val start = currentProgram.startTime
                                 val end = currentProgram.endTime
                                 if (start in 1..<end) {

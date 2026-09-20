@@ -19,6 +19,7 @@ class AppRouteCodecTest {
             AppDestination.Search("night shift") to "search?query=night%20shift",
             AppDestination.Welcome to SystemRoutePatterns.WELCOME,
             AppDestination.Downloads to SystemRoutePatterns.DOWNLOADS,
+            AppDestination.Favorites to "favorites",
             AppDestination.Plugins to SystemRoutePatterns.PLUGINS,
             AppDestination.ProviderSetup(7L, "content://playlist/1") to
                 "provider_setup?providerId=7&importUri=content%3A%2F%2Fplaylist%2F1"

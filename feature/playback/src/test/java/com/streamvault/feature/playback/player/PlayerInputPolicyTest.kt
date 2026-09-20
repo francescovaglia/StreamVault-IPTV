@@ -17,6 +17,21 @@ class PlayerInputPolicyTest {
     }
 
     @Test
+    fun `key repeat cannot fire a channel change`() {
+        assertThat(PlayerInputAction.PlayNext.allowedOnKeyRepeat()).isFalse()
+        assertThat(PlayerInputAction.PlayPrevious.allowedOnKeyRepeat()).isFalse()
+        assertThat(PlayerInputAction.ZapToLastChannel.allowedOnKeyRepeat()).isFalse()
+    }
+
+    @Test
+    fun `key repeat still drives seeking and the other actions`() {
+        assertThat(PlayerInputAction.SeekForward.allowedOnKeyRepeat()).isTrue()
+        assertThat(PlayerInputAction.SeekBackward.allowedOnKeyRepeat()).isTrue()
+        assertThat(PlayerInputAction.OpenChannelList.allowedOnKeyRepeat()).isTrue()
+        assertThat(PlayerInputAction.InputNumericDigit(3).allowedOnKeyRepeat()).isTrue()
+    }
+
+    @Test
     fun `preview blocks zapping while a modal is visible`() {
         val decision = playerPreviewInputDecision(
             state = liveState(showSpeedSelection = true),

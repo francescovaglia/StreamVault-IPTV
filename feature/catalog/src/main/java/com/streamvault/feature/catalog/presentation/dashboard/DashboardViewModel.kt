@@ -14,6 +14,7 @@ import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.Favorite
+import com.streamvault.domain.model.guideLookupKey
 import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.PlaybackHistory
 import com.streamvault.domain.model.LegacyProvider as Provider
@@ -24,6 +25,7 @@ import com.streamvault.domain.model.SyncState
 import com.streamvault.domain.model.VirtualCategoryIds
 import com.streamvault.domain.repository.ChannelRepository
 import com.streamvault.domain.repository.CombinedM3uRepository
+import com.streamvault.domain.repository.EpgRepository
 import com.streamvault.domain.repository.FavoriteRepository
 import com.streamvault.domain.repository.MovieRepository
 import com.streamvault.domain.repository.PlaybackHistoryRepository
@@ -66,6 +68,7 @@ class DashboardViewModel @Inject constructor(
     private val combinedM3uRepository: CombinedM3uRepository,
     private val favoriteRepository: FavoriteRepository,
     private val channelRepository: ChannelRepository,
+    private val epgRepository: EpgRepository,
     private val playbackHistoryRepository: PlaybackHistoryRepository,
     private val movieRepository: MovieRepository,
     private val seriesRepository: SeriesRepository,
@@ -621,9 +624,35 @@ class DashboardViewModel @Inject constructor(
     private fun loadChannelsByOrderedIds(ids: List<Long>): Flow<List<Channel>> {
         if (ids.isEmpty()) return flowOf(emptyList())
 
-        return channelRepository.getChannelsByIds(ids).map { channels ->
-            channels.orderedByRequestedRawIds(ids)
+        return channelRepository.getChannelsByIds(ids)
+            .map { channels -> channels.orderedByRequestedRawIds(ids) }
+            .flatMapLatest(::withCurrentProgram)
+    }
+
+    /**
+     * A live tile showing only a logo cannot tell you whether the channel is worth opening.
+     * The card already draws the programme and its progress when [Channel.currentProgram] is
+     * set; nothing on the dashboard was ever setting it. Shelves can span several playlists,
+     * so the schedule is asked for one provider at a time.
+     */
+    private fun withCurrentProgram(channels: List<Channel>): Flow<List<Channel>> {
+        val lookupKeysByProvider = channels
+            .mapNotNull { channel -> channel.guideLookupKey()?.let { channel.providerId to it } }
+            .groupBy({ it.first }, { it.second })
+        if (lookupKeysByProvider.isEmpty()) return flowOf(channels)
+
+        val schedules = lookupKeysByProvider.map { (providerId, lookupKeys) ->
+            epgRepository.getNowPlayingForChannels(providerId, lookupKeys.distinct())
+                .map { programs -> providerId to programs }
         }
+        return combine(schedules) { entries ->
+            val byProvider = entries.toMap()
+            channels.map { channel ->
+                val program = channel.guideLookupKey()?.let { byProvider[channel.providerId]?.get(it) }
+                if (program == null) channel else channel.copy(currentProgram = program)
+            }
+            // Show the logos straight away instead of holding the shelf back for the schedule.
+        }.onStart { emit(channels) }
     }
 
     private fun loadMoviesByOrderedIds(ids: List<Long>): Flow<List<Movie>> {

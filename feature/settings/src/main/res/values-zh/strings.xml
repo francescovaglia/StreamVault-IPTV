@@ -392,6 +392,7 @@
 <string name="nav_movies">电影</string>
 <string name="nav_vod">VOD</string>
 <string name="nav_series">剧集</string>
+<string name="nav_favorites">收藏</string>
 <string name="settings_category_mode_protection">锁定 / 解锁</string>
 <string name="settings_category_mode_visibility">隐藏 / 显示</string>
 <string name="settings_category_protection_summary_title">锁定更改会在生效前审核</string>

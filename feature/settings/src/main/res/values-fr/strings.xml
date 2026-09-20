@@ -392,6 +392,7 @@
 <string name="nav_movies">Films</string>
 <string name="nav_vod">VOD</string>
 <string name="nav_series">Série</string>
+<string name="nav_favorites">Favoris</string>
 <string name="settings_category_mode_protection">Verrouiller / Déverrouiller</string>
 <string name="settings_category_mode_visibility">Masquer / Afficher</string>
 <string name="settings_category_protection_summary_title">Les changements de verrouillage sont vérifiés avant leur mise en ligne</string>

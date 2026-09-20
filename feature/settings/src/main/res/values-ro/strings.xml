@@ -392,6 +392,7 @@
 <string name="nav_movies">Filme</string>
 <string name="nav_vod">VOD</string>
 <string name="nav_series">Seria</string>
+<string name="nav_favorites">Favorite</string>
 <string name="settings_category_mode_protection">Blochează / Deblochează</string>
 <string name="settings_category_mode_visibility">Ascunde / Afișează</string>
 <string name="settings_category_protection_summary_title">Modificările de blocare sunt revizuite înainte de aplicare</string>

@@ -533,12 +533,14 @@ fun PlayerScreen(
                 if (decision.notifyLiveOverlayInteraction) {
                     viewModel.onLiveOverlayInteraction()
                 }
-                when (decision.action) {
-                    PlayerInputAction.PlayNext -> {
+                val heldDown = event.nativeKeyEvent.repeatCount > 0
+                when {
+                    heldDown && !decision.action.allowedOnKeyRepeat() -> true
+                    decision.action == PlayerInputAction.PlayNext -> {
                         viewModel.playNext()
                         true
                     }
-                    PlayerInputAction.PlayPrevious -> {
+                    decision.action == PlayerInputAction.PlayPrevious -> {
                         viewModel.playPrevious()
                         true
                     }
@@ -556,6 +558,9 @@ fun PlayerScreen(
                 )
                 if (decision.notifyLiveOverlayInteraction) {
                     viewModel.onLiveOverlayInteraction()
+                }
+                if (event.nativeKeyEvent.repeatCount > 0 && !decision.action.allowedOnKeyRepeat()) {
+                    return@onKeyEvent true
                 }
                 when (val action = decision.action) {
                     PlayerInputAction.Pass -> false

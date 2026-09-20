@@ -5,6 +5,7 @@
     <string name="nav_live_tv">Ζωντανή TV</string>
     <string name="nav_movies">Ταινίες</string>
     <string name="nav_series">Σειρές</string>
+    <string name="nav_favorites">Αγαπημένα</string>
     <string name="nav_epg">Οδηγός</string>
     <string name="nav_settings">Ρυθμίσεις</string>
     <string name="welcome_enter_app">Είσοδος στην εφαρμογή</string>

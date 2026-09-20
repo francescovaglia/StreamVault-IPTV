@@ -5,6 +5,7 @@
     <string name="nav_live_tv">siaran langsung</string>
     <string name="nav_movies">Film</string>
     <string name="nav_series">Seri</string>
+    <string name="nav_favorites">Favorit</string>
     <string name="nav_epg">Panduan</string>
     <string name="nav_settings">Pengaturan</string>
     <string name="welcome_enter_app">Masuk ke Aplikasi</string>

@@ -76,6 +76,7 @@ import com.streamvault.feature.playback.player.PlayerTimeshiftUiState
 import com.streamvault.feature.playback.player.SeekPreviewState
 import com.streamvault.feature.playback.player.SleepTimerUiState
 import com.streamvault.core.ui.time.LocalUiTimeFormat
+import com.streamvault.core.ui.time.rememberCurrentTimeMillis
 import com.streamvault.core.ui.time.createTimeFormat
 import com.streamvault.core.ui.theme.ErrorColor
 import com.streamvault.core.ui.theme.Primary
@@ -1023,7 +1024,7 @@ private fun PlayerLiveInfo(
     val start = currentProgram?.startTime ?: 0L
     val end = currentProgram?.endTime ?: 0L
     if (start > 0 && end > 0) {
-        val now = System.currentTimeMillis()
+        val now = rememberCurrentTimeMillis()
         val progress = (now - start).toFloat() / (end - start)
         LinearProgressIndicator(
             progress = { progress.coerceIn(0f, 1f) },

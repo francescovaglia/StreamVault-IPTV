@@ -5,6 +5,7 @@
     <string name="nav_live_tv">Live tv</string>
     <string name="nav_movies">Film</string>
     <string name="nav_series">Serie</string>
+    <string name="nav_favorites">Favoritter</string>
     <string name="nav_epg">Vejledning</string>
     <string name="nav_settings">Indstillinger</string>
     <string name="welcome_enter_app">Indtast App</string>

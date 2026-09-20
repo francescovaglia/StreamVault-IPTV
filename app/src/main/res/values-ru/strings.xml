@@ -5,6 +5,7 @@
     <string name="nav_live_tv">Прямой эфир</string>
     <string name="nav_movies">Фильмы</string>
     <string name="nav_series">Сериалы</string>
+    <string name="nav_favorites">Избранное</string>
     <string name="nav_epg">Гид</string>
     <string name="nav_settings">Настройки</string>
     <string name="welcome_enter_app">Войти в приложение</string>

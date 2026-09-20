@@ -5,6 +5,7 @@
     <string name="nav_live_tv">Élő TV</string>
     <string name="nav_movies">Filmek</string>
     <string name="nav_series">sorozat</string>
+    <string name="nav_favorites">Kedvencek</string>
     <string name="nav_epg">Műsorújság</string>
     <string name="nav_settings">Beállítások elemre</string>
     <string name="welcome_enter_app">Belépés az appba</string>
