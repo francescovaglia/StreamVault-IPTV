@@ -8,7 +8,6 @@ import com.streamvault.domain.model.VodVariantObservation
 import com.streamvault.domain.model.VodVariantPreferenceMode
 import com.streamvault.domain.util.BoundedExpiringCache
 import java.text.Normalizer
-import java.time.Year
 import java.util.Locale
 import kotlin.math.abs
 
@@ -376,23 +375,6 @@ private fun metadataScore(movie: Movie): Int = listOfNotNull(
     movie.year,
     movie.tmdbId?.toString()
 ).count { it.isNotBlank() }
-
-// Year.now() reads the system clock and allocates a LocalDate, and recencyBucket is used inside a
-// comparator key selector, so it ran on both sides of every comparison. Cached per calendar day
-// rather than per process: a TV box is left on across New Year.
-private object CurrentYearCache {
-    @Volatile private var day = Long.MIN_VALUE
-    @Volatile private var year = 0
-
-    fun value(): Int {
-        val today = System.currentTimeMillis() / 86_400_000L
-        if (today != day) {
-            year = Year.now().value
-            day = today
-        }
-        return year
-    }
-}
 
 private fun recencyBucket(movie: Movie): Int {
     val year = movieDisplayYear(movie) ?: return 0
