@@ -2,10 +2,8 @@ name: Fork build and release
 
 # Every push to master builds a signed release APK and publishes it as the latest GitHub
 # release. The app's updater reads this repo's releases, so the TV updates itself from here.
+# Manual only: Francesco decides when a build happens, so a push must not start one.
 on:
-  push:
-    branches:
-      - master
   workflow_dispatch:
 
 permissions:
