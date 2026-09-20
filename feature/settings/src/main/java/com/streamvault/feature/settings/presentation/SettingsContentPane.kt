@@ -69,7 +69,9 @@ public fun SettingsContentPane(
     onCloseApp: () -> Unit = {}
 ) {
     val category = SettingsCategory.fromId(dialogState.selectedCategory)
-    var page by rememberSaveable(category.legacyId) { mutableStateOf<SettingsPage?>(null) }
+    // A category with a single page has nothing to pick: open it instead of showing one card.
+    val singlePage = category.pages.singleOrNull()
+    var page by rememberSaveable(category.legacyId) { mutableStateOf(singlePage) }
     var lastPage by rememberSaveable(category.legacyId) { mutableStateOf<SettingsPage?>(null) }
     val pageHeaderFocus = remember { FocusRequester() }
     val returnFocus = remember { FocusRequester() }
@@ -206,7 +208,7 @@ public fun SettingsContentPane(
             ) {
                 val headerBack = when {
                     activeSearchTarget != null -> onSearchResultBack
-                    page != null -> ({ page = null })
+                    page != null && singlePage == null -> ({ page = null })
                     else -> onCategoryBack
                 }
                 SettingsLocalHeader(
@@ -214,7 +216,7 @@ public fun SettingsContentPane(
                     description = stringResource(page?.description ?: category.description),
                     parentTitle = when {
                         activeSearchTarget != null -> stringResource(R.string.settings_search_title)
-                        page != null -> stringResource(category.title)
+                        page != null && singlePage == null -> stringResource(category.title)
                         onCategoryBack != null -> stringResource(R.string.settings_title)
                         else -> null
                     },
@@ -280,7 +282,7 @@ public fun SettingsContentPane(
                             targetFocusModifier = searchTargetModifier,
                         )
                     }
-                    if (dialogState.selectedCategory == 1 || page in listOf(SettingsPage.CLOCK, SettingsPage.TIMESHIFT, SettingsPage.MULTIVIEW, SettingsPage.VOD_PLAYBACK)) {
+                    if (dialogState.selectedCategory == 1 || page in listOf(SettingsPage.CLOCK, SettingsPage.TIMESHIFT, SettingsPage.MULTIVIEW, SettingsPage.VOD_PLAYBACK, SettingsPage.ESSENTIALS_PAGE)) {
                         settingsPlaybackSection(
                             uiState = uiState,
                             page = page,
@@ -340,7 +342,7 @@ public fun SettingsContentPane(
                             targetFocusModifier = searchTargetModifier,
                         )
                     }
-                    if (dialogState.selectedCategory in listOf(2, 8, 9)) {
+                    if (dialogState.selectedCategory in listOf(2, 8, 9, 10)) {
                         settingsBrowsingSection(
                             uiState = uiState,
                             page = page,

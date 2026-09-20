@@ -4,6 +4,9 @@ import com.streamvault.feature.settings.R
 
 /** IDs retain the existing backup-import destination. Page names are saveable navigation keys. */
 enum class SettingsCategory(val legacyId: Int, val title: Int, val description: Int) {
+    // First on purpose: the handful of settings that decide how live TV behaves day to day,
+    // gathered out of the long lists so they are not hunted for one by one.
+    ESSENTIALS(10, R.string.settings_domain_essentials, R.string.settings_essentials_description),
     SOURCES(0, R.string.settings_providers, R.string.settings_sources_description),
     PLAYBACK(1, R.string.settings_playback, R.string.settings_playback_description),
     LIVE_TV(2, R.string.settings_domain_live, R.string.settings_live_description),
@@ -22,6 +25,7 @@ enum class SettingsCategory(val legacyId: Int, val title: Int, val description: 
 }
 
 enum class SettingsPage(val categoryId: Int, val title: Int, val description: Int) {
+    ESSENTIALS_PAGE(10, R.string.settings_page_essentials, R.string.settings_page_essentials_description),
     LOCAL_BACKUP(5, R.string.settings_page_local_backup, R.string.settings_page_local_backup_description),
     DRIVE_BACKUP(5, R.string.settings_page_drive_backup, R.string.settings_page_drive_backup_description),
     UPDATES(7, R.string.settings_updates_title, R.string.settings_updates_subtitle),

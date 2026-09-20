@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -148,8 +149,14 @@ fun LiveGuideGrid(
                         val offset = totalTimelineWidthPx * (now - guideWindowStart) / totalDuration -
                             horizontalScrollState.value
                         if (offset < 0f || offset > timelineViewportPx) return@drawWithContent
-                        val x = if (isRtl) size.width - timelineStartPx - offset else timelineStartPx + offset
-                        drawLine(Primary, Offset(x, 0f), Offset(x, size.height), nowLineWidthPx)
+                        val x = if (isRtl) {
+                            size.width - timelineStartPx - offset - nowLineWidthPx
+                        } else {
+                            timelineStartPx + offset
+                        }
+                        // A rectangle, not drawLine: a stroke is centred on its x, so the line
+                        // sat half a pixel left of the 2 dp marker the hour bar draws as a box.
+                        drawRect(Primary, Offset(x, 0f), Size(nowLineWidthPx, size.height))
                     },
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
