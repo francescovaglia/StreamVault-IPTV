@@ -334,8 +334,7 @@ private fun verticalInputDecision(
     val blocksVerticalNavigation = state.showChannelListOverlay ||
         state.showCategoryListOverlay ||
         state.showEpgOverlay ||
-        state.showDiagnostics ||
-        (isUp && state.showChannelInfoOverlay)
+        state.showDiagnostics
     if (blocksVerticalNavigation) {
         return PlayerInputDecision(PlayerInputAction.Pass, notifyInteraction)
     }

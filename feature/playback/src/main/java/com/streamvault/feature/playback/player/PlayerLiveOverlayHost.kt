@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.streamvault.feature.playback.player.overlay.PlayerZapOverlay
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -160,6 +161,20 @@ internal fun BoxScope.PlayerLiveOverlayHost(
             onOverlayInteracted = viewModel::onLiveOverlayInteraction
         )
     }
+
+    // The decoder-style plate on a channel change: number, name, now and next, gone by itself.
+    // The full control bar stays one OK press away.
+    val showZapOverlay by viewModel.showZapOverlay.collectAsStateWithLifecycle()
+    PlayerZapOverlay(
+        visible = showZapOverlay && !showChannelInfoOverlay,
+        displayChannelNumber = displayChannelNumber,
+        channelName = currentChannel?.name,
+        programTitle = currentProgram?.title,
+        nextProgramTitle = nextProgram?.title,
+        programStartTime = currentProgram?.startTime ?: 0L,
+        programEndTime = currentProgram?.endTime ?: 0L,
+        modifier = Modifier.align(if (isRtl) Alignment.BottomEnd else Alignment.BottomStart)
+    )
 
     AnimatedVisibility(
         visible = showChannelInfoOverlay,

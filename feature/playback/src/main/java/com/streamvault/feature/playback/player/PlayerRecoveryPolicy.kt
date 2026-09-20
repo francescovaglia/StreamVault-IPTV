@@ -29,6 +29,10 @@ internal object PlayerRecoveryPolicy {
             "403" in normalized ||
             "429" in normalized ||
             "509" in normalized ||
+            // Xtream panels answer 458 when the account's single connection is already in use.
+            // Without it none of the one-connection protections below ever armed on this line.
+            "458" in normalized ||
+            "max_connections" in normalized ||
             "forbidden" in normalized ||
             "unauthorized" in normalized ||
             "too many" in normalized ||

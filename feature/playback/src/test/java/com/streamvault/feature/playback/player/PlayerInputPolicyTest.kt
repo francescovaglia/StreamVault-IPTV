@@ -135,11 +135,11 @@ class PlayerInputPolicyTest {
     }
 
     @Test
-    fun `channel info overlay blocks up but allows down channel navigation without subpanel`() {
+    fun `channel info overlay still zaps both ways without a subpanel`() {
         val state = liveState(showChannelInfoOverlay = true)
 
         assertThat(playerInputDecision(state, PlayerInputKey.DpadUp).action)
-            .isEqualTo(PlayerInputAction.Pass)
+            .isEqualTo(PlayerInputAction.PlayNext)
         assertThat(playerInputDecision(state, PlayerInputKey.DpadDown).action)
             .isEqualTo(PlayerInputAction.PlayPrevious)
     }
