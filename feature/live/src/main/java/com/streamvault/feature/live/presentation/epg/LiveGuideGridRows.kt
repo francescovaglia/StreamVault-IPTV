@@ -74,6 +74,51 @@ internal data class GuideMarkerGeometry(
     val widthPx: Float
 )
 
+/** Narrowest a cell may get before its title stops being readable from the couch. */
+internal fun GuideDensity.minimumProgramCellWidth(): Dp = when (this) {
+    GuideDensity.COMPACT -> 40.dp
+    GuideDensity.COMFORTABLE -> 48.dp
+    GuideDensity.CINEMATIC -> 56.dp
+}
+
+/** One programme cell, placed after [startPadding] of empty timeline. */
+internal data class GuideRowCell(
+    val program: Program,
+    val startPadding: Dp,
+    val width: Dp
+)
+
+/**
+ * Lays the programmes of one row out left to right without overlaps.
+ *
+ * Positioning each cell by its own start offset let a short programme, widened to the minimum
+ * readable width, cover the start of the next one. Two overlapping focus targets make the D-pad
+ * jump to a cell of another row, which is what "going right then left lands somewhere else"
+ * looked like. Placing them in sequence keeps the geometry monotonic, at the cost of pushing a
+ * widened cell's neighbours slightly right of their true time.
+ */
+internal fun guideRowCells(
+    programs: List<Program>,
+    windowStart: Long,
+    windowEnd: Long,
+    totalTimelineWidth: Dp,
+    minimumItemWidth: Dp
+): List<GuideRowCell> {
+    val totalDuration = (windowEnd - windowStart).coerceAtLeast(1L)
+    var cursor = 0.dp
+    return programs.mapNotNull { program ->
+        if (program.endTime <= windowStart || program.startTime >= windowEnd) return@mapNotNull null
+        val visibleStart = max(program.startTime, windowStart)
+        val visibleEnd = max(visibleStart + 1, minOf(program.endTime, windowEnd))
+        val startRatio = ((visibleStart - windowStart).toFloat() / totalDuration.toFloat()).coerceIn(0f, 1f)
+        val widthRatio = ((visibleEnd - visibleStart).toFloat() / totalDuration.toFloat()).coerceIn(0f, 1f)
+        val width = (totalTimelineWidth * widthRatio).coerceAtLeast(minimumItemWidth)
+        val padding = (totalTimelineWidth * startRatio - cursor).coerceAtLeast(0.dp)
+        cursor += padding + width
+        GuideRowCell(program = program, startPadding = padding, width = width)
+    }
+}
+
 internal fun guideMarkerGeometry(
     totalTimelineWidthPx: Float,
     windowStart: Long,
@@ -289,27 +334,34 @@ fun LiveGuideGridRow(
                     Text(labels.noSchedule, color = OnSurfaceDim)
                 }
             } else {
+                val cells = remember(programs, windowStart, windowEnd, totalTimelineWidth, density) {
+                    guideRowCells(
+                        programs = programs,
+                        windowStart = windowStart,
+                        windowEnd = windowEnd,
+                        totalTimelineWidth = totalTimelineWidth,
+                        minimumItemWidth = density.minimumProgramCellWidth()
+                    )
+                }
                 Row(
-                    modifier = Modifier.horizontalScroll(scrollState)
+                    modifier = Modifier
+                        .horizontalScroll(scrollState)
+                        .width(totalTimelineWidth)
+                        .fillMaxHeight()
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .width(totalTimelineWidth)
-                            .fillMaxHeight()
-                    ) {
-                        programs.forEach { program ->
-                            LiveGuideProgramItem(
-                                program = program,
-                                isCurrent = program === currentProgram,
-                                density = density,
-                                transparentOverlay = transparentOverlay,
-                                windowStart = windowStart,
-                                windowEnd = windowEnd,
-                                totalTimelineWidth = totalTimelineWidth,
-                                onClick = { onProgramClick(program) },
-                                onFocused = { onProgramFocused(program) }
-                            )
+                    cells.forEach { cell ->
+                        if (cell.startPadding > 0.dp) {
+                            Spacer(modifier = Modifier.width(cell.startPadding))
                         }
+                        LiveGuideProgramItem(
+                            program = cell.program,
+                            isCurrent = cell.program === currentProgram,
+                            density = density,
+                            transparentOverlay = transparentOverlay,
+                            width = cell.width,
+                            onClick = { onProgramClick(cell.program) },
+                            onFocused = { onProgramFocused(cell.program) }
+                        )
                     }
                 }
             }
@@ -325,9 +377,7 @@ fun LiveGuideProgramItem(
     isCurrent: Boolean,
     density: GuideDensity,
     transparentOverlay: Boolean,
-    windowStart: Long,
-    windowEnd: Long,
-    totalTimelineWidth: Dp,
+    width: Dp,
     onClick: () -> Unit,
     onFocused: () -> Unit
 ) {
@@ -342,20 +392,8 @@ fun LiveGuideProgramItem(
     val endStr = remember(format, program.endTime) {
         format.format(Instant.ofEpochMilli(program.endTime).atZone(zone))
     }
-    val totalDuration = (windowEnd - windowStart).coerceAtLeast(1L)
-    val visibleStart = max(program.startTime, windowStart)
-    val visibleEnd = max(visibleStart + 1, minOf(program.endTime, windowEnd))
-    val startRatio = ((visibleStart - windowStart).toFloat() / totalDuration.toFloat()).coerceIn(0f, 1f)
-    val widthRatio = ((visibleEnd - visibleStart).toFloat() / totalDuration.toFloat()).coerceIn(0f, 1f)
-    val itemStart = totalTimelineWidth * startRatio
-    val minimumItemWidth = when (density) {
-        GuideDensity.COMPACT -> 40.dp
-        GuideDensity.COMFORTABLE -> 48.dp
-        GuideDensity.CINEMATIC -> 56.dp
-    }
-    val itemWidth = (totalTimelineWidth * widthRatio).coerceAtLeast(minimumItemWidth)
-    val isCompactCell = itemWidth < 148.dp
-    val isVeryCompactCell = itemWidth < 116.dp
+    val isCompactCell = width < 148.dp
+    val isVeryCompactCell = width < 116.dp
     val outerVerticalPadding = when (density) {
         GuideDensity.COMPACT -> 2.dp
         GuideDensity.COMFORTABLE -> 2.dp
@@ -400,8 +438,8 @@ fun LiveGuideProgramItem(
     TvClickableSurface(
         onClick = onClick,
         modifier = Modifier
-            .padding(start = itemStart, top = outerVerticalPadding, bottom = outerVerticalPadding)
-            .width(itemWidth)
+            .padding(top = outerVerticalPadding, bottom = outerVerticalPadding)
+            .width(width)
             .fillMaxHeight()
             .onFocusChanged {
                 if (it.isFocused && !isFocused) {

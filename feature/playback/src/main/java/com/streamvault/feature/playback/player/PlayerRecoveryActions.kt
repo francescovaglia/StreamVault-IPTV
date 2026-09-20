@@ -80,6 +80,10 @@ internal suspend fun PlayerViewModel.isXtreamPlaybackSession(): Boolean {
 }
 
 internal fun PlayerViewModel.fallbackToPreviousChannel(reason: String): Boolean {
+    // Opt-in (Settings > "Auto-Return on Bad Channel"): a stream that fails should say so and
+    // stay put. Moving the viewer to another channel on its own hides the failure and loses
+    // the channel they asked for.
+    if (!zapAutoRevertEnabled) return false
     val fallbackIndex = previousChannelIndex
     if (fallbackIndex in channelList.indices && fallbackIndex != currentChannelIndex) {
         android.util.Log.w("PlayerVM", "Falling back to previous channel: $reason")
@@ -92,7 +96,8 @@ internal fun PlayerViewModel.fallbackToPreviousChannel(reason: String): Boolean 
 }
 
 internal fun PlayerViewModel.scheduleZapBufferWatchdog(targetIndex: Int) {
-    if (!zapAutoRevertEnabled) return
+    // Runs whatever the auto-return setting says: trying the same channel from another source
+    // and reporting the stall are useful on their own, and only the channel hop is opt-in.
     zapBufferWatchdogJob?.cancel()
     val requestVersion = prepareRequestVersion
     zapBufferWatchdogJob = playbackSessionScope(requestVersion)?.launch {

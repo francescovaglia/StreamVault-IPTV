@@ -213,7 +213,10 @@ internal class SyncManagerM3uImporter(
                                     categoryId = categoryId,
                                     categoryName = groupTitle,
                                     epgChannelId = entry.tvgId ?: entry.tvgName,
-                                    number = entry.tvgChno ?: 0,
+                                    // No tvg-chno: fall back to the position in the playlist.
+                                    // Zero for everyone made the browse order alphabetical, which
+                                    // throws away the order a hand-curated list was written in.
+                                    number = entry.tvgChno ?: (liveCount + 1),
                                     streamUrl = entry.url,
                                     catchUpSupported = !entry.catchUp.isNullOrBlank() ||
                                         !entry.catchUpSource.isNullOrBlank() ||
@@ -300,7 +303,10 @@ internal class SyncManagerM3uImporter(
                                     categoryId = categoryId,
                                     categoryName = groupTitle,
                                     epgChannelId = entry.tvgId ?: entry.tvgName,
-                                    number = entry.tvgChno ?: 0,
+                                    // No tvg-chno: fall back to the position in the playlist.
+                                    // Zero for everyone made the browse order alphabetical, which
+                                    // throws away the order a hand-curated list was written in.
+                                    number = entry.tvgChno ?: (liveCount + 1),
                                     streamUrl = entry.url,
                                     catchUpSupported = !entry.catchUp.isNullOrBlank() ||
                                         !entry.catchUpSource.isNullOrBlank() ||
