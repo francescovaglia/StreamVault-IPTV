@@ -34,6 +34,7 @@ import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.design.AppColors
 
 internal val SettingsCategory.icon: ImageVector get() = when (this) {
+    SettingsCategory.ESSENTIALS -> Icons.Rounded.Star
     SettingsCategory.SOURCES -> Icons.Rounded.Dns
     SettingsCategory.PLAYBACK -> Icons.Rounded.PlayCircle
     SettingsCategory.LIVE_TV -> Icons.Rounded.LiveTv
