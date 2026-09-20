@@ -269,6 +269,7 @@ fun PlayerZapOverlay(
     channelName: String?,
     programTitle: String?,
     nextProgramTitle: String? = null,
+    sourceLabel: String? = null,
     programStartTime: Long = 0L,
     programEndTime: Long = 0L,
     modifier: Modifier = Modifier
@@ -312,7 +313,15 @@ fun PlayerZapOverlay(
                 }
                 Column {
                     Text(
-                        text = channelName.orEmpty(),
+                        text = buildString {
+                            append(channelName.orEmpty())
+                            // Which playlist is on air: with a reserve list behind the curated
+                            // one, "it switched" has to be visible, not silent.
+                            sourceLabel?.takeIf { it.isNotBlank() }?.let {
+                                append(" · ")
+                                append(it)
+                            }
+                        },
                         style = MaterialTheme.typography.titleMedium,
                         color = Color.White,
                         maxLines = 1,

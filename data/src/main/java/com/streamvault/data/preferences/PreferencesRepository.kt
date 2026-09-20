@@ -244,6 +244,7 @@ class PreferencesRepository @Inject constructor(
         val GUIDE_ANCHOR_TIME = longPreferencesKey("guide_anchor_time")
         val EPG_TIME_SHIFT_BY_PROVIDER = stringPreferencesKey("epg_time_shift_by_provider")
         val PROMOTED_LIVE_GROUP_IDS = stringPreferencesKey("promoted_live_group_ids")
+        val FALLBACK_ONLY_PROVIDER_IDS = stringPreferencesKey("fallback_only_provider_ids")
         val MULTIVIEW_PRESET_1 = stringPreferencesKey("multiview_preset_1")
         val MULTIVIEW_PRESET_2 = stringPreferencesKey("multiview_preset_2")
         val MULTIVIEW_PRESET_3 = stringPreferencesKey("multiview_preset_3")
@@ -2172,6 +2173,31 @@ class PreferencesRepository @Inject constructor(
                 preferences.remove(PreferencesKeys.PROMOTED_LIVE_GROUP_IDS)
             } else {
                 preferences[PreferencesKeys.PROMOTED_LIVE_GROUP_IDS] = groupIds.sorted().joinToString(",")
+            }
+        }
+    }
+
+    /** Playlists kept out of browsing and used only as a source of alternative streams. */
+    override val fallbackOnlyProviderIds: Flow<Set<Long>> = preferenceFlow { preferences ->
+        preferences[PreferencesKeys.FALLBACK_ONLY_PROVIDER_IDS]
+            ?.split(",")
+            ?.mapNotNull { token -> token.toLongOrNull() }
+            ?.toSet()
+            .orEmpty()
+    }
+
+    override suspend fun setFallbackOnlyProvider(providerId: Long, fallbackOnly: Boolean) {
+        context.dataStore.edit { preferences ->
+            val current = preferences[PreferencesKeys.FALLBACK_ONLY_PROVIDER_IDS]
+                ?.split(",")
+                ?.mapNotNull { token -> token.toLongOrNull() }
+                ?.toMutableSet()
+                ?: mutableSetOf()
+            if (fallbackOnly) current.add(providerId) else current.remove(providerId)
+            if (current.isEmpty()) {
+                preferences.remove(PreferencesKeys.FALLBACK_ONLY_PROVIDER_IDS)
+            } else {
+                preferences[PreferencesKeys.FALLBACK_ONLY_PROVIDER_IDS] = current.sorted().joinToString(",")
             }
         }
     }

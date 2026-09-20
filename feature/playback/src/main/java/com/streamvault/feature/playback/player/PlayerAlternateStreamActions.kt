@@ -119,6 +119,9 @@ internal fun PlayerViewModel.tryAlternateStreamInternal(
         refreshCurrentChannelRecording()
         updateChannelDiagnostics(updatedChannel)
         updateStreamClass("Variant")
+        // Same plate as a channel change, so a silent switch of source is never silent.
+        showZapOverlayFlow.value = true
+        hideZapOverlayAfterDelay()
         playbackSessionScope(requestVersion)?.launch {
             playerPreferencesCoordinator.setPreferredLiveVariant(
                 providerId = updatedChannel.providerId,

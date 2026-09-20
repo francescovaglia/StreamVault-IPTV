@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -65,6 +66,7 @@ public fun LazyListScope.providerSection(
             }
             val selectedProvider = uiState.providers.firstOrNull { it.id == selectedProviderId }
                 ?: uiState.providers.first()
+            val fallbackOnlyProviderIds by viewModel.fallbackOnlyProviderIds.collectAsStateWithLifecycle()
 
             Text(
                 text = stringResource(R.string.settings_provider_selector_hint),
@@ -116,6 +118,10 @@ public fun LazyListScope.providerSection(
                 onDelete = { providerState.pendingDeleteProviderId = selectedProvider.id },
                 onEdit = { onEditProvider(selectedProvider) },
                 onParentalControl = { onNavigateToParentalControl(selectedProvider.id) },
+                fallbackOnly = selectedProvider.id in fallbackOnlyProviderIds,
+                onToggleFallbackOnly = { enabled ->
+                    viewModel.setFallbackOnlyProvider(selectedProvider.id, enabled)
+                },
                 onToggleM3uVodClassification = { enabled ->
                     viewModel.setM3uVodClassificationEnabled(selectedProvider.id, enabled)
                 },

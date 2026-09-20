@@ -34,6 +34,39 @@ import com.streamvault.core.ui.theme.SurfaceHighlight
 import com.streamvault.domain.model.ProviderType
 
 @Composable
+public fun ProviderFallbackOnlyPanel(
+    fallbackOnly: Boolean,
+    onToggleFallbackOnly: (Boolean) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Surface, RoundedCornerShape(10.dp))
+            .border(1.dp, SurfaceHighlight, RoundedCornerShape(10.dp))
+            .padding(12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.settings_provider_fallback_only_title),
+                style = MaterialTheme.typography.titleSmall,
+                color = OnBackground
+            )
+            Text(
+                text = stringResource(R.string.settings_provider_fallback_only_summary),
+                style = MaterialTheme.typography.bodySmall,
+                color = OnSurfaceDim
+            )
+        }
+        Switch(checked = fallbackOnly, onCheckedChange = onToggleFallbackOnly)
+    }
+}
+
+@Composable
 public fun ProviderM3uOptionsPanel(
     m3uVodClassificationEnabled: Boolean,
     isSyncing: Boolean,
