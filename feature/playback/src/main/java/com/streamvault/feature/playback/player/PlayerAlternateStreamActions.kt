@@ -70,13 +70,18 @@ internal fun PlayerViewModel.observeRepeatedRebuffering() {
     viewModelScope.launch {
         val stalls = ArrayDeque<Long>()
         var previous: PlaybackState? = null
-        var stream = ""
+        var readySession = -1L
         activePlayerEngine.flatMapLatest { it.playbackState }.collect { state ->
-            if (currentStreamUrl != stream) {
+            // A zap or a variant switch also goes READY -> BUFFERING, but it starts a new playback
+            // session. Only a stall inside the session that reached READY is a rebuffer; counting
+            // zaps made three quick channel changes look like a stuttering stream.
+            if (state == PlaybackState.READY && readySession != prepareRequestVersion) {
                 stalls.clear()
-                stream = currentStreamUrl
+                readySession = prepareRequestVersion
             }
-            val rebuffered = previous == PlaybackState.READY && state == PlaybackState.BUFFERING
+            val rebuffered = previous == PlaybackState.READY &&
+                state == PlaybackState.BUFFERING &&
+                readySession == prepareRequestVersion
             previous = state
             if (!rebuffered || currentContentType != ContentType.LIVE || isCatchUpPlayback()) return@collect
             if (!recordRebuffer(stalls, SystemClock.elapsedRealtime())) return@collect
