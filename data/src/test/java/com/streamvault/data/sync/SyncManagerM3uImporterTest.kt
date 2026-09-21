@@ -160,6 +160,35 @@ class SyncManagerM3uImporterTest {
     }
 
     @Test
+    fun `unnumbered rows continue after the previous channel number`() = runTest {
+        val playlist = """
+            #EXTM3U
+            #EXTINF:-1 tvg-chno="1" group-title="Terrestre",Rai 1
+            https://stream.example.com/1.ts
+            #EXTINF:-1 tvg-chno="100" group-title="Sky",Sky TG24
+            https://stream.example.com/100.ts
+            #EXTINF:-1 group-title="Documentari",Gambero Rosso
+            https://stream.example.com/gr.ts
+        """.trimIndent().toByteArray()
+        val fixture = fixture(
+            body = playlist,
+            limits = CatalogSizeLimits(maxM3uDecompressedBytes = 4_096, maxM3uLineBytes = 1_024)
+        )
+        val stagedChannels = mutableListOf<com.streamvault.data.local.entity.ChannelEntity>()
+        doAnswer { invocation ->
+            @Suppress("UNCHECKED_CAST")
+            stagedChannels += invocation.arguments[2] as List<com.streamvault.data.local.entity.ChannelEntity>
+            Unit
+        }.whenever(fixture.store).stageChannelBatch(any(), any(), any())
+
+        fixture.importer.importPlaylist(provider(), onProgress = null)
+
+        assertThat(stagedChannels.map { it.name to it.number })
+            .containsExactly("Rai 1" to 1, "Sky TG24" to 100, "Gambero Rosso" to 101)
+            .inOrder()
+    }
+
+    @Test
     fun `http content type charset is honored by the streaming importer`() = runTest {
         val iso88591 = Charsets.ISO_8859_1
         val playlist = "#EXTM3U\n#EXTINF:-1 tvg-id=\"café-tv\" group-title=\"Télévision\",Café\nhttps://stream.example.com/cafe.ts\n"

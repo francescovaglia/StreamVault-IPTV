@@ -91,6 +91,7 @@ internal class SyncManagerM3uImporter(
         val categoryRules = classificationDao?.getCategoryRules(provider.id).orEmpty().associateBy { it.groupKey }
         var header = M3uParser.M3uHeader()
         var liveCount = 0
+        var lastLiveNumber = 0
         var movieCount = 0
         var parsedCount = 0
         var invalidEntryCount = 0
@@ -213,10 +214,12 @@ internal class SyncManagerM3uImporter(
                                     categoryId = categoryId,
                                     categoryName = groupTitle,
                                     epgChannelId = entry.tvgId ?: entry.tvgName,
-                                    // No tvg-chno: fall back to the position in the playlist.
-                                    // Zero for everyone made the browse order alphabetical, which
-                                    // throws away the order a hand-curated list was written in.
-                                    number = entry.tvgChno ?: (liveCount + 1),
+                                    // No tvg-chno: continue from the previous channel's number.
+                                    // Falling back to the raw position mixed two numbering
+                                    // schemes: in a list numbering Rai 1 as 1 and Sky TG24 as
+                                    // 100, the unnumbered row at position 150 sorted between
+                                    // channels 149 and 151 instead of after the Sky block.
+                                    number = (entry.tvgChno ?: (lastLiveNumber + 1)).also { lastLiveNumber = it },
                                     streamUrl = entry.url,
                                     catchUpSupported = !entry.catchUp.isNullOrBlank() ||
                                         !entry.catchUpSource.isNullOrBlank() ||
@@ -307,10 +310,12 @@ internal class SyncManagerM3uImporter(
                                     categoryId = categoryId,
                                     categoryName = groupTitle,
                                     epgChannelId = entry.tvgId ?: entry.tvgName,
-                                    // No tvg-chno: fall back to the position in the playlist.
-                                    // Zero for everyone made the browse order alphabetical, which
-                                    // throws away the order a hand-curated list was written in.
-                                    number = entry.tvgChno ?: (liveCount + 1),
+                                    // No tvg-chno: continue from the previous channel's number.
+                                    // Falling back to the raw position mixed two numbering
+                                    // schemes: in a list numbering Rai 1 as 1 and Sky TG24 as
+                                    // 100, the unnumbered row at position 150 sorted between
+                                    // channels 149 and 151 instead of after the Sky block.
+                                    number = (entry.tvgChno ?: (lastLiveNumber + 1)).also { lastLiveNumber = it },
                                     streamUrl = entry.url,
                                     catchUpSupported = !entry.catchUp.isNullOrBlank() ||
                                         !entry.catchUpSource.isNullOrBlank() ||
