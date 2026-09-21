@@ -2,31 +2,40 @@ package com.streamvault.feature.playback.player
 
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.LiveChannelVariant
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 /**
- * Whenever a different live channel becomes current, look up the same channel in the other
- * playlists and attach it as variants. One indexed query per zap, off the zap's critical path.
+ * Keeps the same channel from the other playlists attached as variants of the current live channel.
+ *
+ * Every emission is checked, not only a change of group: channel preparation loads the channel
+ * again from the database and replaces the current value with a copy that has no cross-playlist
+ * variants. Deduplicating by group swallowed that copy, so on some channels (Sky Uno) the
+ * variants vanished right after being attached. The lookup still runs once per group.
  */
 internal fun PlayerViewModel.observeEquivalentVariants() {
     viewModelScope.launch {
+        var poolGroup: String? = null
+        var pool: List<LiveChannelVariant> = emptyList()
         currentChannelFlow
             .filterNotNull()
-            .distinctUntilChangedBy { it.logicalGroupId.ifBlank { it.id.toString() } }
             .collectLatest { channel ->
                 if (currentContentType != ContentType.LIVE) return@collectLatest
-                val pool = try {
-                    playerChannelCoordinator.getEquivalentVariants(channel)
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    android.util.Log.w("PlayerVM", "equivalent-variants lookup failed", e)
-                    return@collectLatest
+                val group = channel.logicalGroupId.ifBlank { channel.id.toString() }
+                if (group != poolGroup) {
+                    pool = try {
+                        playerChannelCoordinator.getEquivalentVariants(channel)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        android.util.Log.w("PlayerVM", "equivalent-variants lookup failed", e)
+                        return@collectLatest
+                    }
+                    poolGroup = group
                 }
                 val current = currentChannelFlow.value ?: return@collectLatest
                 if (current.logicalGroupId != channel.logicalGroupId) return@collectLatest
