@@ -3,6 +3,7 @@
 package com.streamvault.feature.catalog.presentation.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.relocation.BringIntoViewResponder
 import androidx.compose.foundation.relocation.bringIntoViewResponder
 import androidx.compose.runtime.getValue
@@ -37,3 +38,22 @@ fun Modifier.suppressParentVerticalScroll(): Modifier = composed {
         })
 }
 
+/**
+ * Horizontal rows scroll only when the focused card would leave the screen, and then just enough
+ * to show it with [edgeMarginPx] to spare. The TV default keeps the focused card pinned at 30% of
+ * the row, so every press slid the whole row under a still focus, and the second press moved it by
+ * only the content padding: a small twitch followed by full-card slides.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+internal class EdgeRevealBringIntoViewSpec(private val edgeMarginPx: Float) : BringIntoViewSpec {
+    override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float {
+        val start = offset - edgeMarginPx
+        val end = offset + size + edgeMarginPx
+        return when {
+            start >= 0f && end <= containerSize -> 0f
+            size + 2 * edgeMarginPx > containerSize -> start
+            end > containerSize -> end - containerSize
+            else -> start
+        }
+    }
+}
