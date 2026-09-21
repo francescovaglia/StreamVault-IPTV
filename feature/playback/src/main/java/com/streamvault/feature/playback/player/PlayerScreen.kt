@@ -41,6 +41,10 @@ import androidx.tv.material3.*
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.theme.*
 import com.streamvault.domain.model.Channel
+import com.streamvault.domain.model.RemoteColorButton
+import com.streamvault.domain.model.RemoteShortcutAction
+import com.streamvault.domain.model.RemoteShortcutPreferences
+import com.streamvault.domain.model.RemoteShortcutProfile
 import com.streamvault.domain.model.DecoderMode
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.VideoFormat
@@ -169,6 +173,7 @@ fun PlayerScreen(
     val showEpgOverlay by viewModel.showEpgOverlay.collectAsStateWithLifecycle()
     val displayChannelNumber by viewModel.displayChannelNumber.collectAsStateWithLifecycle()
     val showChannelInfoOverlay by viewModel.showChannelInfoOverlay.collectAsStateWithLifecycle()
+    val remoteShortcutPreferences by viewModel.remoteShortcutPreferences.collectAsStateWithLifecycle(RemoteShortcutPreferences())
     val aspectRatio by viewModel.aspectRatio.collectAsStateWithLifecycle()
     val showDiagnostics by viewModel.showDiagnostics.collectAsStateWithLifecycle()
     val playerNotice by viewModel.playerNotice.collectAsStateWithLifecycle()
@@ -650,6 +655,22 @@ fun PlayerScreen(
                         viewModel.inputNumericChannelDigit(action.digit)
                         true
                     }
+                    is PlayerInputAction.ColorShortcut -> when (
+                        remoteShortcutPreferences.resolvedAction(RemoteShortcutProfile.PLAYBACK, action.button)
+                    ) {
+                        RemoteShortcutAction.NONE -> true
+                        RemoteShortcutAction.OPEN_GUIDE -> { viewModel.openEpgOverlay(); true }
+                        RemoteShortcutAction.OPEN_PLAYER_CONTROLS -> { viewModel.toggleControls(); true }
+                        RemoteShortcutAction.OPEN_CHANNEL_INFO -> { viewModel.openChannelInfoOverlay(); true }
+                        RemoteShortcutAction.LAST_CHANNEL -> { viewModel.zapToLastChannel(); true }
+                        RemoteShortcutAction.NEXT_CHANNEL -> { viewModel.playNext(); true }
+                        RemoteShortcutAction.PREVIOUS_CHANNEL -> { viewModel.playPrevious(); true }
+                        RemoteShortcutAction.OPEN_CHANNEL_LIST -> { viewModel.openChannelListOverlay(); true }
+                        RemoteShortcutAction.OPEN_CATEGORY_LIST -> { viewModel.openCategoryListOverlay(); true }
+                        RemoteShortcutAction.ADD_TO_SPLIT_SCREEN -> { modalState = modalState.open(PlayerModal.Split); true }
+                        // Browse-only actions have nothing to act on while watching.
+                        else -> true
+                    }
                     PlayerInputAction.DelegateBack -> {
                         handleBackPress()
                         true
@@ -965,6 +986,10 @@ private fun playerInputKey(event: KeyEvent): PlayerInputKey = when (event.keyCod
     KeyEvent.KEYCODE_GUIDE -> PlayerInputKey.Guide
     KeyEvent.KEYCODE_INFO -> PlayerInputKey.Info
     KeyEvent.KEYCODE_MENU -> PlayerInputKey.Menu
+    KeyEvent.KEYCODE_PROG_RED -> PlayerInputKey.Color(RemoteColorButton.RED)
+    KeyEvent.KEYCODE_PROG_GREEN -> PlayerInputKey.Color(RemoteColorButton.GREEN)
+    KeyEvent.KEYCODE_PROG_YELLOW -> PlayerInputKey.Color(RemoteColorButton.YELLOW)
+    KeyEvent.KEYCODE_PROG_BLUE -> PlayerInputKey.Color(RemoteColorButton.BLUE)
     in KeyEvent.KEYCODE_0..KeyEvent.KEYCODE_9 -> PlayerInputKey.Digit(event.keyCode - KeyEvent.KEYCODE_0)
     in KeyEvent.KEYCODE_NUMPAD_0..KeyEvent.KEYCODE_NUMPAD_9 ->
         PlayerInputKey.Digit(event.keyCode - KeyEvent.KEYCODE_NUMPAD_0)

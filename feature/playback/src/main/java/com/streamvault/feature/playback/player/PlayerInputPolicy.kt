@@ -1,5 +1,7 @@
 package com.streamvault.feature.playback.player
 
+import com.streamvault.domain.model.RemoteColorButton
+
 internal sealed interface PlayerInputKey {
     data object DpadCenter : PlayerInputKey
     data object Enter : PlayerInputKey
@@ -20,6 +22,7 @@ internal sealed interface PlayerInputKey {
     data object Info : PlayerInputKey
     data object Menu : PlayerInputKey
     data class Digit(val value: Int) : PlayerInputKey
+    data class Color(val button: RemoteColorButton) : PlayerInputKey
     data object Other : PlayerInputKey
 }
 
@@ -57,7 +60,8 @@ internal data class PlayerInputState(
 internal fun PlayerInputAction.allowedOnKeyRepeat(): Boolean = when (this) {
     PlayerInputAction.PlayNext,
     PlayerInputAction.PlayPrevious,
-    PlayerInputAction.ZapToLastChannel -> false
+    PlayerInputAction.ZapToLastChannel,
+    is PlayerInputAction.ColorShortcut -> false
     else -> true
 }
 
@@ -96,6 +100,8 @@ internal sealed interface PlayerInputAction {
     data object ZapToLastChannel : PlayerInputAction
     data object ShowEpisodePicker : PlayerInputAction
     data class InputNumericDigit(val digit: Int) : PlayerInputAction
+    // Resolved against the Settings > Remote "Playback" profile by the screen, which holds it.
+    data class ColorShortcut(val button: RemoteColorButton) : PlayerInputAction
     data object DelegateBack : PlayerInputAction
 }
 
@@ -231,6 +237,11 @@ internal fun playerInputDecision(
         )
         is PlayerInputKey.Digit -> if (state.contentType == "LIVE") {
             PlayerInputDecision(PlayerInputAction.InputNumericDigit(key.value))
+        } else {
+            PlayerInputDecision(PlayerInputAction.Pass)
+        }
+        is PlayerInputKey.Color -> if (state.contentType == "LIVE" && !state.isCatchUpPlayback) {
+            PlayerInputDecision(PlayerInputAction.ColorShortcut(key.button))
         } else {
             PlayerInputDecision(PlayerInputAction.Pass)
         }

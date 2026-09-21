@@ -1,6 +1,7 @@
 package com.streamvault.feature.playback.player
 
 import com.google.common.truth.Truth.assertThat
+import com.streamvault.domain.model.RemoteColorButton
 import org.junit.Test
 
 class PlayerInputPolicyTest {
@@ -14,6 +15,14 @@ class PlayerInputPolicyTest {
 
         assertThat(decision.action).isEqualTo(PlayerInputAction.PlayNext)
         assertThat(decision.notifyLiveOverlayInteraction).isTrue()
+    }
+
+    @Test
+    fun `colour keys on a live channel become the configured shortcut, and never repeat`() {
+        val decision = playerInputDecision(liveState(), PlayerInputKey.Color(RemoteColorButton.RED))
+
+        assertThat(decision.action).isEqualTo(PlayerInputAction.ColorShortcut(RemoteColorButton.RED))
+        assertThat(decision.action.allowedOnKeyRepeat()).isFalse()
     }
 
     @Test
