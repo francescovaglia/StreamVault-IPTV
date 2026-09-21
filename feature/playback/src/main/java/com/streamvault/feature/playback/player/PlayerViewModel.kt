@@ -503,7 +503,7 @@ class PlayerViewModel @Inject constructor(
     }
 
     /** [channel] is the one that failed; the current channel already carries the variant picked. */
-    internal fun alternateStreamNoticeText(channel: Channel): String {
+    internal fun alternateStreamNoticeText(channel: com.streamvault.domain.model.Channel): String {
         val variant = currentChannelFlow.value?.currentVariant
         return if (variant != null && variant.rawChannelId != channel.selectedVariantId) {
             val label = listOfNotNull(variant.originalName, variant.sourceName).joinToString(" · ")
