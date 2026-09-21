@@ -4,9 +4,10 @@ internal fun PlayerViewModel.fetchEpg(
     providerId: Long,
     internalChannelId: Long,
     epgChannelId: String?,
-    streamId: Long = 0L
+    streamId: Long = 0L,
+    fallbackKeys: List<EpgRequestKey> = emptyList()
 ) {
-    if (providerId <= 0L || (internalChannelId <= 0L && epgChannelId == null && streamId <= 0L)) {
+    if ((providerId <= 0L || (internalChannelId <= 0L && epgChannelId == null && streamId <= 0L)) && fallbackKeys.isEmpty()) {
         epgCoordinator.clear(::clearEpgState)
         return
     }
@@ -22,6 +23,7 @@ internal fun PlayerViewModel.fetchEpg(
             streamId = streamId
         ),
         onPrograms = ::applyProgramTimeline,
-        onClear = ::clearEpgState
+        onClear = ::clearEpgState,
+        fallbackKeys = fallbackKeys
     )
 }

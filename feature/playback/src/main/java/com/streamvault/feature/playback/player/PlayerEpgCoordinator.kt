@@ -19,7 +19,8 @@ class PlayerEpgCoordinator @Inject constructor(
 ) {
     private data class RequestIdentity(
         val sessionId: Long,
-        val requestKey: EpgRequestKey
+        val requestKey: EpgRequestKey,
+        val fallbackKeys: List<EpgRequestKey>
     )
 
     private var activeRequest: RequestIdentity? = null
@@ -30,16 +31,19 @@ class PlayerEpgCoordinator @Inject constructor(
         sessionId: Long,
         requestKey: EpgRequestKey,
         onPrograms: (List<Program>, Long) -> Unit,
-        onClear: () -> Unit
+        onClear: () -> Unit,
+        fallbackKeys: List<EpgRequestKey> = emptyList()
     ) {
-        val requestIdentity = RequestIdentity(sessionId = sessionId, requestKey = requestKey)
+        val requestIdentity = RequestIdentity(sessionId = sessionId, requestKey = requestKey, fallbackKeys = fallbackKeys)
         if (requestIdentity == activeRequest && refreshJob?.isActive == true) return
         refreshJob?.cancel()
         activeRequest = requestIdentity
         refreshJob = scope?.launch {
             while (true) {
                 val now = System.currentTimeMillis()
-                val programs = resolvePrograms(requestKey, now)
+                val programs = resolvePrograms(requestKey, now).ifEmpty {
+                    fallbackKeys.firstNotNullOfOrNull { key -> localPrograms(key, now).takeIf { it.isNotEmpty() } }.orEmpty()
+                }
                 if (activeRequest != requestIdentity) return@launch
                 if (programs.isEmpty()) {
                     onClear()
@@ -64,8 +68,8 @@ class PlayerEpgCoordinator @Inject constructor(
         activeRequest = null
     }
 
-    private suspend fun resolvePrograms(requestKey: EpgRequestKey, now: Long): List<Program> {
-        val localPrograms = epgRepository.getResolvedProgramsForPlaybackChannel(
+    private suspend fun localPrograms(requestKey: EpgRequestKey, now: Long): List<Program> =
+        epgRepository.getResolvedProgramsForPlaybackChannel(
             providerId = requestKey.providerId,
             internalChannelId = requestKey.internalChannelId,
             epgChannelId = requestKey.epgChannelId,
@@ -73,6 +77,9 @@ class PlayerEpgCoordinator @Inject constructor(
             startTime = now - (24 * 60 * 60 * 1000L),
             endTime = now + (6 * 60 * 60 * 1000L)
         )
+
+    private suspend fun resolvePrograms(requestKey: EpgRequestKey, now: Long): List<Program> {
+        val localPrograms = localPrograms(requestKey, now)
         if (localPrograms.isNotEmpty()) return localPrograms
         if (requestKey.streamId <= 0L) return emptyList()
 

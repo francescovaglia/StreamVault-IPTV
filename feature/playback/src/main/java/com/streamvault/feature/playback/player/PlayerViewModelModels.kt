@@ -251,6 +251,23 @@ internal data class EpgRequestKey(
     val streamId: Long
 )
 
+/**
+ * The other versions of this channel, as guide lookups. The guide belongs to the channel, not to
+ * the stream: a variant taken from a playlist with no guide data (a reserve-only line) must
+ * still show the programmes the original version has.
+ */
+internal fun Channel.guideFallbackKeys(): List<EpgRequestKey> =
+    variants
+        .filter { it.rawChannelId != id && it.providerId > 0L }
+        .map { variant ->
+            EpgRequestKey(
+                providerId = variant.providerId,
+                internalChannelId = variant.rawChannelId,
+                epgChannelId = variant.epgChannelId?.trim()?.takeIf(String::isNotEmpty),
+                streamId = variant.streamId
+            )
+        }
+
 internal data class AudioVideoOffsetSnapshot(
     val globalOffsetMs: Int,
     val channelOverrideMs: Int?,

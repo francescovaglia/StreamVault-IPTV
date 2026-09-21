@@ -169,7 +169,8 @@ fun PlayerViewModel.selectLiveVariant(rawChannelId: Long) {
                 providerId = updatedChannel.providerId,
                 epgChannelId = updatedChannel.epgChannelId,
                 streamId = updatedChannel.streamId,
-                internalChannelId = updatedChannel.id
+                internalChannelId = updatedChannel.id,
+                fallbackKeys = updatedChannel.guideFallbackKeys()
             )
         }
         if (!preparePlayer(streamInfo.copy(title = streamInfo.title ?: currentTitle), requestVersion)) return@launch

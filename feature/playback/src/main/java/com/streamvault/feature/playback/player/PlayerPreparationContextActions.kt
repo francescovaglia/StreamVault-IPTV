@@ -139,7 +139,8 @@ internal fun PlayerViewModel.finalizePreparedPlaybackContext(
                         providerId = currentProviderId,
                         epgChannelId = channel.epgChannelId,
                         streamId = channel.streamId,
-                        internalChannelId = channel.id
+                        internalChannelId = channel.id,
+                        fallbackKeys = channel.guideFallbackKeys()
                     )
                 }
                 updateChannelDiagnostics(channel)

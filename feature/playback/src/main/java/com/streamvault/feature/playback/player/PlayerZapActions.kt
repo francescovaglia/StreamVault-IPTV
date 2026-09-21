@@ -322,7 +322,8 @@ internal fun PlayerViewModel.changeChannel(index: Int, isAutoFallback: Boolean =
         providerId = currentProviderId,
         epgChannelId = channel.epgChannelId,
         streamId = channel.streamId,
-        internalChannelId = channel.id
+        internalChannelId = channel.id,
+        fallbackKeys = channel.guideFallbackKeys()
     )
 
     // A channel change shows the light plate, not the 13-button bar: on a remote the bar also
