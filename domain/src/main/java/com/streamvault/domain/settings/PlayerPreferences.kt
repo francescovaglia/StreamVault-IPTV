@@ -59,6 +59,12 @@ interface PlayerPreferences : SettingsPreferences {
         rawChannelId: Long
     )
 
+    /** Remembered variant per "providerId|logicalGroupId". */
+    val liveVariantSelections: kotlinx.coroutines.flow.Flow<Map<String, Long>>
+        get() = kotlinx.coroutines.flow.flowOf(emptyMap())
+
+    suspend fun clearPreferredLiveVariant(providerId: Long, logicalGroupId: String) {}
+
     suspend fun setMultiViewPreset(presetIndex: Int, channelIds: List<Long>)
 
     suspend fun setMultiViewPerformanceMode(mode: String)

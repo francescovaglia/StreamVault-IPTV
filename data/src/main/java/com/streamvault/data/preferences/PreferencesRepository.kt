@@ -1879,7 +1879,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    val liveVariantSelections: Flow<Map<String, Long>> = preferenceFlow { preferences ->
+    override val liveVariantSelections: Flow<Map<String, Long>> = preferenceFlow { preferences ->
         decodeLiveVariantSelections(preferences[PreferencesKeys.LIVE_VARIANT_SELECTIONS])
     }
 
@@ -1892,7 +1892,7 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun clearPreferredLiveVariant(providerId: Long, logicalGroupId: String) {
+    override suspend fun clearPreferredLiveVariant(providerId: Long, logicalGroupId: String) {
         if (providerId <= 0L || logicalGroupId.isBlank()) return
         context.dataStore.edit { preferences ->
             val updated = decodeLiveVariantSelections(preferences[PreferencesKeys.LIVE_VARIANT_SELECTIONS]).toMutableMap()

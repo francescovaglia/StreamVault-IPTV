@@ -151,12 +151,8 @@ fun PlayerViewModel.selectLiveVariant(rawChannelId: Long) {
     refreshCurrentChannelRecording()
     updateChannelDiagnostics(updatedChannel)
     updateStreamClass("Variant")
+    variantToRemember = requestVersion to rawChannelId
     playbackSessionScope(requestVersion)?.launch {
-        playerPreferencesCoordinator.setPreferredLiveVariant(
-            providerId = updatedChannel.providerId,
-            logicalGroupId = updatedChannel.logicalGroupId,
-            rawChannelId = rawChannelId
-        )
         val streamInfo = resolvePlaybackStreamInfo(
             logicalUrl = updatedChannel.streamUrl,
             internalContentId = updatedChannel.id,

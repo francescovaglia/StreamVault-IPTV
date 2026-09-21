@@ -11,6 +11,8 @@ import com.streamvault.player.PlaybackState
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -45,7 +47,68 @@ internal fun PlayerViewModel.observeEquivalentVariants() {
                 if (current.logicalGroupId != channel.logicalGroupId) return@collectLatest
                 val enriched = current.withEquivalentVariants(pool)
                 if (enriched !== current) currentChannelFlow.value = enriched.sanitizedForPlayer()
+                startOnRememberedCrossPlaylistVariant(enriched)
             }
+    }
+}
+
+/**
+ * The playlist the channel belongs to. After a switch to a variant from another playlist the
+ * channel carries that playlist's provider, so the remembered choice is keyed on the channel's own
+ * variants, which always come first, instead.
+ */
+internal fun Channel.homeProviderId(): Long = variants.firstOrNull()?.providerId?.takeIf { it > 0L } ?: providerId
+
+/**
+ * The variant this channel is remembered on has just failed: forget it, so the next start goes
+ * back to the automatic choice instead of opening on a broken source every time.
+ */
+private fun PlayerViewModel.forgetFailedPreferredVariant(channel: Channel) {
+    if (channel.logicalGroupId.isBlank()) return
+    val failedId = channel.selectedVariantId.takeIf { it > 0 } ?: channel.id
+    viewModelScope.launch {
+        val remembered = playerPreferencesCoordinator.preferredLiveVariant(channel.homeProviderId(), channel.logicalGroupId)
+        if (remembered == failedId) {
+            playerPreferencesCoordinator.clearPreferredLiveVariant(channel.homeProviderId(), channel.logicalGroupId)
+        }
+    }
+}
+
+/**
+ * A remembered variant from the same playlist is already picked when the channel list is built.
+ * One from another playlist only exists once the equivalents are attached, so it is applied here,
+ * at most once per playback session and never on top of a switch already made.
+ */
+private suspend fun PlayerViewModel.startOnRememberedCrossPlaylistVariant(channel: Channel) {
+    val session = prepareRequestVersion
+    if (session == crossPlaylistVariantSession || isCatchUpPlayback()) return
+    crossPlaylistVariantSession = session
+    if (variantToRemember != null && variantToRemember?.first == session) return
+    val home = channel.homeProviderId()
+    val remembered = playerPreferencesCoordinator.preferredLiveVariant(home, channel.logicalGroupId) ?: return
+    if (remembered == channel.selectedVariantId || session != prepareRequestVersion) return
+    val target = channel.variants.firstOrNull { it.rawChannelId == remembered } ?: return
+    if (target.providerId == home) return
+    selectLiveVariant(remembered)
+}
+
+private const val STABLE_PLAYBACK_MS = 60_000L
+
+/**
+ * A variant reached by a switch becomes the channel's starting variant only after a minute of
+ * playback without a rebuffer. Writing it at switch time remembered the last one tried even when
+ * every variant failed.
+ */
+private fun PlayerViewModel.rememberVariantIfStillClean(session: Long) {
+    val (switchSession, rawChannelId) = variantToRemember ?: return
+    if (switchSession != session || session != prepareRequestVersion) return
+    val channel = currentChannelFlow.value ?: return
+    if (channel.logicalGroupId.isBlank() || channel.selectedVariantId != rawChannelId) return
+    variantToRemember = null
+    viewModelScope.launch {
+        val home = channel.homeProviderId()
+        if (playerPreferencesCoordinator.preferredLiveVariant(home, channel.logicalGroupId) == rawChannelId) return@launch
+        playerPreferencesCoordinator.setPreferredLiveVariant(home, channel.logicalGroupId, rawChannelId)
     }
 }
 
@@ -71,7 +134,17 @@ internal fun PlayerViewModel.observeRepeatedRebuffering() {
         val stalls = ArrayDeque<Long>()
         var previous: PlaybackState? = null
         var readySession = -1L
+        var cleanPlaybackTimer: Job? = null
         activePlayerEngine.flatMapLatest { it.playbackState }.collect { state ->
+            // Every READY starts the clean-minute clock again, anything else stops it.
+            cleanPlaybackTimer?.cancel()
+            if (state == PlaybackState.READY && variantToRemember?.first == prepareRequestVersion) {
+                val session = prepareRequestVersion
+                cleanPlaybackTimer = viewModelScope.launch {
+                    delay(STABLE_PLAYBACK_MS)
+                    rememberVariantIfStillClean(session)
+                }
+            }
             // A zap or a variant switch also goes READY -> BUFFERING, but it starts a new playback
             // session. Only a stall inside the session that reached READY is a rebuffer; counting
             // zaps made three quick channel changes look like a stuttering stream.
@@ -130,6 +203,7 @@ internal fun PlayerViewModel.tryAlternateStreamInternal(
     preferXtreamTsFallback: Boolean = false,
     allowXtreamTsFallback: Boolean = true
 ): Boolean {
+    forgetFailedPreferredVariant(channel)
     val candidate = selectNextLiveRecoveryCandidate(
         channel = channel,
         currentVariantId = channel.selectedVariantId.takeIf { it > 0 } ?: channel.id,
@@ -185,12 +259,8 @@ internal fun PlayerViewModel.tryAlternateStreamInternal(
         // Same plate as a channel change, so a silent switch of source is never silent.
         showZapOverlayFlow.value = true
         hideZapOverlayAfterDelay()
+        variantToRemember = requestVersion to nextVariant.rawChannelId
         playbackSessionScope(requestVersion)?.launch {
-            playerPreferencesCoordinator.setPreferredLiveVariant(
-                providerId = updatedChannel.providerId,
-                logicalGroupId = updatedChannel.logicalGroupId,
-                rawChannelId = nextVariant.rawChannelId
-            )
             val streamInfo = resolvePlaybackStreamInfo(
                 logicalUrl = nextVariant.streamUrl,
                 internalContentId = updatedChannel.id,

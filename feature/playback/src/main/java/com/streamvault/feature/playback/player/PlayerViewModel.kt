@@ -229,6 +229,9 @@ class PlayerViewModel @Inject constructor(
         LivePlaybackRecordCoordinator(playbackHistoryCoordinator::recordPlayback)
     private var currentStreamClassLabel: String = "Primary"
     internal var lastRecordedVariantObservationSignature: String? = null
+    // Variant reached by a switch in this session, remembered only once it has played cleanly.
+    internal var variantToRemember: Pair<Long, Long>? = null
+    internal var crossPlaylistVariantSession = -1L
     internal var lastRecordedVodVariantObservationSignature: String? = null
     internal val playbackSessionCoordinator = PlaybackSessionCoordinator(viewModelScope)
     private val playerRecoveryExecutionPort = PlayerRecoveryExecutionPortAdapter(

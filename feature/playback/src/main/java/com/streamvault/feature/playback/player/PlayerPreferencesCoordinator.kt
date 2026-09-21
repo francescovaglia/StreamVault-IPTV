@@ -8,6 +8,7 @@ import com.streamvault.domain.settings.PlayerPreferences
 import com.streamvault.domain.settings.VodTrackPreferenceScope
 import com.streamvault.domain.settings.VodTrackPreferences
 import javax.inject.Inject
+import kotlinx.coroutines.flow.first
 
 /**
  * Player-facing preferences boundary.
@@ -137,5 +138,12 @@ class PlayerPreferencesCoordinator @Inject constructor(
         rawChannelId: Long,
     ) {
         preferencesRepository.setPreferredLiveVariant(providerId, logicalGroupId, rawChannelId)
+    }
+
+    internal suspend fun preferredLiveVariant(providerId: Long, logicalGroupId: String): Long? =
+        preferencesRepository.liveVariantSelections.first()["$providerId|${logicalGroupId.trim()}"]
+
+    internal suspend fun clearPreferredLiveVariant(providerId: Long, logicalGroupId: String) {
+        preferencesRepository.clearPreferredLiveVariant(providerId, logicalGroupId)
     }
 }
