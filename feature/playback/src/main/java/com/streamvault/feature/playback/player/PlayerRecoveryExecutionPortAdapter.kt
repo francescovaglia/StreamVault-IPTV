@@ -25,6 +25,7 @@ internal class PlayerRecoveryExecutionPortAdapter(
     private val appendRecoveryAction: (String) -> Unit,
     private val buildRecoveryActions: (PlayerRecoveryType) -> List<PlayerNoticeAction>,
     private val showPlayerNotice: (String, PlayerRecoveryType, List<PlayerNoticeAction>, Boolean) -> Unit,
+    private val alternateStreamNotice: (Channel) -> String,
     private val markStreamFailure: (String) -> Unit,
     private val incrementChannelErrorCount: suspend (Long) -> Result<Unit>,
     private val logRepositoryFailure: (String, Result<Unit>) -> Unit,
@@ -96,4 +97,6 @@ internal class PlayerRecoveryExecutionPortAdapter(
     override fun fallbackToPreviousChannel(reason: String): Boolean = fallbackToPreviousChannel.invoke(reason)
 
     override fun hasLastChannel(): Boolean = hasLastChannel.invoke()
+
+    override fun alternateStreamNotice(channel: Channel): String = alternateStreamNotice.invoke(channel)
 }

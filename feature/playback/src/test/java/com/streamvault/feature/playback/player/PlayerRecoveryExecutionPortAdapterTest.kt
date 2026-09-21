@@ -41,6 +41,7 @@ class PlayerRecoveryExecutionPortAdapterTest {
         appendRecoveryAction = { _: String -> },
         buildRecoveryActions = { _: PlayerRecoveryType -> emptyList() },
         showPlayerNotice = { _: String, _: PlayerRecoveryType, _: List<PlayerNoticeAction>, _: Boolean -> },
+        alternateStreamNotice = { channel: com.streamvault.domain.model.Channel -> channel.name },
         markStreamFailure = { _: String -> },
         incrementChannelErrorCount = { _: Long -> Result.Success(Unit) },
         logRepositoryFailure = { _: String, _: Result<Unit> -> },

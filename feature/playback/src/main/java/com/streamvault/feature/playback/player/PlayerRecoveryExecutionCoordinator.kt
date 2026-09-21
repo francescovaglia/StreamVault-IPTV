@@ -58,6 +58,8 @@ internal interface PlayerRecoveryExecutionPort {
         actions: List<PlayerNoticeAction> = emptyList(),
         isRetryNotice: Boolean = false,
     )
+    /** What the viewer reads when recovery moves to another stream: which variant, from which list. */
+    fun alternateStreamNotice(channel: Channel): String = "Trying an alternate stream for ${channel.name}."
     fun markStreamFailure(streamUrl: String)
     suspend fun incrementChannelErrorCount(channelId: Long): Result<Unit>
     fun logRepositoryFailure(operation: String, result: Result<Unit>)
@@ -134,7 +136,7 @@ class PlayerRecoveryExecutionCoordinator @Inject constructor() {
             if (port.tryAlternateStream(channel)) {
                 port.appendRecoveryAction("Trying alternate stream format after decoder error")
                 port.showPlayerNotice(
-                    message = "Trying alternate stream format for ${channel.name}.",
+                    message = port.alternateStreamNotice(channel),
                     recoveryType = PlayerRecoveryType.DECODER,
                     actions = port.buildRecoveryActions(PlayerRecoveryType.DECODER),
                     isRetryNotice = true
@@ -242,7 +244,7 @@ class PlayerRecoveryExecutionCoordinator @Inject constructor() {
             if (switched) {
                 port.appendRecoveryAction("Trying alternate stream")
                 port.showPlayerNotice(
-                    message = "Trying an alternate stream for ${channel.name}.",
+                    message = port.alternateStreamNotice(channel),
                     recoveryType = recoveryType,
                     actions = port.buildRecoveryActions(recoveryType),
                     isRetryNotice = true

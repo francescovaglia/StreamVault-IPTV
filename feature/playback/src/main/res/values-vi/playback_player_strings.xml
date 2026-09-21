@@ -196,4 +196,6 @@
     <string name="series_seasons">Mùa</string>
     <string name="settings_recording_status_recording">ghi âm</string>
     <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_notice_trying_variant">%1$s is not playing, switching to %2$s</string>
+    <string name="player_notice_trying_alternate">%1$s is not playing, trying another stream</string>
 </resources>

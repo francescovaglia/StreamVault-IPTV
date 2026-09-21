@@ -260,6 +260,15 @@ class PlayerViewModel @Inject constructor(
                 isRetryNotice = isRetryNotice
             )
         },
+        alternateStreamNotice = { channel ->
+            val variant = currentChannelFlow.value?.currentVariant
+            if (variant != null && variant.rawChannelId != channel.selectedVariantId) {
+                val label = listOfNotNull(variant.originalName, variant.sourceName).joinToString(" · ")
+                appContext.getString(com.streamvault.feature.playback.R.string.player_notice_trying_variant, channel.name, label)
+            } else {
+                appContext.getString(com.streamvault.feature.playback.R.string.player_notice_trying_alternate, channel.name)
+            }
+        },
         markStreamFailure = { streamUrl -> markStreamFailure(streamUrl) },
         incrementChannelErrorCount = { channelId ->
             playerChannelCoordinator.incrementChannelErrorCount(channelId)
