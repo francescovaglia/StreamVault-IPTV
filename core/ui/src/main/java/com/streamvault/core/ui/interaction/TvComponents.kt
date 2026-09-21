@@ -6,7 +6,10 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.tv.material3.Border
 import androidx.tv.material3.Button
@@ -158,6 +161,7 @@ internal fun remoteActivationHandling(
     keyCode: Int,
     action: Int,
     hasLongClick: Boolean,
+    pressedHere: Boolean,
 ): RemoteActivationHandling {
     if (!enabled || hasLongClick) return RemoteActivationHandling.Ignore
 
@@ -172,7 +176,11 @@ internal fun remoteActivationHandling(
     if (!isActivationKey) return RemoteActivationHandling.Ignore
 
     return when (action) {
-        KeyEvent.ACTION_UP -> RemoteActivationHandling.Activate
+        // A release only clicks the element that saw the press. Focus often moves while the
+        // key is still down (an overlay opens and takes focus), and the orphan release would
+        // otherwise click whatever just got focused: in the player, OK opened the channel
+        // info and its release hit the back button, dropping the viewer back to the list.
+        KeyEvent.ACTION_UP -> if (pressedHere) RemoteActivationHandling.Activate else RemoteActivationHandling.Consume
         KeyEvent.ACTION_DOWN -> RemoteActivationHandling.Consume
         else -> RemoteActivationHandling.Ignore
     }
@@ -181,21 +189,29 @@ internal fun remoteActivationHandling(
 private fun Modifier.activateOnRemoteKey(
     enabled: Boolean,
     onClick: () -> Unit
-): Modifier = onPreviewKeyEvent { event ->
-    val nativeEvent = event.nativeKeyEvent
-    when (
-        remoteActivationHandling(
+): Modifier = composed {
+    val pressed = remember { BooleanArray(1) }
+    onPreviewKeyEvent { event ->
+        val nativeEvent = event.nativeKeyEvent
+        val handling = remoteActivationHandling(
             enabled = enabled,
             keyCode = nativeEvent.keyCode,
             action = nativeEvent.action,
             hasLongClick = false,
+            pressedHere = pressed[0],
         )
-    ) {
-        RemoteActivationHandling.Ignore -> false
-        RemoteActivationHandling.Consume -> true
-        RemoteActivationHandling.Activate -> {
-            onClick()
-            true
+        when (handling) {
+            RemoteActivationHandling.Ignore -> false
+            RemoteActivationHandling.Consume -> {
+                if (nativeEvent.action == KeyEvent.ACTION_DOWN) pressed[0] = true
+                if (nativeEvent.action == KeyEvent.ACTION_UP) pressed[0] = false
+                true
+            }
+            RemoteActivationHandling.Activate -> {
+                pressed[0] = false
+                onClick()
+                true
+            }
         }
-    }
+    }.onFocusChanged { if (!it.isFocused) pressed[0] = false }
 }
