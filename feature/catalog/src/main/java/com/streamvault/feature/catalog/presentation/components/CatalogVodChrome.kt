@@ -25,6 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import com.streamvault.core.ui.design.requestFocusSafely
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
@@ -189,10 +191,28 @@ fun VodCategoryPickerDialog(
     title: String,
     subtitle: String,
     categories: List<VodCategoryOption>,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    currentCategoryName: String? = null
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     val searchFocusRequester = remember { FocusRequester() }
+    // Opened from inside a category, the list starts on that category instead of the top.
+    val currentIndex = remember(categories, currentCategoryName) {
+        categories.indexOfFirst { it.name == currentCategoryName }
+    }
+    val listState = androidx.compose.foundation.lazy.rememberLazyListState(
+        initialFirstVisibleItemIndex = currentIndex.coerceAtLeast(0)
+    )
+    val currentFocusRequester = remember { FocusRequester() }
+    androidx.compose.runtime.LaunchedEffect(currentIndex) {
+        // The dialog window attaches a frame or two after composition: retry until it takes.
+        if (currentIndex >= 0) {
+            repeat(10) {
+                androidx.compose.runtime.withFrameNanos { }
+                if (currentFocusRequester.requestFocusSafely(target = "Current VOD category")) return@LaunchedEffect
+            }
+        }
+    }
     val filteredCategories = remember(categories, query) {
         val normalized = query.trim()
         if (normalized.isBlank()) categories
@@ -236,11 +256,17 @@ fun VodCategoryPickerDialog(
                     }
 
                     LazyColumn(
+                        state = listState,
                         modifier = Modifier.height(listHeight),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(filteredCategories, key = { it.name }) { category ->
                             TvClickableSurface(
+                                modifier = if (category.name == currentCategoryName && query.isBlank()) {
+                                    Modifier.focusRequester(currentFocusRequester)
+                                } else {
+                                    Modifier
+                                },
                                 onClick = {
                                     category.onClick()
                                     onDismiss()

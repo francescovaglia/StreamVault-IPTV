@@ -487,7 +487,8 @@ private fun SeriesVodContent(
             title = stringResource(R.string.vod_category_picker_title),
             subtitle = stringResource(R.string.vod_category_picker_subtitle),
             categories = categoryOptions,
-            onDismiss = { showCategoryPicker = false }
+            onDismiss = { showCategoryPicker = false },
+            currentCategoryName = uiState.selectedCategory
         )
     }
 
