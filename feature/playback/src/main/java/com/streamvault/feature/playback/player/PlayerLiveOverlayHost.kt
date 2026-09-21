@@ -84,6 +84,7 @@ internal fun BoxScope.PlayerLiveOverlayHost(
     val parentalControlLevel by viewModel.parentalControlLevel.collectAsStateWithLifecycle()
     val activeCategoryId by viewModel.activeCategoryId.collectAsStateWithLifecycle()
     val currentChannelList by viewModel.currentChannelList.collectAsStateWithLifecycle()
+    val channelListNowPlaying by viewModel.channelListNowPlaying.collectAsStateWithLifecycle()
     val recentChannels by viewModel.recentChannels.collectAsStateWithLifecycle()
     val lastVisitedCategory by viewModel.lastVisitedCategory.collectAsStateWithLifecycle()
     val currentProgram by viewModel.currentProgram.collectAsStateWithLifecycle()
@@ -110,7 +111,9 @@ internal fun BoxScope.PlayerLiveOverlayHost(
             onSelectChannel = viewModel::zapToChannel,
             onOpenCategories = viewModel::openCategoryListOverlay,
             onDismiss = viewModel::closeOverlays,
-            onOverlayInteracted = viewModel::onLiveOverlayInteraction
+            onOverlayInteracted = viewModel::onLiveOverlayInteraction,
+            nowPlaying = channelListNowPlaying,
+            onVisibleChannelsChanged = viewModel::loadChannelListNowPlaying
         )
     }
 

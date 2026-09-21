@@ -1,6 +1,8 @@
 package com.streamvault.feature.playback.player
 
+import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
+import com.streamvault.domain.model.guideLookupKey
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.repository.EpgRepository
 import com.streamvault.domain.repository.ProviderRepository
@@ -66,6 +68,20 @@ class PlayerEpgCoordinator @Inject constructor(
         refreshJob?.cancel()
         refreshJob = null
         activeRequest = null
+    }
+
+    /** The programme on air right now for each channel, keyed by guideLookupKey. Local guide only. */
+    internal suspend fun nowPlaying(channels: List<Channel>, now: Long): Map<String, Program> = buildMap {
+        channels.groupBy(Channel::providerId).forEach { (providerId, providerChannels) ->
+            epgRepository.getResolvedProgramsForChannels(
+                providerId = providerId,
+                channelIds = providerChannels.map(Channel::id),
+                startTime = now - (60L * 60L * 1000L),
+                endTime = now + (2L * 60L * 60L * 1000L)
+            ).forEach { (lookupKey, programs) ->
+                programs.firstOrNull { it.startTime <= now && it.endTime > now }?.let { put(lookupKey, it) }
+            }
+        }
     }
 
     private suspend fun localPrograms(requestKey: EpgRequestKey, now: Long): List<Program> =

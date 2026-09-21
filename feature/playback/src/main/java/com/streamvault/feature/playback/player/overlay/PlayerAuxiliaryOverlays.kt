@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -38,6 +39,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -70,6 +73,11 @@ import com.streamvault.feature.playback.player.playerProgramOverlayItemKey
 import com.streamvault.core.ui.time.LocalUiTimeFormat
 import com.streamvault.core.ui.time.createTimeFormat
 import com.streamvault.core.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.image.ChannelLogoBadge
+import com.streamvault.domain.model.guideLookupKey
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
 import com.streamvault.player.PlayerStats
@@ -91,9 +99,20 @@ fun ChannelListOverlay(
     onOpenCategories: () -> Unit = {},
     onSelectChannel: (Long) -> Unit,
     onDismiss: () -> Unit,
-    onOverlayInteracted: () -> Unit = {}
+    onOverlayInteracted: () -> Unit = {},
+    nowPlaying: Map<String, Program> = emptyMap(),
+    onVisibleChannelsChanged: (List<Long>) -> Unit = {}
 ) {
     val listState = rememberLazyListState()
+    // One clock for the whole list, read only by the rows, so a tick redraws the visible rows
+    // and never the overlay around them.
+    val clock = remember { mutableLongStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(30_000L)
+            clock.longValue = System.currentTimeMillis()
+        }
+    }
     val currentIndex = remember(channels, currentChannelId) {
         channels.indexOfFirst { it.id == currentChannelId }.coerceAtLeast(0)
     }
@@ -115,6 +134,23 @@ fun ChannelListOverlay(
     LaunchedEffect(channels, currentIndex, headerItemCount) {
         if (channels.isNotEmpty()) {
             listState.scrollToItem(headerItemCount + currentIndex)
+        }
+    }
+
+    // Ask for the guide of the rows on screen plus a few either side, once scrolling settles.
+    LaunchedEffect(listState, channels, headerItemCount) {
+        snapshotFlow {
+            val visible = listState.layoutInfo.visibleItemsInfo
+            val window = if (visible.isEmpty()) {
+                IntRange.EMPTY
+            } else {
+                (visible.first().index - headerItemCount - 4).coerceAtLeast(0)..
+                    (visible.last().index - headerItemCount + 4)
+            }
+            window to clock.longValue
+        }.distinctUntilChanged().collectLatest { (window, _) ->
+            delay(150L)
+            onVisibleChannelsChanged(window.mapNotNull { channels.getOrNull(it)?.id })
         }
     }
 
@@ -334,6 +370,21 @@ fun ChannelListOverlay(
                                         textAlign = TextAlign.Start,
                                         modifier = Modifier.width(32.dp)
                                     )
+                                    ChannelLogoBadge(
+                                        channelName = channel.name,
+                                        logoUrl = channel.logoUrl,
+                                        backgroundColor = AppColors.SurfaceEmphasis.copy(alpha = 0.46f),
+                                        contentPadding = PaddingValues(4.dp),
+                                        textStyle = MaterialTheme.typography.labelMedium,
+                                        textColor = AppColors.TextSecondary,
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(RoundedCornerShape(10.dp))
+                                    )
+                                    Column(
+                                        modifier = Modifier.weight(1f),
+                                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                                    ) {
                                     Text(
                                         text = channel.name,
                                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 17.sp),
@@ -341,7 +392,7 @@ fun ChannelListOverlay(
                                         maxLines = 1,
                                         overflow = if (isFocused) TextOverflow.Clip else TextOverflow.Ellipsis,
                                         modifier = Modifier
-                                            .weight(1f)
+                                            .fillMaxWidth()
                                             .then(
                                                 if (isFocused) {
                                                     Modifier.basicMarquee(
@@ -355,6 +406,45 @@ fun ChannelListOverlay(
                                                 }
                                             )
                                     )
+                                    val now = clock.longValue
+                                    val program = (channel.guideLookupKey()?.let(nowPlaying::get) ?: channel.currentProgram)
+                                        ?.takeIf { it.startTime in 1..now && it.endTime > now }
+                                    if (program != null) {
+                                        Text(
+                                            text = program.title,
+                                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
+                                            color = Color.White.copy(alpha = 0.78f),
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            androidx.compose.material3.LinearProgressIndicator(
+                                                progress = {
+                                                    ((now - program.startTime).toFloat() /
+                                                        (program.endTime - program.startTime)).coerceIn(0f, 1f)
+                                                },
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .height(3.dp)
+                                                    .clip(RoundedCornerShape(999.dp)),
+                                                color = if (isFocused) Color.White else Primary,
+                                                trackColor = Color.White.copy(alpha = 0.18f)
+                                            )
+                                            Text(
+                                                text = stringResource(
+                                                    R.string.player_minutes_remaining,
+                                                    ((program.endTime - now) / 60_000L).toInt().coerceAtLeast(0)
+                                                ),
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = Color.White.copy(alpha = 0.66f),
+                                                maxLines = 1
+                                            )
+                                        }
+                                    }
+                                    }
                                     if (isSelected) {
                                         StatusPill(
                                             label = stringResource(R.string.player_channel_selected),

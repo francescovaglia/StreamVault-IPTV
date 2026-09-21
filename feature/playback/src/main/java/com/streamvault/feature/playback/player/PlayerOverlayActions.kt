@@ -5,11 +5,14 @@ import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.VirtualCategoryIds
+import com.streamvault.domain.model.guideLookupKey
 import com.streamvault.domain.repository.ChannelRepository
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 private const val DIAGNOSTICS_EXTRA_VISIBLE_MS = 10_000L
+private const val CHANNEL_LIST_GUIDE_RECHECK_MS = 5 * 60_000L
 
 fun PlayerViewModel.openChannelListOverlay() {
     clearNumericChannelInput()
@@ -20,6 +23,31 @@ fun PlayerViewModel.openChannelListOverlay() {
     showChannelInfoOverlayFlow.value = false
     showControlsFlow.value = false
     scheduleLiveOverlayAutoHide()
+}
+
+/**
+ * Loads what is on now for the side list rows the viewer can see. Only keys never checked,
+ * checked more than five minutes ago, or whose programme has ended hit the database, so
+ * scrolling back and forth or the overlay clock ticking costs nothing when all is fresh.
+ */
+fun PlayerViewModel.loadChannelListNowPlaying(channelIds: Collection<Long>) {
+    val now = System.currentTimeMillis()
+    val cached = channelListNowPlayingFlow.value
+    val ids = channelIds.toSet()
+    val stale = currentChannelFlowList.value.filter { channel ->
+        if (channel.id !in ids) return@filter false
+        val key = channel.guideLookupKey() ?: return@filter false
+        val program = cached[key]
+        if (program != null) program.endTime <= now
+        else now - (channelListGuideCheckedAt[key] ?: 0L) > CHANNEL_LIST_GUIDE_RECHECK_MS
+    }
+    if (stale.isEmpty()) return
+    channelListNowPlayingJob?.cancel()
+    channelListNowPlayingJob = viewModelScope.launch {
+        val fresh = epgCoordinator.nowPlaying(stale, now)
+        stale.forEach { channel -> channel.guideLookupKey()?.let { channelListGuideCheckedAt[it] = now } }
+        channelListNowPlayingFlow.update { it + fresh }
+    }
 }
 
 fun PlayerViewModel.openCategoryListOverlay() {

@@ -147,6 +147,13 @@ class PlayerViewModel @Inject constructor(
     internal val currentChannelFlowList = MutableStateFlow<List<com.streamvault.domain.model.Channel>>(emptyList())
     val currentChannelList: StateFlow<List<com.streamvault.domain.model.Channel>> = currentChannelFlowList.asStateFlow()
 
+    // What is on now for the rows of the side channel list, keyed by guideLookupKey. Filled only
+    // for the rows on screen, so a 2,000 channel list never costs a 2,000 channel query.
+    internal val channelListNowPlayingFlow = MutableStateFlow<Map<String, Program>>(emptyMap())
+    val channelListNowPlaying: StateFlow<Map<String, Program>> = channelListNowPlayingFlow.asStateFlow()
+    internal val channelListGuideCheckedAt = HashMap<String, Long>()
+    internal var channelListNowPlayingJob: Job? = null
+
     internal val recentChannelsFlow = MutableStateFlow<List<com.streamvault.domain.model.Channel>>(emptyList())
     val recentChannels: StateFlow<List<com.streamvault.domain.model.Channel>> = recentChannelsFlow.asStateFlow()
 
