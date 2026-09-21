@@ -30,8 +30,8 @@ class LiveHomeLayoutTest {
 
         assertThat(metrics.sidebarWidth).isEqualTo(252.dp)
         assertThat(metrics.channelSearchWidth).isEqualTo(280.dp)
-        assertThat(metrics.channelRowHeight).isEqualTo(92.dp)
-        assertThat(metrics.channelListSpacing).isEqualTo(8.dp)
+        assertThat(metrics.channelRowHeight).isEqualTo(76.dp)
+        assertThat(metrics.channelListSpacing).isEqualTo(6.dp)
     }
 
     @Test

@@ -36,12 +36,12 @@ fun liveHomeLayoutMetrics(
         340.dp
     }
     val channelRowHeight = when (channelMode) {
-        LiveTvChannelMode.COMFORTABLE -> 92.dp
+        LiveTvChannelMode.COMFORTABLE -> 76.dp
         LiveTvChannelMode.COMPACT -> 54.dp
         LiveTvChannelMode.PRO -> 52.dp
     }
     val channelListSpacing = when (channelMode) {
-        LiveTvChannelMode.COMFORTABLE -> 8.dp
+        LiveTvChannelMode.COMFORTABLE -> 6.dp
         LiveTvChannelMode.COMPACT -> 2.dp
         LiveTvChannelMode.PRO -> 2.dp
     }
