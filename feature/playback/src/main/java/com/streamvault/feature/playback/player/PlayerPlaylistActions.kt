@@ -250,19 +250,25 @@ internal fun PlayerViewModel.loadPlaylist(
             }
             numberingMode to displayedChannels.sanitizedChannelsForPlayer()
         }.collect { (numberingMode, displayedChannels) ->
+            val previousIndex = currentChannelIndex
             channelNumberingMode = numberingMode
             channelList = displayedChannels
             currentChannelFlowList.value = displayedChannels
             val targetId = if (currentContentId != -1L) currentContentId else initialChannelId
-            if (targetId != -1L) {
-                currentChannelIndex = channelList.indexOfFirst { it.id == targetId }
-            }
-            if (currentChannelIndex == -1) {
-                currentChannelIndex = channelList.indexOfFirst { it.streamUrl == currentStreamUrl }
-            }
+            val resolved = resolveCurrentChannelIndex(
+                channels = channelList,
+                targetId = targetId,
+                currentStreamUrl = currentStreamUrl,
+                playingGroupId = currentChannelFlow.value?.logicalGroupId,
+                previousIndex = previousIndex
+            )
+            if (targetId != -1L || currentChannelIndex == -1) currentChannelIndex = resolved.index
+            val playingVariantOfListedChannel = resolved.matchedByGroup
 
             if (currentChannelIndex != -1) {
-                currentChannelFlow.value = channelList[currentChannelIndex].sanitizedForPlayer()
+                if (!playingVariantOfListedChannel) {
+                    currentChannelFlow.value = channelList[currentChannelIndex].sanitizedForPlayer()
+                }
                 refreshCurrentChannelRecording()
                 val channel = channelList[currentChannelIndex]
                 displayChannelNumberFlow.value = resolveChannelNumber(channel, currentChannelIndex)
@@ -369,4 +375,32 @@ private fun buildCombinedLiveCategories(
         )
     )
     addAll(combinedCategories.map { it.category })
+}
+
+internal data class ResolvedChannelIndex(val index: Int, val matchedByGroup: Boolean)
+
+/**
+ * Finds the playing channel in a freshly loaded list: by id, then by stream URL, then by logical
+ * group. Playing a variant (possibly from another playlist) gives the current content that
+ * variant's id, which the reloaded list does not contain; losing the index there left up/down,
+ * CH+/- and the number keys with nowhere to start from. A group match means the list entry is
+ * the channel and the variant being played must be kept.
+ */
+internal fun resolveCurrentChannelIndex(
+    channels: List<Channel>,
+    targetId: Long,
+    currentStreamUrl: String,
+    playingGroupId: String?,
+    previousIndex: Int
+): ResolvedChannelIndex {
+    if (targetId != -1L) {
+        val byId = channels.indexOfFirst { it.id == targetId }
+        if (byId != -1) return ResolvedChannelIndex(byId, matchedByGroup = false)
+    }
+    val byUrl = channels.indexOfFirst { it.streamUrl == currentStreamUrl }
+    if (byUrl != -1) return ResolvedChannelIndex(byUrl, matchedByGroup = false)
+    if (playingGroupId.isNullOrBlank()) return ResolvedChannelIndex(-1, matchedByGroup = false)
+    val byGroup = previousIndex.takeIf { channels.getOrNull(it)?.logicalGroupId == playingGroupId }
+        ?: channels.indexOfFirst { it.logicalGroupId == playingGroupId }
+    return ResolvedChannelIndex(byGroup, matchedByGroup = byGroup != -1)
 }
