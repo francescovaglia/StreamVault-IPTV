@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">Timeline putar ulang langsung. Gunakan kiri dan kanan untuk mencari.</string>
     <string name="player_live_timeshift_buffering">Putar ulang langsung lokal masih melakukan buffering.</string>
     <string name="player_minutes_remaining">%1$d menit tersisa</string>
+    <string name="player_minutes_left_short">%d mnt</string>
     <string name="player_more_controls">Lebih banyak kontrol</string>
     <string name="player_multiview_short">Multitampilan</string>
     <string name="player_mute">Bisu</string>

@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">Tidslinje för livespolning. Använd vänster och höger för att söka.</string>
     <string name="player_live_timeshift_buffering">Lokal livespolning buffrar fortfarande.</string>
     <string name="player_minutes_remaining">%1$d min kvar</string>
+    <string name="player_minutes_left_short">%d min</string>
     <string name="player_more_controls">Fler kontroller</string>
     <string name="player_multiview_short">Multivy</string>
     <string name="player_mute">Ljud av</string>

@@ -131,7 +131,10 @@ fun ChannelListOverlay(
         count
     }
 
-    LaunchedEffect(channels, currentIndex, headerItemCount) {
+    // Scroll to the playing channel when the list opens or its content changes, not on every
+    // zap: OK keeps the list open, and jumping it under the focus would lose the viewer's place.
+    val listIdentity = channels.size to channels.firstOrNull()?.id
+    LaunchedEffect(listIdentity, headerItemCount) {
         if (channels.isNotEmpty()) {
             listState.scrollToItem(headerItemCount + currentIndex)
         }
@@ -273,7 +276,6 @@ fun ChannelListOverlay(
                                                 onClick = {
                                                     onOverlayInteracted()
                                                     onSelectChannel(channel.id)
-                                                    onDismiss()
                                                 },
                                                 shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(999.dp)),
                                                 colors = ClickableSurfaceDefaults.colors(
@@ -333,8 +335,8 @@ fun ChannelListOverlay(
 
                             TvClickableSurface(
                                 onClick = {
+                                    onOverlayInteracted()
                                     onSelectChannel(channel.id)
-                                    onDismiss()
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -363,13 +365,6 @@ fun ChannelListOverlay(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                                 ) {
-                                    Text(
-                                        text = channelNumber.toString().padStart(2, '0'),
-                                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 13.sp),
-                                        color = Color.White.copy(alpha = 0.72f),
-                                        textAlign = TextAlign.Start,
-                                        modifier = Modifier.width(32.dp)
-                                    )
                                     ChannelLogoBadge(
                                         channelName = channel.name,
                                         logoUrl = channel.logoUrl,
@@ -383,11 +378,17 @@ fun ChannelListOverlay(
                                     )
                                     Column(
                                         modifier = Modifier.weight(1f),
-                                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                                        verticalArrangement = Arrangement.spacedBy(1.dp)
                                     ) {
                                     Text(
+                                        text = channelNumber.toString().padStart(2, '0'),
+                                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                        color = Color.White.copy(alpha = 0.6f),
+                                        maxLines = 1
+                                    )
+                                    Text(
                                         text = channel.name,
-                                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 17.sp),
+                                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
                                         color = Color.White,
                                         maxLines = 1,
                                         overflow = if (isFocused) TextOverflow.Clip else TextOverflow.Ellipsis,
@@ -412,7 +413,7 @@ fun ChannelListOverlay(
                                     if (program != null) {
                                         Text(
                                             text = program.title,
-                                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
+                                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
                                             color = Color.White.copy(alpha = 0.78f),
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
@@ -434,8 +435,10 @@ fun ChannelListOverlay(
                                                 trackColor = Color.White.copy(alpha = 0.18f)
                                             )
                                             Text(
+                                                // Short on purpose: the long "minutes remaining"
+                                                // label left the bar two dots wide.
                                                 text = stringResource(
-                                                    R.string.player_minutes_remaining,
+                                                    R.string.player_minutes_left_short,
                                                     ((program.endTime - now) / 60_000L).toInt().coerceAtLeast(0)
                                                 ),
                                                 style = MaterialTheme.typography.labelSmall,

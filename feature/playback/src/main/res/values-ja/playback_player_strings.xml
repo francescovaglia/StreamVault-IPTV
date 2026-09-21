@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">ライブ巻き戻しタイムライン。左右でシーク。</string>
     <string name="player_live_timeshift_buffering">ローカルライブ巻き戻しはまだバッファリング中です。</string>
     <string name="player_minutes_remaining">残り %1$d 分</string>
+    <string name="player_minutes_left_short">%d分</string>
     <string name="player_more_controls">その他の操作</string>
     <string name="player_multiview_short">マルチビュー</string>
     <string name="player_mute">ミュート</string>

@@ -153,6 +153,7 @@
     <string name="player_live_scrubber_cd">Live rewind timeline. Use left and right to seek.</string>
     <string name="player_live_timeshift_buffering">Local live rewind is still buffering.</string>
     <string name="player_minutes_remaining">%1$d min remaining</string>
+    <string name="player_minutes_left_short">%d min</string>
     <string name="player_more_controls">More controls</string>
     <string name="player_more_options">More options</string>
     <string name="player_more_short">More</string>

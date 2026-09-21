@@ -132,6 +132,7 @@
     <string name="player_live_scrubber_cd">Linea temporale di riavvolgimento live. Usa sinistra e destra per cercare.</string>
     <string name="player_live_timeshift_buffering">Il riavvolgimento live locale è ancora in buffering.</string>
     <string name="player_minutes_remaining">%1$d minuti rimanenti</string>
+    <string name="player_minutes_left_short">%d min</string>
     <string name="player_more_controls">Altri controlli</string>
     <string name="player_more_options">Altre opzioni</string>
     <string name="player_more_short">Altro</string>

@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">Časová osa přetáčení. Pohybujte se doleva a doprava pro vyhledávání.</string>
     <string name="player_live_timeshift_buffering">Místní přetáčení živého vysílání se stále ukládá do bufferu.</string>
     <string name="player_minutes_remaining">Zbývá %1$d min</string>
+    <string name="player_minutes_left_short">%d min</string>
     <string name="player_more_controls">Další ovládání</string>
     <string name="player_multiview_short">Multiview</string>
     <string name="player_mute">Ztlumit</string>

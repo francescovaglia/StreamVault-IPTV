@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">Таймлайн перемотування Live. Використовуйте ліворуч та праворуч для переміщення.</string>
     <string name="player_live_timeshift_buffering">Локальне перемотування Live ще буферизується.</string>
     <string name="player_minutes_remaining">Залишилося %1$d хв</string>
+    <string name="player_minutes_left_short">%d хв</string>
     <string name="player_more_controls">Більше керування</string>
     <string name="player_multiview_short">Мультиперегляд</string>
     <string name="player_mute">Вимкнути звук</string>

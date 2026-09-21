@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">Live-tilbagespolingstidslinje. Brug venstre og højre til at søge.</string>
     <string name="player_live_timeshift_buffering">Lokal live-tilbagespoling bufferer stadig.</string>
     <string name="player_minutes_remaining">%1$d min tilbage</string>
+    <string name="player_minutes_left_short">%d min</string>
     <string name="player_more_controls">Flere kontroller</string>
     <string name="player_multiview_short">Multivisning</string>
     <string name="player_mute">Lyd fra</string>

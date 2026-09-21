@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">Línea de tiempo de retroceso en vivo. Usa izquierda y derecha para buscar.</string>
     <string name="player_live_timeshift_buffering">El retroceso en vivo local aún está almacenando en buffer.</string>
     <string name="player_minutes_remaining">%1$d min restante</string>
+    <string name="player_minutes_left_short">%d min</string>
     <string name="player_more_controls">Más controles</string>
     <string name="player_multiview_short">Vista múltiple</string>
     <string name="player_mute">Silenciar</string>

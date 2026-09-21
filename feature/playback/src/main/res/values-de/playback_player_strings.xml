@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">Live-Rückspulzeitleiste. Links und rechts zum Suchen verwenden.</string>
     <string name="player_live_timeshift_buffering">Lokales Live-Zurückspulen puffert noch.</string>
     <string name="player_minutes_remaining">%1$d Minuten verbleiben</string>
+    <string name="player_minutes_left_short">%d Min.</string>
     <string name="player_more_controls">Mehr Kontrollen</string>
     <string name="player_multiview_short">Multiview</string>
     <string name="player_mute">Stumm</string>

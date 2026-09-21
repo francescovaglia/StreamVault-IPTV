@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">Dòng thời gian tua lại trực tiếp. Dùng trái và phải để tìm kiếm.</string>
     <string name="player_live_timeshift_buffering">Tua lại trực tiếp cục bộ vẫn đang bộ đệm.</string>
     <string name="player_minutes_remaining">%1$d phút còn lại</string>
+    <string name="player_minutes_left_short">%d phút</string>
     <string name="player_more_controls">Thêm điều khiển</string>
     <string name="player_multiview_short">Đa màn hình</string>
     <string name="player_mute">Tắt tiếng</string>

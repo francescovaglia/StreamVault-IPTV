@@ -185,7 +185,8 @@ fun PlayerViewModel.zapToChannel(channelId: Long) {
     val index = channelList.indexOfFirst { it.id == channelId }
     if (index != -1) {
         changeChannel(index)
-        closeOverlays()
+        // The channel list stays up for its usual time after OK, so the next pick is one press away.
+        scheduleLiveOverlayAutoHide()
     }
 }
 

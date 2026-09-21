@@ -616,7 +616,7 @@ class PreferencesRepository @Inject constructor(
     }
 
     override val playerLiveOverlayTimeoutSeconds: Flow<Int> = preferenceFlow { preferences ->
-        (preferences[PreferencesKeys.PLAYER_LIVE_OVERLAY_TIMEOUT_SECONDS] ?: 4).coerceIn(2, 60)
+        (preferences[PreferencesKeys.PLAYER_LIVE_OVERLAY_TIMEOUT_SECONDS] ?: 8).coerceIn(2, 60)
     }
 
     override val playerLiveClockEnabled: Flow<Boolean> = preferenceFlow { preferences ->

@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">Live-spolingstidslinje. Bruk venstre og høyre for å søke.</string>
     <string name="player_live_timeshift_buffering">Lokal live-spol bufrer fortsatt.</string>
     <string name="player_minutes_remaining">%1$d min gjenstår</string>
+    <string name="player_minutes_left_short">%d min</string>
     <string name="player_more_controls">Flere kontroller</string>
     <string name="player_multiview_short">Multivisning</string>
     <string name="player_mute">Demp</string>

@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">Chronologie de retour en arrière. Utilisez gauche et droite pour naviguer.</string>
     <string name="player_live_timeshift_buffering">Le retour en arrière local est en cours de mise en mémoire tampon.</string>
     <string name="player_minutes_remaining">%1$d minutes restantes</string>
+    <string name="player_minutes_left_short">%d min</string>
     <string name="player_more_controls">Plus de contrôles</string>
     <string name="player_multiview_short">Multivue</string>
     <string name="player_mute">Muet</string>

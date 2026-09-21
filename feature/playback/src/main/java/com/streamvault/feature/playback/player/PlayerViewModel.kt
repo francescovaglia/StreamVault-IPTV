@@ -314,7 +314,7 @@ class PlayerViewModel @Inject constructor(
             rebuildChannelNumberIndex()
         }
     internal var playerControlsTimeoutMs: Long = 5_000L
-    internal var liveOverlayTimeoutMs: Long = 4_000L
+    internal var liveOverlayTimeoutMs: Long = 8_000L
     internal var playerNoticeTimeoutMs: Long = 6_000L
     internal var diagnosticsTimeoutMs: Long = 15_000L
     private var preferredAudioDecoderMode: DecoderMode = DecoderMode.AUTO

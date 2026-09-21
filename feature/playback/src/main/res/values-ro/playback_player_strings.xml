@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">Cronologie rewind live. Folosește stânga/dreapta pentru a naviga.</string>
     <string name="player_live_timeshift_buffering">Rewind local live se bufferizează încă.</string>
     <string name="player_minutes_remaining">%1$d min rămase</string>
+    <string name="player_minutes_left_short">%d min</string>
     <string name="player_more_controls">Mai multe controale</string>
     <string name="player_multiview_short">Multiview</string>
     <string name="player_mute">Mut</string>

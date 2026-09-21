@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">Live terugspeel-tijdlijn. Gebruik links en rechts om te zoeken.</string>
     <string name="player_live_timeshift_buffering">Lokaal terugspelen is nog aan het bufferen.</string>
     <string name="player_minutes_remaining">%1$d min. resterend</string>
+    <string name="player_minutes_left_short">%d min</string>
     <string name="player_more_controls">Meer controles</string>
     <string name="player_multiview_short">Multiview</string>
     <string name="player_mute">Dempen</string>

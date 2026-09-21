@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">라이브 되감기 타임라인. 좌우로 탐색하세요.</string>
     <string name="player_live_timeshift_buffering">로컬 라이브 되감기가 아직 버퍼링 중입니다.</string>
     <string name="player_minutes_remaining">%1$d분 남음</string>
+    <string name="player_minutes_left_short">%d분</string>
     <string name="player_more_controls">추가 컨트롤</string>
     <string name="player_multiview_short">멀티뷰</string>
     <string name="player_mute">음소거</string>

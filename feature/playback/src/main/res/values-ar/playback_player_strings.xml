@@ -135,6 +135,7 @@
     <string name="player_live_scrubber_cd">جدول زمني لإرجاع البث المباشر. استخدم اليسار واليمين للتنقل.</string>
     <string name="player_live_timeshift_buffering">لا يزال الإرجاع المحلي للبث المباشر في طور التخزين المؤقت.</string>
     <string name="player_minutes_remaining">متبقي %1$d دقيقة</string>
+    <string name="player_minutes_left_short">%d د</string>
     <string name="player_more_controls">مزيد من عناصر التحكم</string>
     <string name="player_multiview_short">عرض متعدد</string>
     <string name="player_mute">كتم</string>

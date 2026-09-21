@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">Live-kelauksen aikajana. Käytä vasenta ja oikeaa hakemiseen.</string>
     <string name="player_live_timeshift_buffering">Paikallinen kelaus puskuroi vielä.</string>
     <string name="player_minutes_remaining">%1$d min jäljellä</string>
+    <string name="player_minutes_left_short">%d min</string>
     <string name="player_more_controls">Lisää säätimiä</string>
     <string name="player_multiview_short">Moninäkymä</string>
     <string name="player_mute">Mykistä</string>

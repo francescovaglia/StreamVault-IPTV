@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">ציר זמן הרצה לאחור חיה. השתמש בשמאל וימין לניווט.</string>
     <string name="player_live_timeshift_buffering">הרצה לאחור מקומית עדיין מאגרת.</string>
     <string name="player_minutes_remaining">נותרו %1$d דקות</string>
+    <string name="player_minutes_left_short">%d דק׳</string>
     <string name="player_more_controls">יותר בקרות</string>
     <string name="player_multiview_short">ריבוי צפיות</string>
     <string name="player_mute">השתק</string>

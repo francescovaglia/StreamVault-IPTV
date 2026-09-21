@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">Χρονολωρίδα επανάληψης. Χρησιμοποιήστε αριστερά/δεξιά για μετακίνηση.</string>
     <string name="player_live_timeshift_buffering">Τοπική επανάληψη ακόμα σε buffering.</string>
     <string name="player_minutes_remaining">Απομένουν %1$d λεπτά</string>
+    <string name="player_minutes_left_short">%d λεπ.</string>
     <string name="player_more_controls">Περισσότερα στοιχεία ελέγχου</string>
     <string name="player_multiview_short">Πολλαπλή προβολή</string>
     <string name="player_mute">Σίγαση</string>

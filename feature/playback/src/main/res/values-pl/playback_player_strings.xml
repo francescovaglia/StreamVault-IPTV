@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">Oś czasu przewijania na żywo. Użyj lewego i prawego, aby szukać.</string>
     <string name="player_live_timeshift_buffering">Lokalne przewijanie na żywo wciąż buforuje.</string>
     <string name="player_minutes_remaining">Pozostało %1$d min</string>
+    <string name="player_minutes_left_short">%d min</string>
     <string name="player_more_controls">Więcej kontroli</string>
     <string name="player_multiview_short">Multiview</string>
     <string name="player_mute">Wycisz</string>

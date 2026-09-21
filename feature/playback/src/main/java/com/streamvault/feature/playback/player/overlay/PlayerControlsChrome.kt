@@ -84,6 +84,7 @@ import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.RecordingStatus
 import coil3.compose.AsyncImage
+import com.streamvault.core.ui.image.ChannelLogoBadge
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -273,6 +274,7 @@ fun PlayerZapOverlay(
     sourceLabel: String? = null,
     programStartTime: Long = 0L,
     programEndTime: Long = 0L,
+    logoUrl: String? = null,
     modifier: Modifier = Modifier
 ) {
     val appTimeFormat = LocalUiTimeFormat.current
@@ -313,6 +315,23 @@ fun PlayerZapOverlay(
                     Spacer(modifier = Modifier.width(16.dp))
                 }
                 Column {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    // A glance cue beside the name, as tall as its line; no letter fallback,
+                    // the name is right there.
+                    if (!logoUrl.isNullOrBlank()) {
+                        ChannelLogoBadge(
+                            channelName = channelName.orEmpty(),
+                            logoUrl = logoUrl,
+                            backgroundColor = Color.Transparent,
+                            contentPadding = PaddingValues(0.dp),
+                            textStyle = MaterialTheme.typography.labelSmall,
+                            textColor = Color.White,
+                            modifier = Modifier
+                                .height(22.dp)
+                                .width(36.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
                     Text(
                         text = buildString {
                             append(channelName.orEmpty())
@@ -328,6 +347,7 @@ fun PlayerZapOverlay(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                    }
                     if (!programTitle.isNullOrBlank()) {
                         Text(
                             text = programTitle,

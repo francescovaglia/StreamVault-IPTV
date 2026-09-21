@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">Шкала перемотки прямого эфира. Используйте влево/вправо для перемотки.</string>
     <string name="player_live_timeshift_buffering">Локальная перемотка ещё буферизуется.</string>
     <string name="player_minutes_remaining">Осталось %1$d мин</string>
+    <string name="player_minutes_left_short">%d мин</string>
     <string name="player_more_controls">Доп. управление</string>
     <string name="player_multiview_short">Мультиэкран</string>
     <string name="player_mute">Без звука</string>

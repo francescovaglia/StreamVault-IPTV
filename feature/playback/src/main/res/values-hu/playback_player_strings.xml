@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">Élő visszatekerés idővonal. A kereséshez használja a bal/jobb gombot.</string>
     <string name="player_live_timeshift_buffering">A helyi élő visszatekerés még pufferel.</string>
     <string name="player_minutes_remaining">%1$d perc van hátra</string>
+    <string name="player_minutes_left_short">%d perc</string>
     <string name="player_more_controls">További vezérlők</string>
     <string name="player_multiview_short">Multinézet</string>
     <string name="player_mute">Némítás</string>

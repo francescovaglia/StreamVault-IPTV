@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">Canlı geri sarım zaman çizelgesi. Aramak için sol ve sağ kullanın.</string>
     <string name="player_live_timeshift_buffering">Yerel canlı geri sarım hâlâ arabelleğe alınıyor.</string>
     <string name="player_minutes_remaining">%1$d dakika kaldı</string>
+    <string name="player_minutes_left_short">%d dk</string>
     <string name="player_more_controls">Daha fazla kontrol</string>
     <string name="player_multiview_short">Multiview</string>
     <string name="player_mute">Sessiz</string>

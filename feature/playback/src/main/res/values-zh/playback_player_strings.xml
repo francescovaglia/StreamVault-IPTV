@@ -131,6 +131,7 @@
     <string name="player_live_scrubber_cd">直播回退时间轴。使用左右键进行定位。</string>
     <string name="player_live_timeshift_buffering">本地直播回退仍在缓冲中。</string>
     <string name="player_minutes_remaining">剩余 %1$d 分钟</string>
+    <string name="player_minutes_left_short">%d分钟</string>
     <string name="player_more_controls">更多控制</string>
     <string name="player_multiview_short">多视图</string>
     <string name="player_mute">静音</string>
