@@ -298,6 +298,7 @@
 <string name="settings_sync_dialog_title">Synkronisera %1$s</string>
 <string name="settings_sync_dialog_subtitle">Välj vad som ska uppdateras för den här leverantören.</string>
 <string name="settings_sync_btn">Synkronisera</string>
+<string name="settings_sync_all_btn">Synkronisera alla listor</string>
 <string name="settings_sync_option_custom">Anpassad synkronisering</string>
 <string name="settings_sync_custom_title">Anpassad synkronisering för %1$s</string>
 <string name="settings_sync_custom_subtitle">Välj en eller flera sektioner att uppdatera.</string>

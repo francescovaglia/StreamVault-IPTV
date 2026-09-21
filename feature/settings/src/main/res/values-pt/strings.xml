@@ -298,6 +298,7 @@
 <string name="settings_sync_dialog_title">Sincronizar %1$s</string>
 <string name="settings_sync_dialog_subtitle">Escolha o que atualizar para este provedor.</string>
 <string name="settings_sync_btn">Sincronizar</string>
+<string name="settings_sync_all_btn">Sincronizar todas as listas</string>
 <string name="settings_sync_option_custom">Sincronização personalizada</string>
 <string name="settings_sync_custom_title">Sincronização personalizada para %1$s</string>
 <string name="settings_sync_custom_subtitle">Escolha uma ou mais seções para atualizar.</string>

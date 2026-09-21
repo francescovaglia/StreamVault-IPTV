@@ -298,6 +298,7 @@
 <string name="settings_sync_dialog_title">Szinkronizálás %1$s</string>
 <string name="settings_sync_dialog_subtitle">Válassza ki, mit frissítsünk ennél a szolgáltatónál.</string>
 <string name="settings_sync_btn">Szinkronizálás</string>
+<string name="settings_sync_all_btn">Összes lista szinkronizálása</string>
 <string name="settings_sync_option_custom">Egyéni szinkronizálás</string>
 <string name="settings_sync_custom_title">Egyéni szinkronizálás ehhez: %1$s</string>
 <string name="settings_sync_custom_subtitle">Válasszon ki egy vagy több szakaszt a frissítéshez.</string>

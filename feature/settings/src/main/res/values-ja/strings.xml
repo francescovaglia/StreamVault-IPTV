@@ -298,6 +298,7 @@
 <string name="settings_sync_dialog_title">%1$sを同期</string>
 <string name="settings_sync_dialog_subtitle">このプロバイダーの何を更新するかを選択します。</string>
 <string name="settings_sync_btn">同期</string>
+<string name="settings_sync_all_btn">すべてのリストを同期</string>
 <string name="settings_sync_option_custom">カスタム同期</string>
 <string name="settings_sync_custom_title">%1$s のカスタム同期</string>
 <string name="settings_sync_custom_subtitle">更新するセクションを 1 つ以上選択します。</string>

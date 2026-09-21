@@ -298,6 +298,7 @@
 <string name="settings_sync_dialog_title">Sinkronisasi %1$s</string>
 <string name="settings_sync_dialog_subtitle">Pilih apa yang akan disegarkan untuk penyedia ini.</string>
 <string name="settings_sync_btn">Sinkronisasi</string>
+<string name="settings_sync_all_btn">Sinkronkan semua daftar</string>
 <string name="settings_sync_option_custom">Sinkronisasi Khusus</string>
 <string name="settings_sync_custom_title">Sinkronisasi Khusus untuk %1$s</string>
 <string name="settings_sync_custom_subtitle">Pilih satu atau beberapa bagian untuk disegarkan.</string>

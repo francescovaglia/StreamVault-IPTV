@@ -1170,6 +1170,16 @@ class SettingsViewModel @Inject constructor(
         providerActions.refreshProvider(viewModelScope, providerId, syncMode)
     }
 
+    /** Syncs every playlist in turn: the refresh jobs share one progress state, so they must not overlap. */
+    fun refreshAllProviders() {
+        if (_uiState.value.isSyncing) return
+        viewModelScope.launch {
+            for (provider in _uiState.value.providers) {
+                providerActions.refreshProvider(this, provider.id).join()
+            }
+        }
+    }
+
     fun syncProviderSection(providerId: Long, selection: ProviderSyncSelection) {
         syncActions.syncProviderSection(viewModelScope, providerId, selection)
     }

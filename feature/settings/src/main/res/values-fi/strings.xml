@@ -298,6 +298,7 @@
 <string name="settings_sync_dialog_title">Synkronoi %1$s</string>
 <string name="settings_sync_dialog_subtitle">Valitse, mitä tämän palveluntarjoajan tiedoista päivitetään.</string>
 <string name="settings_sync_btn">Synkronoi</string>
+<string name="settings_sync_all_btn">Synkronoi kaikki listat</string>
 <string name="settings_sync_option_custom">Mukautettu synkronointi</string>
 <string name="settings_sync_custom_title">Muokattu synkronointi kohteelle %1$s</string>
 <string name="settings_sync_custom_subtitle">Valitse yksi tai useampi osio päivitettäväksi.</string>

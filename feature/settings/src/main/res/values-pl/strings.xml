@@ -298,6 +298,7 @@
 <string name="settings_sync_dialog_title">Synchronizuj %1$s</string>
 <string name="settings_sync_dialog_subtitle">Wybierz, co chcesz odświeżyć dla tego dostawcy.</string>
 <string name="settings_sync_btn">Synchronizuj</string>
+<string name="settings_sync_all_btn">Synchronizuj wszystkie listy</string>
 <string name="settings_sync_option_custom">Niestandardowa synchronizacja</string>
 <string name="settings_sync_custom_title">Niestandardowa synchronizacja dla %1$s</string>
 <string name="settings_sync_custom_subtitle">Wybierz jedną lub więcej sekcji do odświeżenia.</string>

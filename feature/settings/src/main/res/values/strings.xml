@@ -336,6 +336,7 @@
     <string name="settings_sync_dialog_title">Sync %1$s</string>
     <string name="settings_sync_dialog_subtitle">Choose what to refresh for this provider.</string>
     <string name="settings_sync_btn">Sync</string>
+    <string name="settings_sync_all_btn">Sync all playlists</string>
     <string name="settings_sync_option_custom">Custom Sections</string>
     <string name="settings_sync_custom_title">Custom Sync for %1$s</string>
     <string name="settings_sync_custom_subtitle">Pick one or more sections to refresh.</string>

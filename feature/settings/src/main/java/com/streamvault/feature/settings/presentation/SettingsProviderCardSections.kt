@@ -257,7 +257,7 @@ public fun ProviderActionButtons(
 }
 
 @Composable
-private fun ProviderActionButton(
+internal fun ProviderActionButton(
     label: String,
     accent: Color,
     onClick: () -> Unit,

@@ -298,6 +298,7 @@
 <string name="settings_sync_dialog_title">Συγχρονισμός %1$s</string>
 <string name="settings_sync_dialog_subtitle">Επιλέξτε τι να ανανεώσετε για αυτόν τον πάροχο.</string>
 <string name="settings_sync_btn">Συγχρονισμός</string>
+<string name="settings_sync_all_btn">Συγχρονισμός όλων των λιστών</string>
 <string name="settings_sync_option_custom">Προσαρμοσμένος συγχρονισμός</string>
 <string name="settings_sync_custom_title">Προσαρμοσμένος συγχρονισμός για %1$s</string>
 <string name="settings_sync_custom_subtitle">Επιλέξτε μία ή περισσότερες ενότητες για ανανέωση.</string>

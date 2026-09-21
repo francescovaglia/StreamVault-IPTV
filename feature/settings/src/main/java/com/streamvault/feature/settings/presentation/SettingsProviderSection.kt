@@ -68,6 +68,17 @@ public fun LazyListScope.providerSection(
                 ?: uiState.providers.first()
             val fallbackOnlyProviderIds by viewModel.fallbackOnlyProviderIds.collectAsStateWithLifecycle()
 
+            if (uiState.providers.size > 1) {
+                ProviderActionButton(
+                    label = if (uiState.isSyncing) stringResource(R.string.settings_syncing_btn)
+                    else stringResource(R.string.settings_sync_all_btn),
+                    accent = Primary,
+                    filled = true,
+                    contentColor = com.streamvault.core.ui.theme.OnPrimary,
+                    onClick = viewModel::refreshAllProviders,
+                    modifier = Modifier.padding(bottom = 12.dp),
+                )
+            }
             Text(
                 text = stringResource(R.string.settings_provider_selector_hint),
                 style = MaterialTheme.typography.bodySmall,

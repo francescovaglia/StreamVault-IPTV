@@ -298,6 +298,7 @@
 <string name="settings_sync_dialog_title">同步 %1$s</string>
 <string name="settings_sync_dialog_subtitle">选择要为此提供商刷新的内容。</string>
 <string name="settings_sync_btn">同步</string>
+<string name="settings_sync_all_btn">同步所有列表</string>
 <string name="settings_sync_option_custom">自定义同步</string>
 <string name="settings_sync_custom_title">%1$s 的自定义同步</string>
 <string name="settings_sync_custom_subtitle">选择一个或多个部分进行刷新。</string>

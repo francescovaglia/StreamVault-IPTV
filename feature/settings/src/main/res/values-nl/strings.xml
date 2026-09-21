@@ -298,6 +298,7 @@
 <string name="settings_sync_dialog_title">Synchroniseer %1$s</string>
 <string name="settings_sync_dialog_subtitle">Kies wat u wilt vernieuwen voor deze provider.</string>
 <string name="settings_sync_btn">Synchroniseren</string>
+<string name="settings_sync_all_btn">Alle lijsten synchroniseren</string>
 <string name="settings_sync_option_custom">Aangepaste synchronisatie</string>
 <string name="settings_sync_custom_title">Aangepaste synchronisatie voor %1$s</string>
 <string name="settings_sync_custom_subtitle">Kies een of meer secties om te vernieuwen.</string>

@@ -298,6 +298,7 @@
 <string name="settings_sync_dialog_title">Synchronizovat %1$s</string>
 <string name="settings_sync_dialog_subtitle">Vyberte, co chcete pro tohoto poskytovatele obnovit.</string>
 <string name="settings_sync_btn">Synchronizovat</string>
+<string name="settings_sync_all_btn">Synchronizovat všechny seznamy</string>
 <string name="settings_sync_option_custom">Vlastní synchronizace</string>
 <string name="settings_sync_custom_title">Vlastní synchronizace pro %1$s</string>
 <string name="settings_sync_custom_subtitle">Vyberte jednu nebo více sekcí k obnovení.</string>

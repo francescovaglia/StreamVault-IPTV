@@ -298,6 +298,7 @@
 <string name="settings_sync_dialog_title">סנכרון %1$s</string>
 <string name="settings_sync_dialog_subtitle">בחר מה לרענן עבור ספק זה.</string>
 <string name="settings_sync_btn">סנכרון</string>
+<string name="settings_sync_all_btn">סנכרון כל הרשימות</string>
 <string name="settings_sync_option_custom">סנכרון מותאם</string>
 <string name="settings_sync_custom_title">סנכרון מותאם עבור %1$s</string>
 <string name="settings_sync_custom_subtitle">בחר מקטע אחד או יותר לרענון.</string>

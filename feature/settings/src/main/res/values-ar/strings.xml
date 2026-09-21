@@ -298,6 +298,7 @@
 <string name="settings_sync_dialog_title">مزامنة %1$s</string>
 <string name="settings_sync_dialog_subtitle">اختر ما تريد تحديثه لهذا المزوّد.</string>
 <string name="settings_sync_btn">مزامنة</string>
+<string name="settings_sync_all_btn">مزامنة كل القوائم</string>
 <string name="settings_sync_option_custom">مزامنة مخصصة</string>
 <string name="settings_sync_custom_title">مزامنة مخصصة لـ %1$s</string>
 <string name="settings_sync_custom_subtitle">اختر قسماً واحداً أو أكثر للتحديث.</string>

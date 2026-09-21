@@ -298,6 +298,7 @@
 <string name="settings_sync_dialog_title">Синхронізувати %1$s</string>
 <string name="settings_sync_dialog_subtitle">Виберіть, що оновити для цього постачальника.</string>
 <string name="settings_sync_btn">Синхронізувати</string>
+<string name="settings_sync_all_btn">Синхронізувати всі списки</string>
 <string name="settings_sync_option_custom">Спеціальна синхронізація</string>
 <string name="settings_sync_custom_title">Спеціальна синхронізація для %1$s</string>
 <string name="settings_sync_custom_subtitle">Виберіть один або кілька розділів для оновлення.</string>

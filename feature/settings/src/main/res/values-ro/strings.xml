@@ -298,6 +298,7 @@
 <string name="settings_sync_dialog_title">Sincronizare %1$s</string>
 <string name="settings_sync_dialog_subtitle">Alege ce să actualizezi pentru acest furnizor.</string>
 <string name="settings_sync_btn">Sincronizare</string>
+<string name="settings_sync_all_btn">Sincronizează toate listele</string>
 <string name="settings_sync_option_custom">Sincronizare personalizată</string>
 <string name="settings_sync_custom_title">Sincronizare personalizată pentru %1$s</string>
 <string name="settings_sync_custom_subtitle">Alege una sau mai multe secțiuni de actualizat.</string>

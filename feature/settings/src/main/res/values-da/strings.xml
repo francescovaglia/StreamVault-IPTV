@@ -298,6 +298,7 @@
 <string name="settings_sync_dialog_title">Synkroniser %1$s</string>
 <string name="settings_sync_dialog_subtitle">Vælg, hvad der skal opdateres for denne udbyder.</string>
 <string name="settings_sync_btn">Synkroniser</string>
+<string name="settings_sync_all_btn">Synkroniser alle lister</string>
 <string name="settings_sync_option_custom">Brugerdefineret synkronisering</string>
 <string name="settings_sync_custom_title">Tilpasset synkronisering til %1$s</string>
 <string name="settings_sync_custom_subtitle">Vælg en eller flere sektioner, der skal opdateres.</string>

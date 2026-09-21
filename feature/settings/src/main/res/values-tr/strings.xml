@@ -298,6 +298,7 @@
 <string name="settings_sync_dialog_title">%1$s senkronizasyonu</string>
 <string name="settings_sync_dialog_subtitle">Bu sağlayıcı için neyin yenileneceğini seçin.</string>
 <string name="settings_sync_btn">Senkronizasyon</string>
+<string name="settings_sync_all_btn">Tüm listeleri senkronize et</string>
 <string name="settings_sync_option_custom">Özel Senkronizasyon</string>
 <string name="settings_sync_custom_title">%1$s için özel eşitleme</string>
 <string name="settings_sync_custom_subtitle">Yenilemek için bir veya daha fazla bölüm seçin.</string>

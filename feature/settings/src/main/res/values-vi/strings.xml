@@ -298,6 +298,7 @@
 <string name="settings_sync_dialog_title">Đồng bộ hóa %1$s</string>
 <string name="settings_sync_dialog_subtitle">Chọn nội dung cần làm mới cho nhà cung cấp này.</string>
 <string name="settings_sync_btn">Đồng bộ</string>
+<string name="settings_sync_all_btn">Đồng bộ tất cả danh sách</string>
 <string name="settings_sync_option_custom">Đồng bộ tùy chỉnh</string>
 <string name="settings_sync_custom_title">Đồng bộ tùy chỉnh cho %1$s</string>
 <string name="settings_sync_custom_subtitle">Chọn một hoặc nhiều phần để làm mới.</string>
