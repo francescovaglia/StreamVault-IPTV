@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import com.streamvault.core.ui.design.requestFocusSafely
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -86,11 +87,15 @@ fun LiveGuideGrid(
         liveGuideInitialFocusIndex(channels, resolvedInitialChannelId)
     }
 
-    LaunchedEffect(channels.size, resolvedInitialChannelId) {
+    // Keyed on whether the initial channel is loaded, not on the list size: the guide pages in
+    // more channels as the viewer scrolls down, and re-running on every page jumped the list back
+    // to the initial channel at the top.
+    val initialChannelLoaded = channels.any { it.id == resolvedInitialChannelId }
+    LaunchedEffect(resolvedInitialChannelId, initialChannelLoaded, channels.isEmpty()) {
         if (channels.isEmpty()) return@LaunchedEffect
         verticalListState.scrollToItem((initialFocusIndex - 2).coerceAtLeast(0))
         delay(140)
-        initialFocusRequester.requestFocus()
+        if (initialChannelLoaded) initialFocusRequester.requestFocusSafely(target = "Guide initial channel")
     }
 
     BoxWithConstraints(
