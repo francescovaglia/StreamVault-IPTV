@@ -24,6 +24,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import com.streamvault.core.ui.design.requestFocusSafely
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -131,7 +133,6 @@ fun ChannelInfoOverlay(
         currentChannel.isArchivePlayable(currentProgram)
     val hasCatchUpOptions = canBrowseArchive || canRestartProgram
     var expandedPanel by remember { mutableStateOf<ChannelInfoPanel?>(null) }
-    val recordButtonFocusRequester = remember { FocusRequester() }
     val catchUpButtonFocusRequester = remember { FocusRequester() }
     val moreButtonFocusRequester = remember { FocusRequester() }
     val liveDvrPanelFocusRequester = remember { FocusRequester() }
@@ -160,6 +161,11 @@ fun ChannelInfoOverlay(
 
     LaunchedEffect(expandedPanel) {
         onTransientPanelVisibilityChanged(expandedPanel != null)
+        // Recording is opened from inside the More tray, whose entry disappears with it.
+        if (expandedPanel == ChannelInfoPanel.RECORD) {
+            withFrameNanos { }
+            recordPanelFocusRequester.requestFocusSafely(target = "Record options")
+        }
     }
 
     androidx.compose.runtime.DisposableEffect(Unit) {
@@ -429,24 +435,6 @@ fun ChannelInfoOverlay(
                             }
                     )
                 }
-                item {
-                    QuickActionButton(
-                        icon = stringResource(R.string.player_action_mute),
-                        label = if (isMuted) stringResource(R.string.player_unmute) else stringResource(R.string.player_mute),
-                        onClick = onToggleMute,
-                        onInteraction = { handleMainActionFocus(null) }
-                    )
-                }
-                if (subtitleTrackCount > 0 || liveTranslationAvailable) {
-                    item {
-                        QuickActionButton(
-                            icon = stringResource(R.string.player_subs),
-                            label = stringResource(R.string.player_subs),
-                            onClick = onOpenSubtitleTracks,
-                            onInteraction = { handleMainActionFocus(null) }
-                        )
-                    }
-                }
                 if (videoQualityCount > 0) {
                     item {
                         QuickActionButton(
@@ -525,25 +513,6 @@ fun ChannelInfoOverlay(
                         )
                     }
                 }
-                item {
-                    QuickActionButton(
-                        icon = "REC",
-                        label = stringResource(R.string.player_record),
-                        onClick = { togglePanel(ChannelInfoPanel.RECORD) },
-                        onInteraction = { handleMainActionFocus(ChannelInfoPanel.RECORD) },
-                        colors = ClickableSurfaceDefaults.colors(
-                            containerColor = if (expandedPanel == ChannelInfoPanel.RECORD) Primary.copy(alpha = 0.22f) else AppColors.SurfaceEmphasis,
-                            focusedContainerColor = Primary.copy(alpha = 0.85f)
-                        ),
-                        modifier = Modifier
-                            .focusRequester(recordButtonFocusRequester)
-                            .focusProperties {
-                                if (expandedPanel == ChannelInfoPanel.RECORD) {
-                                    up = recordPanelFocusRequester
-                                }
-                            }
-                    )
-                }
                 if (hasCatchUpOptions) {
                     item {
                         QuickActionButton(
@@ -572,7 +541,7 @@ fun ChannelInfoOverlay(
                         icon = stringResource(R.string.player_action_more),
                         label = stringResource(R.string.player_more_short),
                         onClick = { togglePanel(ChannelInfoPanel.MORE) },
-                        onInteraction = { handleMainActionFocus(ChannelInfoPanel.MORE) },
+                        onInteraction = { if (expandedPanel != ChannelInfoPanel.RECORD) handleMainActionFocus(ChannelInfoPanel.MORE) else onOverlayInteracted() },
                         colors = ClickableSurfaceDefaults.colors(
                             containerColor = if (expandedPanel == ChannelInfoPanel.MORE) Primary.copy(alpha = 0.22f) else AppColors.SurfaceEmphasis,
                             focusedContainerColor = Primary.copy(alpha = 0.85f)
@@ -580,8 +549,10 @@ fun ChannelInfoOverlay(
                         modifier = Modifier
                             .focusRequester(moreButtonFocusRequester)
                             .focusProperties {
-                                if (expandedPanel == ChannelInfoPanel.MORE) {
-                                    up = morePanelFocusRequester
+                                when (expandedPanel) {
+                                    ChannelInfoPanel.MORE -> up = morePanelFocusRequester
+                                    ChannelInfoPanel.RECORD -> up = recordPanelFocusRequester
+                                    else -> Unit
                                 }
                             }
                     )
@@ -629,7 +600,7 @@ fun ChannelInfoOverlay(
                         },
                         onInteraction = onOverlayInteracted,
                         firstActionFocusRequester = recordPanelFocusRequester,
-                        ownerFocusRequester = recordButtonFocusRequester
+                        ownerFocusRequester = moreButtonFocusRequester
                     )
                 }
 
@@ -666,7 +637,24 @@ fun ChannelInfoOverlay(
                 ChannelInfoPanel.MORE -> {
                     ChannelInfoActionMenuTray(
                         title = stringResource(R.string.player_more_options),
+                        // Mute, subtitles and recording sit here too: the remote has its own
+                        // mute key and most live streams carry no subtitle track.
                         actions = listOf(
+                            ChannelInfoMenuEntry(stringResource(R.string.player_record)) {
+                                expandedPanel = ChannelInfoPanel.RECORD
+                            },
+                            ChannelInfoMenuEntry(
+                                if (isMuted) stringResource(R.string.player_unmute) else stringResource(R.string.player_mute)
+                            ) {
+                                expandedPanel = null
+                                onToggleMute()
+                            },
+                        ) + listOfNotNull(
+                            ChannelInfoMenuEntry(stringResource(R.string.player_subs)) {
+                                expandedPanel = null
+                                onOpenSubtitleTracks()
+                            }.takeIf { subtitleTrackCount > 0 || liveTranslationAvailable },
+                        ) + listOf(
                             ChannelInfoMenuEntry(stringResource(R.string.player_multiview_short)) {
                                 expandedPanel = null
                                 onDismiss()
