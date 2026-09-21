@@ -337,7 +337,10 @@ internal class SettingsProviderActions(
         val result = syncProvider(
             SyncProviderCommand(
                 providerId = providerId,
-                force = pendingXtreamTextRefreshGeneration != null,
+                // An M3U import is skipped for 24 hours after the last success unless forced, so a
+                // sync the user asked for did nothing and kept yesterday's catalogue. The one
+                // automatic caller (switching provider) already checks staleness itself.
+                force = pendingXtreamTextRefreshGeneration != null || provider?.type == ProviderType.M3U,
                 movieFastSyncOverride = null,
                 epgSyncModeOverride = ProviderEpgSyncMode.BACKGROUND
             ),
