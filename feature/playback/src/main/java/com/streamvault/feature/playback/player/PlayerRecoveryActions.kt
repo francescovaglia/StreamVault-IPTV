@@ -122,8 +122,9 @@ internal fun PlayerViewModel.scheduleZapBufferWatchdog(targetIndex: Int) {
             if (stalledChannel != null && tryAlternateStreamInternal(stalledChannel)) {
                 appendRecoveryAction("Buffer watchdog switched to an alternative source")
                 showPlayerNotice(
-                    message = "That source stalled. Trying the same channel from another source.",
-                    recoveryType = PlayerRecoveryType.BUFFER_TIMEOUT
+                    message = alternateStreamNoticeText(stalledChannel),
+                    recoveryType = PlayerRecoveryType.BUFFER_TIMEOUT,
+                    isRetryNotice = true
                 )
                 scheduleZapBufferWatchdog(targetIndex)
                 return@launch

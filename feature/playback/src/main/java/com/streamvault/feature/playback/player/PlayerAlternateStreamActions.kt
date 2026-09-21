@@ -5,7 +5,11 @@ import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.LiveChannelVariant
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import android.os.SystemClock
+import com.streamvault.player.PlaybackState
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
@@ -42,6 +46,51 @@ internal fun PlayerViewModel.observeEquivalentVariants() {
                 val enriched = current.withEquivalentVariants(pool)
                 if (enriched !== current) currentChannelFlow.value = enriched.sanitizedForPlayer()
             }
+    }
+}
+
+private const val REBUFFER_WINDOW_MS = 60_000L
+private const val REBUFFERS_BEFORE_SWITCH = 3
+
+/** Keeps the rebuffer times still inside the window, and says whether they are enough to move on. */
+internal fun recordRebuffer(stalls: ArrayDeque<Long>, now: Long): Boolean {
+    stalls.addLast(now)
+    while (stalls.isNotEmpty() && now - stalls.first() > REBUFFER_WINDOW_MS) stalls.removeFirst()
+    return stalls.size >= REBUFFERS_BEFORE_SWITCH
+}
+
+/**
+ * A stream that keeps stuttering (three rebuffers within a minute) moves to the next variant, the
+ * same way one that never starts does. The stall watchdog only covers the first seconds after a
+ * zap; this covers the rest of the viewing. Each candidate is tried once per session, so a line
+ * that is bad everywhere ends on the last variant instead of cycling.
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
+internal fun PlayerViewModel.observeRepeatedRebuffering() {
+    viewModelScope.launch {
+        val stalls = ArrayDeque<Long>()
+        var previous: PlaybackState? = null
+        var stream = ""
+        activePlayerEngine.flatMapLatest { it.playbackState }.collect { state ->
+            if (currentStreamUrl != stream) {
+                stalls.clear()
+                stream = currentStreamUrl
+            }
+            val rebuffered = previous == PlaybackState.READY && state == PlaybackState.BUFFERING
+            previous = state
+            if (!rebuffered || currentContentType != ContentType.LIVE || isCatchUpPlayback()) return@collect
+            if (!recordRebuffer(stalls, SystemClock.elapsedRealtime())) return@collect
+            stalls.clear()
+            val channel = currentChannelFlow.value?.sanitizedForPlayer() ?: return@collect
+            if (tryAlternateStreamInternal(channel)) {
+                appendRecoveryAction("Repeated rebuffering, switched to an alternative source")
+                showPlayerNotice(
+                    message = alternateStreamNoticeText(channel),
+                    recoveryType = PlayerRecoveryType.BUFFER_TIMEOUT,
+                    isRetryNotice = true
+                )
+            }
+        }
     }
 }
 
@@ -148,7 +197,8 @@ internal fun PlayerViewModel.tryAlternateStreamInternal(
                 providerId = updatedChannel.providerId,
                 epgChannelId = updatedChannel.epgChannelId,
                 streamId = updatedChannel.streamId,
-                internalChannelId = updatedChannel.id
+                internalChannelId = updatedChannel.id,
+                fallbackKeys = updatedChannel.guideFallbackKeys()
             )
             if (!preparePlayer(streamInfo.copy(title = streamInfo.title ?: currentTitle), requestVersion)) return@launch
             playerEngine.play()

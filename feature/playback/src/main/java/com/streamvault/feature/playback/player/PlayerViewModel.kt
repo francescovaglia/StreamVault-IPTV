@@ -260,15 +260,7 @@ class PlayerViewModel @Inject constructor(
                 isRetryNotice = isRetryNotice
             )
         },
-        alternateStreamNotice = { channel ->
-            val variant = currentChannelFlow.value?.currentVariant
-            if (variant != null && variant.rawChannelId != channel.selectedVariantId) {
-                val label = listOfNotNull(variant.originalName, variant.sourceName).joinToString(" · ")
-                appContext.getString(com.streamvault.feature.playback.R.string.player_notice_trying_variant, channel.name, label)
-            } else {
-                appContext.getString(com.streamvault.feature.playback.R.string.player_notice_trying_alternate, channel.name)
-            }
-        },
+        alternateStreamNotice = { channel -> alternateStreamNoticeText(channel) },
         markStreamFailure = { streamUrl -> markStreamFailure(streamUrl) },
         incrementChannelErrorCount = { channelId ->
             playerChannelCoordinator.incrementChannelErrorCount(channelId)
@@ -510,9 +502,21 @@ class PlayerViewModel @Inject constructor(
         )
     }
 
+    /** [channel] is the one that failed; the current channel already carries the variant picked. */
+    internal fun alternateStreamNoticeText(channel: Channel): String {
+        val variant = currentChannelFlow.value?.currentVariant
+        return if (variant != null && variant.rawChannelId != channel.selectedVariantId) {
+            val label = listOfNotNull(variant.originalName, variant.sourceName).joinToString(" · ")
+            appContext.getString(com.streamvault.feature.playback.R.string.player_notice_trying_variant, channel.name, label)
+        } else {
+            appContext.getString(com.streamvault.feature.playback.R.string.player_notice_trying_alternate, channel.name)
+        }
+    }
+
     init {
         observeCastPlaybackEvents()
         observeEquivalentVariants()
+        observeRepeatedRebuffering()
         viewModelScope.launch {
             activePlayerEngineFlow.flatMapLatest { it.error }.collect { error ->
                 if (error != null) {
@@ -1233,10 +1237,11 @@ class PlayerViewModel @Inject constructor(
         providerId: Long,
         epgChannelId: String?,
         streamId: Long = 0L,
-        internalChannelId: Long = 0L
+        internalChannelId: Long = 0L,
+        fallbackKeys: List<EpgRequestKey> = emptyList()
     ) {
         val normalizedChannelId = epgChannelId?.trim()?.takeIf { it.isNotEmpty() }
-        if (providerId <= 0L || (internalChannelId <= 0L && normalizedChannelId == null && streamId <= 0L)) {
+        if ((providerId <= 0L || (internalChannelId <= 0L && normalizedChannelId == null && streamId <= 0L)) && fallbackKeys.isEmpty()) {
             fetchEpg(providerId = -1L, internalChannelId = 0L, epgChannelId = null)
             return
         }
@@ -1251,7 +1256,8 @@ class PlayerViewModel @Inject constructor(
             providerId = key.providerId,
             internalChannelId = key.internalChannelId,
             epgChannelId = key.epgChannelId,
-            streamId = key.streamId
+            streamId = key.streamId,
+            fallbackKeys = fallbackKeys
         )
     }
 
