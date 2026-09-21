@@ -127,7 +127,6 @@ fun LiveChannelRowCard(
                         horizontalArrangement = Arrangement.spacedBy(badgeSpacing),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        StatusPill(label = stringResource(R.string.card_live_badge), containerColor = AppColors.Live)
                         sourceBadgeLabel?.takeIf { it.isNotBlank() }?.let { label ->
                             StatusPill(
                                 label = label,

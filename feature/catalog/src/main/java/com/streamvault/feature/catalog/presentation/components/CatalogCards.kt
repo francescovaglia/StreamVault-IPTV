@@ -311,13 +311,6 @@ fun ChannelCard(
                 } else if (isScheduledRecording) {
                     StatusPill(label = stringResource(R.string.badge_scheduled), containerColor = AccentAmber, cornerRadius = 4.dp, horizontalPadding = 6.dp, verticalPadding = 2.dp)
                 }
-                StatusPill(
-                    label = stringResource(R.string.card_live_badge),
-                    containerColor = AccentRed,
-                    cornerRadius = 4.dp,
-                    horizontalPadding = 6.dp,
-                    verticalPadding = 2.dp
-                )
             }
         }
 

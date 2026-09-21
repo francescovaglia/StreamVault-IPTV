@@ -67,7 +67,6 @@ fun LiveChannelCard(
     isRecording: Boolean = false,
     isScheduledRecording: Boolean = false,
     lockedLabel: String = "Locked",
-    liveLabel: String = "LIVE",
     catchUpLabel: String = "Catch-up",
     recordingLabel: String = "Recording",
     scheduledLabel: String = "Scheduled"
@@ -116,7 +115,6 @@ fun LiveChannelCard(
                     if (hasArchive) StatusPill(label = catchUpLabel, containerColor = AppColors.Brand)
                     if (isRecording) StatusPill(label = recordingLabel, containerColor = AppColors.Live)
                     else if (isScheduledRecording) StatusPill(label = scheduledLabel, containerColor = AppColors.Warning, contentColor = Color.Black)
-                    StatusPill(label = liveLabel, containerColor = AppColors.Live)
                 }
             }
         } else {

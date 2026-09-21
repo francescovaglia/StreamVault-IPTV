@@ -69,7 +69,6 @@ fun LiveChannelRowSurface(
     isReorderMode: Boolean = false,
     isDragging: Boolean = false,
     rowHeight: Dp = 68.dp,
-    liveLabel: String = "LIVE",
     noScheduleLabel: String = "No schedule",
     lockedLabel: String = "Locked",
     movingLabel: String = "Moving",
@@ -123,7 +122,6 @@ fun LiveChannelRowSurface(
                 sourceBadgeLabel = sourceBadgeLabel,
                 modifier = Modifier.fillMaxWidth(),
                 rowHeight = rowHeight,
-                liveLabel = liveLabel,
                 noScheduleLabel = noScheduleLabel,
                 savedLabel = savedLabel,
                 catchUpLabel = catchUpLabel
@@ -154,7 +152,6 @@ fun LiveChannelRowCard(
     sourceBadgeLabel: String? = null,
     modifier: Modifier = Modifier,
     rowHeight: Dp = 68.dp,
-    liveLabel: String = "LIVE",
     noScheduleLabel: String = "No schedule",
     savedLabel: String = "Saved",
     catchUpLabel: String = "Catch-up"
@@ -171,7 +168,6 @@ fun LiveChannelRowCard(
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 if (!dense) {
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
-                        StatusPill(label = liveLabel, containerColor = AppColors.Live)
                         sourceBadgeLabel?.takeIf { it.isNotBlank() }?.let { StatusPill(label = it, containerColor = AppColors.SurfaceEmphasis, contentColor = AppColors.TextPrimary) }
                         if (channel.isFavorite) StatusPill(label = savedLabel, containerColor = AppColors.Warning, contentColor = Color.Black)
                         if (hasArchive) StatusPill(label = catchUpLabel, containerColor = AppColors.Brand)

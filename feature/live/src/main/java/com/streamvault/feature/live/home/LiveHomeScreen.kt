@@ -949,7 +949,6 @@ fun LiveHomeScreen(
                                         isReorderMode = uiState.isChannelReorderMode,
                                         isDragging = isDraggingThis,
                                         rowHeight = channelRowHeight,
-                                        liveLabel = stringResource(R.string.card_live_badge),
                                         noScheduleLabel = stringResource(R.string.label_no_schedule),
                                         lockedLabel = stringResource(R.string.a11y_locked),
                                         movingLabel = stringResource(R.string.badge_moving),
