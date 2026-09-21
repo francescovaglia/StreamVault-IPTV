@@ -167,7 +167,7 @@ class PlayerTrackController(
         )
 
         _availableAudioTracks.value = audioTracks
-        _availableSubtitleTracks.value = subtitleTracks
+        _availableSubtitleTracks.value = mergeSameNamedTracks(subtitleTracks)
         _availableVideoTracks.value = when {
             videoTracks.size > 1 -> listOf(
                 PlayerTrack(
@@ -330,3 +330,11 @@ internal fun normalizeSelectedVideoTrackId(
     availableTrackIds.size == 1 -> availableTrackIds.first()
     else -> PLAYER_TRACK_AUTO_ID
 }
+
+/**
+ * IPTV streams often declare the same subtitle twice (teletext and DVB for one language, or one
+ * copy per HLS rendition). The viewer cannot tell them apart, so keep one per visible name,
+ * preferring the one currently selected.
+ */
+internal fun mergeSameNamedTracks(tracks: List<PlayerTrack>): List<PlayerTrack> =
+    tracks.groupBy { it.name }.values.map { sameName -> sameName.firstOrNull { it.isSelected } ?: sameName.first() }

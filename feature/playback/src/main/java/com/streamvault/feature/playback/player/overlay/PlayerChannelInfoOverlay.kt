@@ -393,55 +393,48 @@ fun ChannelInfoOverlay(
                 )
             }
 
+            val firstQuickAction = when {
+                showTimeshiftControls -> "dvr"
+                channelVariantCount > 1 -> "variants"
+                qualityOptionCount > 1 -> "format"
+                audioTrackCount > 1 -> "audio"
+                subtitleTrackCount > 0 -> "subs"
+                audioVideoSyncEnabled && !isCastConnected -> "av"
+                else -> "guide"
+            }
+            fun Modifier.initialFocus(key: String) = if (key == firstQuickAction) then(Modifier.focusRequester(focusRequester)) else this
+
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 contentPadding = PaddingValues(end = 8.dp)
             ) {
-                item {
-                    QuickActionButton(
-                        icon = if (showTimeshiftControls) "DVR" else stringResource(R.string.player_action_playback),
-                        label = if (showTimeshiftControls) {
-                            stringResource(R.string.player_live_dvr_controls)
-                        } else if (isPlaying) {
-                            stringResource(R.string.player_pause)
-                        } else {
-                            stringResource(R.string.player_play)
-                        },
-                        onClick = {
-                            if (showTimeshiftControls) {
-                                togglePanel(ChannelInfoPanel.LIVE_DVR)
-                            } else {
-                                onTogglePlayPause()
-                            }
-                        },
-                        onInteraction = { handleMainActionFocus(ChannelInfoPanel.LIVE_DVR.takeIf { showTimeshiftControls }) },
-                        colors = ClickableSurfaceDefaults.colors(
-                            containerColor = if (expandedPanel == ChannelInfoPanel.LIVE_DVR) {
-                                Primary.copy(alpha = 0.30f)
-                            } else {
-                                Primary.copy(alpha = 0.20f)
-                            },
-                            focusedContainerColor = Primary,
-                            pressedContainerColor = Primary.copy(alpha = 0.8f)
-                        ),
-                        modifier = Modifier
-                            .focusRequester(focusRequester)
-                            .focusProperties {
-                                if (expandedPanel == ChannelInfoPanel.LIVE_DVR) {
-                                    up = liveDvrPanelFocusRequester
-                                }
-                            }
-                    )
-                }
-                if (videoQualityCount > 0) {
+                // No play/pause here: on a live channel you are watching because you want to. The
+                // first button present takes the initial focus.
+                if (showTimeshiftControls) {
                     item {
                         QuickActionButton(
-                            icon = stringResource(R.string.player_action_quality),
-                            label = stringResource(R.string.player_quality_short),
-                            onClick = onOpenVideoTracks,
-                            onInteraction = { handleMainActionFocus(null) }
+                            icon = "DVR",
+                            label = stringResource(R.string.player_live_dvr_controls),
+                            onClick = { togglePanel(ChannelInfoPanel.LIVE_DVR) },
+                            onInteraction = { handleMainActionFocus(ChannelInfoPanel.LIVE_DVR) },
+                            colors = ClickableSurfaceDefaults.colors(
+                                containerColor = if (expandedPanel == ChannelInfoPanel.LIVE_DVR) {
+                                    Primary.copy(alpha = 0.30f)
+                                } else {
+                                    Primary.copy(alpha = 0.20f)
+                                },
+                                focusedContainerColor = Primary,
+                                pressedContainerColor = Primary.copy(alpha = 0.8f)
+                            ),
+                            modifier = Modifier
+                                .focusRequester(focusRequester)
+                                .focusProperties {
+                                    if (expandedPanel == ChannelInfoPanel.LIVE_DVR) {
+                                        up = liveDvrPanelFocusRequester
+                                    }
+                                }
                         )
                     }
                 }
@@ -451,7 +444,8 @@ fun ChannelInfoOverlay(
                             icon = stringResource(R.string.player_action_variants),
                             label = stringResource(R.string.player_variants_short),
                             onClick = onOpenVariants,
-                            onInteraction = { handleMainActionFocus(null) }
+                            onInteraction = { handleMainActionFocus(null) },
+                            modifier = Modifier.initialFocus("variants")
                         )
                     }
                 }
@@ -461,17 +455,35 @@ fun ChannelInfoOverlay(
                             icon = stringResource(R.string.player_action_format),
                             label = stringResource(R.string.player_format_short),
                             onClick = onOpenStreamFormats,
-                            onInteraction = { handleMainActionFocus(null) }
+                            onInteraction = { handleMainActionFocus(null) },
+                            modifier = Modifier.initialFocus("format")
                         )
                     }
                 }
-                if (audioTrackCount > 0) {
+                if (audioTrackCount > 1) {
                     item {
                         QuickActionButton(
                             icon = stringResource(R.string.player_audio),
                             label = stringResource(R.string.player_audio),
                             onClick = onOpenAudioTracks,
-                            onInteraction = { handleMainActionFocus(null) }
+                            onInteraction = { handleMainActionFocus(null) },
+                            modifier = Modifier.initialFocus("audio")
+                        )
+                    }
+                }
+                // Only when the stream really carries subtitles; tracks with the same name are
+                // merged upstream, so one Italian teletext shows up once.
+                if (subtitleTrackCount > 0) {
+                    item {
+                        QuickActionButton(
+                            icon = "CC",
+                            label = stringResource(R.string.player_subs),
+                            onClick = {
+                                expandedPanel = null
+                                onOpenSubtitleTracks()
+                            },
+                            onInteraction = { handleMainActionFocus(null) },
+                            modifier = Modifier.initialFocus("subs")
                         )
                     }
                 }
@@ -484,7 +496,8 @@ fun ChannelInfoOverlay(
                                 expandedPanel = null
                                 onOpenAudioVideoSync()
                             },
-                            onInteraction = { handleMainActionFocus(null) }
+                            onInteraction = { handleMainActionFocus(null) },
+                            modifier = Modifier.initialFocus("av")
                         )
                     }
                 }
@@ -497,7 +510,8 @@ fun ChannelInfoOverlay(
                             onDismiss()
                             onOpenFullEpg()
                         },
-                        onInteraction = { handleMainActionFocus(null) }
+                        onInteraction = { handleMainActionFocus(null) },
+                        modifier = Modifier.initialFocus("guide")
                     )
                 }
                 if (!lastVisitedCategoryName.isNullOrBlank()) {
@@ -637,8 +651,8 @@ fun ChannelInfoOverlay(
                 ChannelInfoPanel.MORE -> {
                     ChannelInfoActionMenuTray(
                         title = stringResource(R.string.player_more_options),
-                        // Mute, subtitles and recording sit here too: the remote has its own
-                        // mute key and most live streams carry no subtitle track.
+                        // Mute and recording sit here too: the remote has its own mute key. Video
+                        // quality too, since most providers send a single rendition.
                         actions = listOf(
                             ChannelInfoMenuEntry(stringResource(R.string.player_record)) {
                                 expandedPanel = ChannelInfoPanel.RECORD
@@ -650,10 +664,16 @@ fun ChannelInfoOverlay(
                                 onToggleMute()
                             },
                         ) + listOfNotNull(
+                            ChannelInfoMenuEntry(stringResource(R.string.player_video_quality)) {
+                                expandedPanel = null
+                                onOpenVideoTracks()
+                            }.takeIf { videoQualityCount > 0 },
+                            // With real tracks the subtitle button sits on the main row; here it is
+                            // only the way into live translation.
                             ChannelInfoMenuEntry(stringResource(R.string.player_subs)) {
                                 expandedPanel = null
                                 onOpenSubtitleTracks()
-                            }.takeIf { subtitleTrackCount > 0 || liveTranslationAvailable },
+                            }.takeIf { subtitleTrackCount == 0 && liveTranslationAvailable },
                         ) + listOf(
                             ChannelInfoMenuEntry(stringResource(R.string.player_multiview_short)) {
                                 expandedPanel = null
